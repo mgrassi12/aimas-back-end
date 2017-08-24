@@ -1,5 +1,7 @@
 # AIMAS API
 
+Using ASP.Net Core
+
 
 #DataBase Commands
 
