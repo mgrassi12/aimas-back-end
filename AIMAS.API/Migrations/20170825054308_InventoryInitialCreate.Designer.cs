@@ -10,8 +10,8 @@ using System;
 namespace AIMAS.API.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    [Migration("20170824125240_InitalCreateInventory")]
-    partial class InitalCreateInventory
+    [Migration("20170825054308_InventoryInitialCreate")]
+    partial class InventoryInitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

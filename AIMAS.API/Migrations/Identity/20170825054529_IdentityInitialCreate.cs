@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AIMAS.API.Migrations.Identity
 {
-    public partial class InitalCreateIdentity : Migration
+    public partial class IdentityInitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,27 +13,28 @@ namespace AIMAS.API.Migrations.Identity
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int4", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 256, nullable: false),
                     NormalizedName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                    table.UniqueConstraint("AK_AspNetRoles_Name", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int4", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int4", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "varchar(100)", maxLength: 256, nullable: false),
                     EmailConfirmed = table.Column<bool>(type: "bool", nullable: false),
+                    FirstName = table.Column<string>(type: "varchar(50)", nullable: false),
+                    LastName = table.Column<string>(type: "varchar(50)", nullable: false),
                     LockoutEnabled = table.Column<bool>(type: "bool", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
                     NormalizedEmail = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
@@ -43,11 +44,13 @@ namespace AIMAS.API.Migrations.Identity
                     PhoneNumberConfirmed = table.Column<bool>(type: "bool", nullable: false),
                     SecurityStamp = table.Column<string>(type: "text", nullable: true),
                     TwoFactorEnabled = table.Column<bool>(type: "bool", nullable: false),
-                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
+                    UserName = table.Column<string>(type: "varchar(50)", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.UniqueConstraint("AK_AspNetUsers_Email", x => x.Email);
+                    table.UniqueConstraint("AK_AspNetUsers_UserName", x => x.UserName);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,7 +61,7 @@ namespace AIMAS.API.Migrations.Identity
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true),
-                    RoleId = table.Column<int>(type: "int4", nullable: false)
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +82,7 @@ namespace AIMAS.API.Migrations.Identity
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<int>(type: "int4", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,7 +102,7 @@ namespace AIMAS.API.Migrations.Identity
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<int>(type: "int4", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -116,8 +119,8 @@ namespace AIMAS.API.Migrations.Identity
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(type: "int4", nullable: false),
-                    RoleId = table.Column<int>(type: "int4", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,7 +143,7 @@ namespace AIMAS.API.Migrations.Identity
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(type: "int4", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)

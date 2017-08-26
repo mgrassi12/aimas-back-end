@@ -11,8 +11,8 @@ using System;
 namespace AIMAS.API.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20170824125252_InitalCreateIdentity")]
-    partial class InitalCreateIdentity
+    [Migration("20170825054529_IdentityInitialCreate")]
+    partial class IdentityInitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,21 +21,26 @@ namespace AIMAS.API.Migrations.Identity
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452");
 
-            modelBuilder.Entity("AIMAS.Data.Identity.Role", b =>
+            modelBuilder.Entity("AIMAS.Data.Identity.AimasRoleDB", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Name")
+                        .HasName("AK_AspNetRoles_Name");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
@@ -44,9 +49,9 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Identity.User", b =>
+            modelBuilder.Entity("AIMAS.Data.Identity.AimasUserDB", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccessFailedCount");
@@ -55,9 +60,19 @@ namespace AIMAS.API.Migrations.Identity
                         .IsConcurrencyToken();
 
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -80,9 +95,18 @@ namespace AIMAS.API.Migrations.Identity
                     b.Property<bool>("TwoFactorEnabled");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Email")
+                        .HasName("AK_AspNetUsers_Email");
+
+
+                    b.HasAlternateKey("UserName")
+                        .HasName("AK_AspNetUsers_UserName");
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -94,7 +118,7 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -103,7 +127,7 @@ namespace AIMAS.API.Migrations.Identity
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<int>("RoleId");
+                    b.Property<Guid>("RoleId");
 
                     b.HasKey("Id");
 
@@ -112,7 +136,7 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -121,7 +145,7 @@ namespace AIMAS.API.Migrations.Identity
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<int>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.HasKey("Id");
 
@@ -130,7 +154,7 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetUserClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider");
 
@@ -138,7 +162,7 @@ namespace AIMAS.API.Migrations.Identity
 
                     b.Property<string>("ProviderDisplayName");
 
-                    b.Property<int>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -147,11 +171,11 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<Guid>("UserId");
 
-                    b.Property<int>("RoleId");
+                    b.Property<Guid>("RoleId");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -160,9 +184,9 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetUserRoles");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.Property<string>("LoginProvider");
 
@@ -175,46 +199,46 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.Role")
+                    b.HasOne("AIMAS.Data.Identity.AimasRoleDB")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.User")
+                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.User")
+                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.Role")
+                    b.HasOne("AIMAS.Data.Identity.AimasRoleDB")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("AIMAS.Data.Identity.User")
+                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.User")
+                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
