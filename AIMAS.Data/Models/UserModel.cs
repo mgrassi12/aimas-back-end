@@ -40,4 +40,9 @@ namespace AIMAS.Data.Models
       };
     }
   }
+
+  public class UserPasswordModel : UserModel
+  {
+    public string Password { get; set; }
+  }
 }

@@ -20,7 +20,7 @@ namespace AIMAS.API.Migrations.Identity
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452");
 
-            modelBuilder.Entity("AIMAS.Data.Identity.AimasRoleDB", b =>
+            modelBuilder.Entity("AIMAS.Data.Identity.RoleModel_DB", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
@@ -48,7 +48,7 @@ namespace AIMAS.API.Migrations.Identity
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Identity.AimasUserDB", b =>
+            modelBuilder.Entity("AIMAS.Data.Identity.UserModel_DB", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
@@ -200,7 +200,7 @@ namespace AIMAS.API.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.AimasRoleDB")
+                    b.HasOne("AIMAS.Data.Identity.RoleModel_DB")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -208,7 +208,7 @@ namespace AIMAS.API.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
+                    b.HasOne("AIMAS.Data.Identity.UserModel_DB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -216,7 +216,7 @@ namespace AIMAS.API.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
+                    b.HasOne("AIMAS.Data.Identity.UserModel_DB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -224,12 +224,12 @@ namespace AIMAS.API.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.AimasRoleDB")
+                    b.HasOne("AIMAS.Data.Identity.RoleModel_DB")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
+                    b.HasOne("AIMAS.Data.Identity.UserModel_DB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -237,7 +237,7 @@ namespace AIMAS.API.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("AIMAS.Data.Identity.AimasUserDB")
+                    b.HasOne("AIMAS.Data.Identity.UserModel_DB")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

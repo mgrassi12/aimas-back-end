@@ -45,6 +45,9 @@ namespace AIMAS.Data.Identity
         var adminUser = new UserModel_DB("Admin", "Admin", "Admin", "admin@example.com");
         // Add Admin User with Role Admin
         CreateUserWithRoleAsync(adminUser, "Admin", "Admin@1").Wait();
+        AddUserRoleAsync(adminUser, "InventoryManager").Wait();
+        AddUserRoleAsync(adminUser, "User").Wait();
+
         // Save Changes
       }
     }
@@ -58,11 +61,10 @@ namespace AIMAS.Data.Identity
         var createUser = await Manager.CreateAsync(user, password);
         if (createUser.Succeeded)
         {
-          var role = await Identity.Roles.FirstAsync(r => r.Name == roleName);
-
           // Add UserRole
-          await Identity.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
-          Identity.SaveChanges();
+          var role = await Identity.Roles.FirstAsync(r => r.Name == roleName);
+          var roleResult = await AddUserRoleAsync(user, roleName);
+          result.MergeResult(result);
 
           // Success
           result.Success = true;
@@ -70,12 +72,13 @@ namespace AIMAS.Data.Identity
         else
         {
           // Failed to Create User
-          result.Success = false;
+          result.ErrorMessage = "Something went wrong while Create User";
           result.AddIdentityErrors(createUser.Errors);
         }
       }
       catch (Exception ex)
       {
+        result.ErrorMessage = "Something went wrong while Setting up the new User";
         result.AddException(ex);
       }
 
@@ -83,7 +86,25 @@ namespace AIMAS.Data.Identity
       return result;
     }
 
-    public List<UserModel> GetUsers()
+    public async Task<Result> AddUserRoleAsync(UserModel_DB user, string roleName)
+    {
+      var result = new Result();
+      try
+      {
+        // Add UserRole
+        var role = await Identity.Roles.FirstAsync(r => r.Name == roleName);
+        await Identity.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
+        Identity.SaveChanges();
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+      return result;
+    }
+
+    public async Task<List<UserModel>> GetUsersAsync()
     {
       var list = from user in Identity.Users
                  select new UserModel()
@@ -93,7 +114,34 @@ namespace AIMAS.Data.Identity
                    FirstName = user.FirstName,
                    LastName = user.FirstName
                  };
-      return list.ToList();
+      return await list.ToListAsync();
+    }
+    public async Task<List<UserModel_DB>> GetUsersDBAsync()
+    {
+      var list = from user in Identity.Users
+                 select user;
+      return await list.ToListAsync();
+    }
+
+    public async Task<UserModel> GetUserAsync(string email)
+    {
+      var list = from user in Identity.Users
+                 where user.Email == email
+                 select new UserModel()
+                 {
+                   UserName = user.UserName,
+                   Email = user.Email,
+                   FirstName = user.FirstName,
+                   LastName = user.FirstName
+                 };
+      return await list.FirstAsync();
+    }
+    public async Task<UserModel_DB> GetUserDBAsync(string email)
+    {
+      var list = from user in Identity.Users
+                 where user.Email == email
+                 select user;
+      return await list.FirstAsync();
     }
 
     #region UTIL

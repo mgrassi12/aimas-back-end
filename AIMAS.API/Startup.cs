@@ -36,6 +36,7 @@ namespace AIMAS.API
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
+      // Json Settings
       services.AddMvc()
         .AddJsonOptions(options =>
         {
@@ -48,7 +49,6 @@ namespace AIMAS.API
       // Get Connection String
       var connection = Configuration.GetConnectionString("Backend-DB");
       // Add DB To Services
-
       services.AddEntityFrameworkNpgsql()
       .AddDbContext<InventoryContext>(options =>
         options.UseNpgsql(connection, npgoptions =>

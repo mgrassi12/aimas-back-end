@@ -19,7 +19,7 @@ namespace AIMAS.API.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452");
 
-            modelBuilder.Entity("AIMAS.Data.Inventory.Inventory", b =>
+            modelBuilder.Entity("AIMAS.Data.Inventory.InventoryModel_DB", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();

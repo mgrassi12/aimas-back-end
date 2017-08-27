@@ -9,8 +9,13 @@ namespace AIMAS.Data.Models
   public class Result
   {
     public bool Success { get; set; }
+    public string ErrorMessage { get; set; }
     public List<Error> Errors { get; set; }
 
+    public Result()
+    {
+      Errors = new List<Error>();
+    }
 
     public void AddException(Exception ex)
     {
@@ -22,6 +27,12 @@ namespace AIMAS.Data.Models
     public void AddIdentityErrors(IEnumerable<IdentityError> identityErrors)
     {
       Errors = identityErrors.Select(error => new Error() { Code = error.Code, Description = error.Description }).ToList();
+    }
+
+    public void MergeResult(Result result)
+    {
+      if (!result.Success)
+        this.Errors.AddRange(result.Errors);
     }
   }
 

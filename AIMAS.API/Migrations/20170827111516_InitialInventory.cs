@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AIMAS.API.Migrations
 {
-    public partial class InventoryInitialCreate : Migration
+    public partial class InitialInventory : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AIMAS.API.Migrations.Identity
 {
-    public partial class IdentityInitialCreate : Migration
+    public partial class InitialIdentity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

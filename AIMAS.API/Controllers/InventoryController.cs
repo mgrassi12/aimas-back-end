@@ -26,7 +26,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("all")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     public Result<List<InventoryModel>> GetInventory()
     {
       var result = new Result<List<InventoryModel>>();

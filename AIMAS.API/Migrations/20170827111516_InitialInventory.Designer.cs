@@ -10,8 +10,8 @@ using System;
 namespace AIMAS.API.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    [Migration("20170825054308_InventoryInitialCreate")]
-    partial class InventoryInitialCreate
+    [Migration("20170827111516_InitialInventory")]
+    partial class InitialInventory
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,7 +20,7 @@ namespace AIMAS.API.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452");
 
-            modelBuilder.Entity("AIMAS.Data.Inventory.Inventory", b =>
+            modelBuilder.Entity("AIMAS.Data.Inventory.InventoryModel_DB", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();

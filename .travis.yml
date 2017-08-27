@@ -1,0 +1,22 @@
+language: csharp
+dist: trusty
+mono: none
+dotnet: 2.0.0
+
+cache:
+  nuget: true
+
+install:
+  - dotnet restore
+
+script:
+  - dotnet build
+  - dotnet test AIMAS.Test/AIMAS.Test.csproj
+
+
+deploy:
+  provider: heroku
+  app: aimas-back-end
+  api_key:
+    secure: "efq5VV6uM/ZjUgljCIlDMN96wxWOXg5pAvpvmedjsZfPxvDPxBnInjaiKv4qlT59dNokeVisJ+2/8Cr9m7GV9A/XOQO+zdZ3uSg6793oX2u4QEZO7cP3wO8kYnealG1Bho49gA2U66yWd93oLZfVAUHYW88SDhSATZSlc45quPAaJnduhDddH0hJfO9BjU3xv+d1ZQh79i6xY9WNGOJ70AFZFfH79oAiz2Y5dih0tHndi6cc8N7o3sMTdkEzYMqWNqeOy4YeFgUhvLTaOjuDudzEbv3gYvkwvM7tktvwrlyAgS6BhHKKewuNrHUdDhnfkUNTt2mnS7Ee6BE31LU40j2Kt+wwBwi3gkKaitkJNETVic2X5dY8MsujPM6Yx8pDKVmQkstxjmlHGx0sG9Mg+4sE4IgpVgZDN07aHek6UkLcioyNA8DEJDAVh0dwLEx+1Ba3ifneOudwVtYbyoYPs4w2ObIZX6VXkorty2OgrfA4lG+hb7k2Z59CX9FsPZGc2YWfRN0sgqSZOUmKBizBE1i6SgB1DWW7G3jy6f2QNN0wLz+ONlLBD+bJuJW8BHXNgpi9bGdeqsoBrtgM8itxcwAjGeUEw8/4hEkUnWF5KRjYQFyK/YhITBgHUKAP0xph4m0ObizWwdYgMOdmmljidIMqgS4IC6SESm91P36+6rI="
+
