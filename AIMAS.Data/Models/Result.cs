@@ -32,7 +32,10 @@ namespace AIMAS.Data.Models
     public void MergeResult(Result result)
     {
       if (!result.Success)
+      {
+        this.Success = false;
         this.Errors.AddRange(result.Errors);
+      }
     }
   }
 

@@ -14,12 +14,12 @@ namespace AIMAS.Data.Identity
 {
   public class IdentityDB
   {
-    public IdentityContext Identity { get; set; }
+    public AimasContext Aimas { get; set; }
     public UserManager<UserModel_DB> Manager { get; set; }
 
-    public IdentityDB(IdentityContext identityContext, UserManager<UserModel_DB> userManager)
+    public IdentityDB(AimasContext aimas, UserManager<UserModel_DB> userManager)
     {
-      Identity = identityContext;
+      Aimas = aimas;
       Manager = userManager;
     }
 
@@ -27,32 +27,37 @@ namespace AIMAS.Data.Identity
     {
       //context.Database.Migrate();
 
-      if (!Identity.Roles.AnyAsync().Result)
+      if (!Aimas.Roles.AnyAsync().Result)
       {
         // Admin Role
-        Identity.Roles.Add(new RoleModel_DB("Admin"));
+        Aimas.Roles.Add(new RoleModel_DB("Admin"));
         // Admin Role
-        Identity.Roles.Add(new RoleModel_DB("InventoryManager"));
+        Aimas.Roles.Add(new RoleModel_DB("InventoryManager"));
         // User Role
-        Identity.Roles.Add(new RoleModel_DB("User"));
+        Aimas.Roles.Add(new RoleModel_DB("User"));
         // Save Changes
-        Identity.SaveChanges();
+        Aimas.SaveChanges();
       }
 
-      if (!Identity.Users.AnyAsync().Result)
+      if (!Aimas.Users.AnyAsync().Result)
       {
         // Admin User
-        var adminUser = new UserModel_DB("Admin", "Admin", "Admin", "admin@example.com");
+        var adminUser = new UserModel_DB("Admin", "Admin", "admin@example.com", "Admin");
         // Add Admin User with Role Admin
-        CreateUserWithRoleAsync(adminUser, "Admin", "Admin@1").Wait();
-        AddUserRoleAsync(adminUser, "InventoryManager").Wait();
-        AddUserRoleAsync(adminUser, "User").Wait();
-
-        // Save Changes
+        if (CreateUserAsync(adminUser, "Admin@1").Result.Success)
+        {
+          AddUserRoleAsync(adminUser, "Admin").Wait();
+          AddUserRoleAsync(adminUser, "InventoryManager").Wait();
+          AddUserRoleAsync(adminUser, "User").Wait();
+        }
+        else
+        {
+          throw new Exception("Failed to Create Admin User");
+        }
       }
     }
 
-    public async Task<Result> CreateUserWithRoleAsync(UserModel_DB user, string roleName, string password)
+    public async Task<Result> CreateUserAsync(UserModel_DB user, string password)
     {
       Result result = new Result();
       try
@@ -61,12 +66,8 @@ namespace AIMAS.Data.Identity
         var createUser = await Manager.CreateAsync(user, password);
         if (createUser.Succeeded)
         {
-          // Add UserRole
-          var role = await Identity.Roles.FirstAsync(r => r.Name == roleName);
-          var roleResult = await AddUserRoleAsync(user, roleName);
-          result.MergeResult(result);
-
           // Success
+          Aimas.SaveChanges();
           result.Success = true;
         }
         else
@@ -92,9 +93,9 @@ namespace AIMAS.Data.Identity
       try
       {
         // Add UserRole
-        var role = await Identity.Roles.FirstAsync(r => r.Name == roleName);
-        await Identity.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
-        Identity.SaveChanges();
+        var role = await Aimas.Roles.FirstAsync(r => r.Name == roleName);
+        await Aimas.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
+        Aimas.SaveChanges();
         result.Success = true;
       }
       catch (Exception ex)
@@ -106,49 +107,49 @@ namespace AIMAS.Data.Identity
 
     public async Task<List<UserModel>> GetUsersAsync()
     {
-      var list = from user in Identity.Users
-                 select new UserModel()
-                 {
-                   UserName = user.UserName,
-                   Email = user.Email,
-                   FirstName = user.FirstName,
-                   LastName = user.FirstName
-                 };
-      return await list.ToListAsync();
+      var query = from user in Aimas.Users
+                  select new UserModel()
+                  {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.FirstName
+                  };
+      return await query.ToListAsync();
     }
     public async Task<List<UserModel_DB>> GetUsersDBAsync()
     {
-      var list = from user in Identity.Users
-                 select user;
-      return await list.ToListAsync();
+      var query = from user in Aimas.Users
+                  select user;
+      return await query.ToListAsync();
     }
 
     public async Task<UserModel> GetUserAsync(string email)
     {
-      var list = from user in Identity.Users
-                 where user.Email == email
-                 select new UserModel()
-                 {
-                   UserName = user.UserName,
-                   Email = user.Email,
-                   FirstName = user.FirstName,
-                   LastName = user.FirstName
-                 };
-      return await list.FirstAsync();
+      var query = from user in Aimas.Users
+                  where user.Email == email
+                  select new UserModel()
+                  {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.FirstName
+                  };
+      return await query.FirstAsync();
     }
     public async Task<UserModel_DB> GetUserDBAsync(string email)
     {
-      var list = from user in Identity.Users
-                 where user.Email == email
-                 select user;
-      return await list.FirstAsync();
+      var query = from user in Aimas.Users
+                  where user.Email == email
+                  select user;
+      return await query.FirstAsync();
     }
 
     #region UTIL
 
-    public IdentityUserRole<Guid> NewIdentityRole(Guid usrrID, Guid roleID)
+    public IdentityUserRole<long> NewIdentityRole(long usrrID, long roleID)
     {
-      return new IdentityUserRole<Guid>() { UserId = usrrID, RoleId = roleID };
+      return new IdentityUserRole<long>() { UserId = usrrID, RoleId = roleID };
     }
 
     #endregion

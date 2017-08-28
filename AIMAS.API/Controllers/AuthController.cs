@@ -57,7 +57,8 @@ namespace AIMAS.API.Controllers
     public async Task<Result> RegisterUser([FromBody] UserPasswordModel userDetails)
     {
       var userDB = userDetails.ToUserDB();
-      var result = await IdentityDB.CreateUserWithRoleAsync(userDB, "User", userDetails.Password);
+      var result = await IdentityDB.CreateUserAsync(userDB, userDetails.Password);
+      result.MergeResult(await IdentityDB.AddUserRoleAsync(userDB, "User"));
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)

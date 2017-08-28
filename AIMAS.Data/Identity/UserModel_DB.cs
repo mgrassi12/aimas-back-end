@@ -7,34 +7,38 @@ using System.Text;
 
 namespace AIMAS.Data.Identity
 {
-  public class UserModel_DB : IdentityUser<Guid>
+  public class UserModel_DB : IdentityUser<long>
   {
     [Key]
-    public override Guid Id { get => base.Id; set => base.Id = value; }
+    public override long Id { get => base.Id; set => base.Id = value; }
 
-    [Required, Column(TypeName = "varchar(50)")]
+    [Required, MaxLength(50)]
     public override string UserName { get => base.UserName; set => base.UserName = value; }
 
-    [Required, Column(TypeName = "varchar(50)")]
+    [Required, MaxLength(50)]
     public string FirstName { get; set; }
 
-    [Required, Column(TypeName = "varchar(50)")]
+    [Required, MaxLength(50)]
     public string LastName { get; set; }
 
-    [Required, Column(TypeName = "varchar(100)")]
+    [Required, MaxLength(100)]
     public override string Email { get => base.Email; set => base.Email = value; }
+
+    [Required, MaxLength(50)]
+    public string Position { get; set; }
 
     public UserModel_DB() : base()
     {
-      Id = new Guid();
     }
 
-    public UserModel_DB(string userName, string firstName, string lastName, string email) : this()
+    public UserModel_DB(string firstName, string lastName, string email, string position, string phone = null) : this()
     {
-      UserName = userName;
+      UserName = email;
       Email = email;
       FirstName = firstName;
       LastName = lastName;
+      Position = position;
+      PhoneNumber = phone;
     }
   }
 }

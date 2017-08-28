@@ -45,5 +45,27 @@ namespace AIMAS.API.Controllers
 
       return result;
     }
+
+    [HttpGet]
+    [Route("search")]
+    [Authorize(Roles = "User")]
+    public Result<List<InventoryModel>> GetInventory(InventorySearch search)
+    {
+      var result = new Result<List<InventoryModel>>();
+
+      try
+      {
+        var items = Inventory.GetInventories(search);
+        result.Success = true;
+        result.ReturnObj = items;
+
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
   }
 }

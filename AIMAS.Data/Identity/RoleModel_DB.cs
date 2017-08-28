@@ -7,17 +7,16 @@ using System.Text;
 
 namespace AIMAS.Data.Identity
 {
-  public class RoleModel_DB : IdentityRole<Guid>
+  public class RoleModel_DB : IdentityRole<long>
   {
     [Key]
-    public override Guid Id { get => base.Id; set => base.Id = value; }
+    public override long Id { get => base.Id; set => base.Id = value; }
 
-    [Required, Column(TypeName = "varchar(50)")]
+    [Required, MaxLength(50)]
     public override string Name { get => base.Name; set => base.Name = value; }
 
     public RoleModel_DB() : base()
     {
-      Id = new Guid();
     }
 
     public RoleModel_DB(string name) : this()

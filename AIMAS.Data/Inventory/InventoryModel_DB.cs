@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,8 +10,39 @@ namespace AIMAS.Data.Inventory
   public class InventoryModel_DB
   {
     [Key]
-    public int ID { get; set; }
-    [Required, Column(TypeName = "varchar(50)")]
+    public long ID { get; set; }
+
+    [Required, MaxLength(255)]
     public string Name { get; set; }
+
+
+    public string Description { get; set; }
+
+    [Required, DataType(DataType.DateTime)]
+    public DateTime ExpirationDate { get; set; }
+
+    [Required, DataType(DataType.DateTime)]
+    public DateTime MaintanceDate { get; set; }
+
+    //public ulong LoadOutID { get; set; }
+
+    [Required]
+    public LocationModel_DB Location { get; set; }
+
+    public InventoryModel_DB() : base()
+    {
+
+    }
+
+    public InventoryModel_DB(string name, DateTime expire, DateTime maintance, LocationModel_DB location, string description = null, int id = 0) : this()
+    {
+      ID = id;
+      Name = name;
+      Description = description;
+      ExpirationDate = expire;
+      MaintanceDate = maintance;
+      Location = location;
+    }
+
   }
 }

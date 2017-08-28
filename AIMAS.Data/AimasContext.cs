@@ -1,17 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using AIMAS.Data.Identity;
+using AIMAS.Data.Inventory;
 
-namespace AIMAS.Data.Identity
+namespace AIMAS.Data
 {
-  public class IdentityContext : IdentityDbContext<UserModel_DB, RoleModel_DB, Guid>
+  public class AimasContext : IdentityDbContext<UserModel_DB, RoleModel_DB, long>
   {
 
-    public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
+    public DbSet<InventoryModel_DB> Inventories { get; set; }
+
+    public DbSet<ReservationModel_DB> Reservations { get; set; }
+
+    public DbSet<LocationModel_DB> Locations { get; set; }
+
+
+    public AimasContext(DbContextOptions<AimasContext> options) : base(options)
     {
     }
 
@@ -37,7 +44,5 @@ namespace AIMAS.Data.Identity
 
       base.OnModelCreating(modelBuilder);
     }
-
   }
-
 }

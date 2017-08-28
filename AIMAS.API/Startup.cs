@@ -8,10 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using AIMAS.Data;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Identity;
 
@@ -43,18 +43,14 @@ namespace AIMAS.API
           options.SerializerSettings.Formatting = Formatting.None;
           options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
           options.SerializerSettings.ContractResolver = new DefaultContractResolver() { NamingStrategy = new DefaultNamingStrategy() };
-          options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+          options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
         });
 
       // Get Connection String
       var connection = Configuration.GetConnectionString("Backend-DB");
       // Add DB To Services
       services.AddEntityFrameworkNpgsql()
-      .AddDbContext<InventoryContext>(options =>
-        options.UseNpgsql(connection, npgoptions =>
-          npgoptions.MigrationsAssembly("AIMAS.API")
-      ))
-      .AddDbContext<IdentityContext>(options =>
+      .AddDbContext<AimasContext>(options =>
         options.UseNpgsql(connection, npgoptions =>
           npgoptions.MigrationsAssembly("AIMAS.API")
       ));
@@ -64,14 +60,14 @@ namespace AIMAS.API
       {
         options.User.RequireUniqueEmail = true;
       })
-      .AddEntityFrameworkStores<IdentityContext>()
+      .AddEntityFrameworkStores<AimasContext>()
       .AddDefaultTokenProviders();
 
       // Add Auth Services
       services.AddAuthentication();
       services.ConfigureApplicationCookie(options =>
       {
-        options.LoginPath = "/test";
+        options.LoginPath = "/auth/login";
       });
 
       // Add application services.
@@ -109,9 +105,9 @@ namespace AIMAS.API
     {
       try
       {
-        ServiceProvider.GetRequiredService<InventoryDB>().Initialize();
-
         ServiceProvider.GetRequiredService<IdentityDB>().Initialize();
+
+        ServiceProvider.GetRequiredService<InventoryDB>().Initialize();
       }
       catch (Exception ex)
       {
