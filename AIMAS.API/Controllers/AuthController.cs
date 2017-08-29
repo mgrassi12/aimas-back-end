@@ -31,9 +31,9 @@ namespace AIMAS.API.Controllers
     [HttpGet]
     [Route("info")]
     [AllowAnonymous]
-    public Result<CurrentUserInfo> GetCurrentUserInfo()
+    public ResultObj<CurrentUserInfo> GetCurrentUserInfo()
     {
-      var result = new Result<CurrentUserInfo>();
+      var result = new ResultObj<CurrentUserInfo>();
       try
       {
         result.ReturnObj = new CurrentUserInfo()
@@ -121,9 +121,9 @@ namespace AIMAS.API.Controllers
     [HttpGet]
     [Route("users")]
     [Authorize(Roles = "Admin")]
-    public async Task<Result<List<UserModel>>> GetUsers()
+    public async Task<ResultObj<List<UserModel>>> GetUsers()
     {
-      var result = new Result<List<UserModel>>();
+      var result = new ResultObj<List<UserModel>>();
       try
       {
         var users = await IdentityDB.GetUsersAsync();

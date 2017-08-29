@@ -39,9 +39,16 @@ namespace AIMAS.Data.Models
     }
   }
 
-  public class Result<TReturnType> : Result
+  public class ResultObj<TReturnType> : Result
   {
     public TReturnType ReturnObj { get; set; }
+  }
+
+  public class PageResultObj<TReturnType> : ResultObj<TReturnType>
+  {
+    public int TotalCount { get; set; }
+    public int PageIndex { get; set; }
+    public int PageSize { get; set; }
   }
 
   public class Error

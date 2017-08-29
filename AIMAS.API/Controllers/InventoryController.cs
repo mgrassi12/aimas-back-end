@@ -27,9 +27,9 @@ namespace AIMAS.API.Controllers
     [HttpGet]
     [Route("all")]
     [Authorize(Roles = "User")]
-    public Result<List<InventoryModel>> GetInventory()
+    public ResultObj<List<InventoryModel>> GetInventory()
     {
-      var result = new Result<List<InventoryModel>>();
+      var result = new ResultObj<List<InventoryModel>>();
 
       try
       {
@@ -46,19 +46,42 @@ namespace AIMAS.API.Controllers
       return result;
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("search")]
     [Authorize(Roles = "User")]
-    public Result<List<InventoryModel>> GetInventory(InventorySearch search)
+    public PageResultObj<List<InventoryModel>> GetInventory([FromBody]InventorySearch search)
     {
-      var result = new Result<List<InventoryModel>>();
+      var result = new PageResultObj<List<InventoryModel>>();
 
       try
       {
         var items = Inventory.GetInventories(search);
         result.Success = true;
-        result.ReturnObj = items;
+        result.ReturnObj = items.list;
+        result.TotalCount = items.TotalCount;
+        result.PageIndex = search.PageIndex;
+        result.PageSize = search.PageSize;
 
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpPost]
+    [Route("add")]
+    [Authorize(Roles = "Admin")]
+    public Result AddInventory([FromBody]InventoryModel inventory)
+    {
+      var result = new Result();
+
+      try
+      {
+        Inventory.AddInventory(inventory.ToDB());
+        result.Success = true;
       }
       catch (Exception ex)
       {

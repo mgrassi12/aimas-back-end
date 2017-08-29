@@ -13,6 +13,9 @@ namespace AIMAS.Data.Inventory
     public long ID { get; set; }
 
     [Required]
+    public string Name { get; set; }
+
+
     public string Description { get; set; }
 
     public LocationModel_DB() : base()
@@ -20,9 +23,10 @@ namespace AIMAS.Data.Inventory
 
     }
 
-    public LocationModel_DB(string description, int id = 0) : this()
+    public LocationModel_DB(string name, string description = null, int id = 0) : this()
     {
       ID = id;
+      Name = name;
       Description = description;
     }
   }

@@ -25,35 +25,26 @@ namespace AIMAS.Data.Identity
 
     public void Initialize()
     {
-      //context.Database.Migrate();
-
-      if (!Aimas.Roles.AnyAsync().Result)
+      // Admin Role
+      Aimas.Roles.Add(new RoleModel_DB("Admin"));
+      // Admin Role
+      Aimas.Roles.Add(new RoleModel_DB("InventoryManager"));
+      // User Role
+      Aimas.Roles.Add(new RoleModel_DB("User"));
+      // Save Changes
+      Aimas.SaveChanges();
+      // Admin User
+      var adminUser = new UserModel_DB("Admin", "Admin", "admin@example.com", "Admin");
+      // Add Admin User with Role Admin
+      if (CreateUserAsync(adminUser, "Admin@1").Result.Success)
       {
-        // Admin Role
-        Aimas.Roles.Add(new RoleModel_DB("Admin"));
-        // Admin Role
-        Aimas.Roles.Add(new RoleModel_DB("InventoryManager"));
-        // User Role
-        Aimas.Roles.Add(new RoleModel_DB("User"));
-        // Save Changes
-        Aimas.SaveChanges();
+        AddUserRoleAsync(adminUser, "Admin").Wait();
+        AddUserRoleAsync(adminUser, "InventoryManager").Wait();
+        AddUserRoleAsync(adminUser, "User").Wait();
       }
-
-      if (!Aimas.Users.AnyAsync().Result)
+      else
       {
-        // Admin User
-        var adminUser = new UserModel_DB("Admin", "Admin", "admin@example.com", "Admin");
-        // Add Admin User with Role Admin
-        if (CreateUserAsync(adminUser, "Admin@1").Result.Success)
-        {
-          AddUserRoleAsync(adminUser, "Admin").Wait();
-          AddUserRoleAsync(adminUser, "InventoryManager").Wait();
-          AddUserRoleAsync(adminUser, "User").Wait();
-        }
-        else
-        {
-          throw new Exception("Failed to Create Admin User");
-        }
+        throw new Exception("Failed to Create Admin User");
       }
     }
 
