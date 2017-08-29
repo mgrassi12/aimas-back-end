@@ -36,7 +36,8 @@ namespace AIMAS.Data.Identity
       // Admin User
       var adminUser = new UserModel_DB("Admin", "Admin", "admin@example.com", "Admin");
       // Add Admin User with Role Admin
-      if (CreateUserAsync(adminUser, "Admin@1").Result.Success)
+      var result = CreateUserAsync(adminUser, "Admin@1").Result;
+      if (result.Success)
       {
         AddUserRoleAsync(adminUser, "Admin").Wait();
         AddUserRoleAsync(adminUser, "InventoryManager").Wait();
