@@ -4,6 +4,7 @@ using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AIMAS.Data.Identity;
+using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Inventory
 {
@@ -31,13 +32,18 @@ namespace AIMAS.Data.Inventory
 
     }
 
-    public ReservationModel_DB(UserModel_DB user, InventoryModel_DB inventory, DateTime start, DateTime end, int id = 0) : this()
+    public ReservationModel_DB(UserModel_DB user, InventoryModel_DB inventory, DateTime start, DateTime end, long id = default) : this()
     {
       ID = id;
       User = user;
       Inventory = inventory;
       BookingStart = start;
       BookingEnd = end;
+    }
+
+    public ReservationModel ToModel()
+    {
+      return new ReservationModel(id: ID, user: User.ToModel(), inventory: Inventory.ToModel(), start: BookingStart, end: BookingEnd);
     }
   }
 }

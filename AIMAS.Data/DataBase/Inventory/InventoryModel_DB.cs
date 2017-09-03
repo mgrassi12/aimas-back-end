@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Inventory
 {
@@ -14,7 +15,6 @@ namespace AIMAS.Data.Inventory
 
     [Required, MaxLength(255)]
     public string Name { get; set; }
-
 
     public string Description { get; set; }
 
@@ -34,7 +34,7 @@ namespace AIMAS.Data.Inventory
 
     }
 
-    public InventoryModel_DB(string name, DateTime expire, DateTime maintance, LocationModel_DB location, string description = null, int id = 0) : this()
+    public InventoryModel_DB(string name, DateTime expire, DateTime maintance, LocationModel_DB location, string description = null, long id = 0) : this()
     {
       ID = id;
       Name = name;
@@ -44,5 +44,9 @@ namespace AIMAS.Data.Inventory
       Location = location;
     }
 
+    public InventoryModel ToModel()
+    {
+      return new InventoryModel(id: ID, name: Name, description: Description, expiration: ExpirationDate, maintance: MaintanceDate, location: Location.TOModel());
+    }
   }
 }

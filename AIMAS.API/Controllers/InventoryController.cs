@@ -80,7 +80,27 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        Inventory.AddInventory(inventory.ToDB());
+        Inventory.AddInventory(inventory);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpPost]
+    [Route("update")]
+    [Authorize(Roles = "Admin")]
+    public Result UpdateInventory([FromBody]InventoryModel inventory)
+    {
+      var result = new Result();
+
+      try
+      {
+        Inventory.UpdateInventory(inventory);
         result.Success = true;
       }
       catch (Exception ex)

@@ -88,27 +88,44 @@ namespace AIMAS.Data.Inventory
       return (query.ToList(), count);
     }
 
-    public void AddInventory(InventoryModel_DB inventory)
+    public void AddInventory(InventoryModel inventory)
     {
-      inventory.Location = Aimas.Locations.Single(l => l.ID == inventory.Location.ID);
-      var id = Aimas.Inventories.LastOrDefault()?.ID;
-      if (id.HasValue) inventory.ID = id.Value + 1;
-      Aimas.Inventories.Add(inventory);
+      var inventoryDB = inventory.ToDBModel();
+
+      inventoryDB.Location = Aimas.Locations.Single(l => l.ID == inventoryDB.Location.ID);
+
+      if (inventoryDB.ID != default)
+      {
+        var lastID = Aimas.Inventories.LastOrDefault()?.ID;
+        var id = lastID.HasValue ? lastID.Value + 1 : 1;
+        inventoryDB.ID = id;
+      }
+
+      Aimas.Inventories.Add(inventoryDB);
       Aimas.SaveChanges();
     }
 
-    public void EditInventory(InventoryModel_DB inventory)
+    public void UpdateInventory(InventoryModel inventory)
     {
       var result = Aimas.Inventories.Single(i => i.ID == inventory.ID);
 
       if (!string.IsNullOrEmpty(inventory.Name))
         result.Name = inventory.Name;
+
       if (!string.IsNullOrEmpty(inventory.Description))
         result.Description = inventory.Description;
-      if (inventory.ExpirationDate != new DateTime())
+
+      if (inventory.ExpirationDate != default)
         result.ExpirationDate = inventory.ExpirationDate;
-      if (inventory.MaintanceDate != new DateTime())
+
+      if (inventory.MaintanceDate != default)
         result.MaintanceDate = inventory.MaintanceDate;
+
+      if (inventory.Location.ID != result.Location.ID)
+        result.Location = Aimas.Locations.Single(l => l.ID == inventory.ID);
+
+      Aimas.SaveChanges();
+
     }
 
   }

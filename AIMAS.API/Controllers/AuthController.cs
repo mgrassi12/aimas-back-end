@@ -54,11 +54,11 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("register/user")]
     [Authorize(Roles = "Admin")]
-    public async Task<Result> RegisterUser([FromBody] UserPasswordModel userDetails)
+    public async Task<Result> RegisterUser([FromBody] RegisterModel registerModel)
     {
-      var userDB = userDetails.ToUserDB();
-      var result = await IdentityDB.CreateUserAsync(userDB, userDetails.Password);
-      result.MergeResult(await IdentityDB.AddUserRoleAsync(userDB, "User"));
+      var userModel = registerModel.ToDBModel();
+      var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
+      result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, "User"));
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
@@ -70,28 +70,28 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
-    public async Task<Result> Login([FromBody]UserPasswordModel userDetails)
+    public async Task<Result> Login([FromBody]UserLoginModel loginModel)
     {
       var result = new Result();
       try
       {
-        var user = await IdentityDB.Manager.FindByEmailAsync(userDetails.Email);
-        var signinResult = await SignInManager.PasswordSignInAsync(user, userDetails.Password, false, false);
+        var user = await IdentityDB.Manager.FindByEmailAsync(loginModel.Email);
+        var signinResult = await SignInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
         if (signinResult.Succeeded)
         {
-          log.LogInformation("{0} loged in", userDetails.Email);
+          log.LogInformation($"{loginModel.Email} loged in");
           result.Success = true;
         }
         else
         {
           // Failed to Signin
-          throw new Exception("Something went wrong");
+          throw new Exception("Login Failed");
         }
 
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = "Something went wrong while Loging In";
+        result.ErrorMessage = "Email or Password is incorect";
         result.AddException(ex);
       }
       return result;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Inventory
 {
@@ -23,11 +24,16 @@ namespace AIMAS.Data.Inventory
 
     }
 
-    public LocationModel_DB(string name, string description = null, int id = 0) : this()
+    public LocationModel_DB(string name, string description = default, long id = default) : this()
     {
       ID = id;
       Name = name;
       Description = description;
+    }
+
+    public LocationModel TOModel()
+    {
+      return new LocationModel(id: ID, name: Name, description: Description);
     }
   }
 }

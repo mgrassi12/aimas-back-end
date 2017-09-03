@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Identity
 {
@@ -31,14 +32,20 @@ namespace AIMAS.Data.Identity
     {
     }
 
-    public UserModel_DB(string firstName, string lastName, string email, string position, string phone = null) : this()
+    public UserModel_DB(string firstName, string lastName, string email, string position, string phone = default, long id = default) : this()
     {
+      Id = id;
       UserName = email;
       Email = email;
       FirstName = firstName;
       LastName = lastName;
       Position = position;
       PhoneNumber = phone;
+    }
+
+    public UserModel ToModel()
+    {
+      return new UserModel(id: Id, email:Email, firstName: FirstName, lastName: LastName, position: Position);
     }
   }
 }

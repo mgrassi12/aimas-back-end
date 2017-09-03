@@ -64,14 +64,14 @@ namespace AIMAS.Data.Identity
         }
         else
         {
-          // Failed to Create User
-          result.ErrorMessage = "Something went wrong while Create User";
+          // Failed to Create User          
           result.AddIdentityErrors(createUser.Errors);
+          throw new Exception("Create User Error");
         }
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = "Something went wrong while Setting up the new User";
+        result.ErrorMessage = $"Something went wrong while Creating new User, {user.Email}";
         result.AddException(ex);
       }
 
@@ -102,7 +102,6 @@ namespace AIMAS.Data.Identity
       var query = from user in Aimas.Users
                   select new UserModel()
                   {
-                    UserName = user.UserName,
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.FirstName
@@ -122,7 +121,6 @@ namespace AIMAS.Data.Identity
                   where user.Email == email
                   select new UserModel()
                   {
-                    UserName = user.UserName,
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.FirstName

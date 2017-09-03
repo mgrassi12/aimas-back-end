@@ -53,7 +53,8 @@ namespace AIMAS.API
       .AddDbContext<AimasContext>(options =>
         options.UseNpgsql(connection, npgoptions =>
           npgoptions.MigrationsAssembly("AIMAS.API")
-      ));
+      ))
+      .BuildServiceProvider();
 
       // Add Identity Services
       services.AddIdentity<UserModel_DB, RoleModel_DB>(options =>
@@ -83,9 +84,7 @@ namespace AIMAS.API
       ServiceProvider = sep;
       LoggerFactory = logger;
 
-      logger.AddConsole(Configuration.GetSection("Logging"));
-      logger.AddDebug();
-      log = logger.CreateLogger<Startup>();
+      log = LoggerFactory.CreateLogger<Startup>();
 
 
       if (HostingEnvironment.IsDevelopment())
