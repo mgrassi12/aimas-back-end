@@ -110,5 +110,25 @@ namespace AIMAS.API.Controllers
 
       return result;
     }
+
+    [HttpPost]
+    [Route("remove/{id}")]
+    [Authorize(Roles = "Admin")]
+    public Result RemoveInventory(int id)
+    {
+      var result = new Result();
+
+      try
+      {
+        Inventory.RemoveInventory(id);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
   }
 }

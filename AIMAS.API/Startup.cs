@@ -14,7 +14,8 @@ using Newtonsoft.Json.Serialization;
 using AIMAS.Data;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Identity;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AIMAS.API
 {
@@ -65,10 +66,20 @@ namespace AIMAS.API
       .AddDefaultTokenProviders();
 
       // Add Auth Services
-      services.AddAuthentication();
+      services.AddAuthentication(options =>
+      {
+      });
+
+      // Cookie Config
       services.ConfigureApplicationCookie(options =>
       {
-        options.LoginPath = "/auth/login";
+        options.LoginPath = "/api/auth/login";
+        options.LogoutPath = "/api/auth/logout";
+        options.Events.OnRedirectToLogin = context =>
+        {
+          context.Response.StatusCode = 401;
+          return Task.CompletedTask;
+        };
       });
 
       // Add application services.
@@ -86,7 +97,7 @@ namespace AIMAS.API
 
       log = LoggerFactory.CreateLogger<Startup>();
 
-
+      // Midelware
       if (HostingEnvironment.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
@@ -95,6 +106,8 @@ namespace AIMAS.API
       app.UseAuthentication();
 
       app.UseMvcWithDefaultRoute();
+
+      // End
 
       if (Configuration.GetSection("Settings").GetValue<bool>("InitializeDB"))
         InitializeDB();

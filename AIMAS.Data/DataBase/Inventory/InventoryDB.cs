@@ -128,5 +128,13 @@ namespace AIMAS.Data.Inventory
 
     }
 
+    public void RemoveInventory(int ID)
+    {
+      var item = new InventoryModel_DB { ID = ID };
+      Aimas.Inventories.Attach(item);
+      Aimas.Inventories.Remove(item);
+      Aimas.SaveChanges();
+    }
+
   }
 }
