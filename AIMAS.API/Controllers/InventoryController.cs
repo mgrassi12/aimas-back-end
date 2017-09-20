@@ -111,7 +111,7 @@ namespace AIMAS.API.Controllers
       return result;
     }
 
-    [HttpPost]
+    [HttpGet]
     [Route("remove/{id}")]
     [Authorize(Roles = "Admin")]
     public Result RemoveInventory(int id)

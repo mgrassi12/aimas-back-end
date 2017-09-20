@@ -94,7 +94,7 @@ namespace AIMAS.Data.Inventory
 
       inventoryDB.Location = Aimas.Locations.Single(l => l.ID == inventoryDB.Location.ID);
 
-      if (inventoryDB.ID != default)
+      if (inventoryDB.ID == default)
       {
         var lastID = Aimas.Inventories.LastOrDefault()?.ID;
         var id = lastID.HasValue ? lastID.Value + 1 : 1;
@@ -107,7 +107,10 @@ namespace AIMAS.Data.Inventory
 
     public void UpdateInventory(InventoryModel inventory)
     {
-      var result = Aimas.Inventories.Single(i => i.ID == inventory.ID);
+      var result = Aimas.Inventories
+        .Include(item => item.Location)
+        .Where(item => item.ID == inventory.ID)
+        .First();
 
       if (!string.IsNullOrEmpty(inventory.Name))
         result.Name = inventory.Name;
@@ -130,8 +133,7 @@ namespace AIMAS.Data.Inventory
 
     public void RemoveInventory(int ID)
     {
-      var item = new InventoryModel_DB { ID = ID };
-      Aimas.Inventories.Attach(item);
+      var item = Aimas.Inventories.Find((long)ID);
       Aimas.Inventories.Remove(item);
       Aimas.SaveChanges();
     }
