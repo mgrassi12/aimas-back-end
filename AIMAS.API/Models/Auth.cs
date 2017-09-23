@@ -9,5 +9,6 @@ namespace AIMAS.API.Models
   {
     public bool IsAuth { get; set; }
     public bool IsAdmin { get; set; }
+    public string Role { get; set; }
   }
 }

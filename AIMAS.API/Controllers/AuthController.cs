@@ -36,11 +36,12 @@ namespace AIMAS.API.Controllers
       var result = new ResultObj<CurrentUserInfo>();
       try
       {
-        result.ReturnObj = new CurrentUserInfo()
-        {
-          IsAuth = User.Identity.IsAuthenticated,
-          IsAdmin = User.IsInRole("Admin")
-        };
+        result.ReturnObj = new CurrentUserInfo();
+        result.ReturnObj.IsAuth = User.Identity.IsAuthenticated;
+        result.ReturnObj.IsAdmin = User.IsInRole("Admin");
+        var user = IdentityDB.Manager.GetUserAsync(User).Result;
+        if (user != null)
+          result.ReturnObj.Role = IdentityDB.Manager.GetRolesAsync(user).Result[0];
         result.Success = true;
       }
       catch (Exception ex)

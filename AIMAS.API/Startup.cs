@@ -66,8 +66,13 @@ namespace AIMAS.API
       .AddDefaultTokenProviders();
 
       // Add Auth Services
-      services.AddAuthentication(options =>
+      services.AddAuthentication();
+      services.AddAuthorization(options =>
       {
+        //[Authorize(Policy = "RequireAdministratorRole")]
+        options.AddPolicy("Admin", policy => policy.RequireRole(IdentityDB.Roles[0]));
+        options.AddPolicy("Edit", policy => policy.RequireRole(IdentityDB.Roles[0], IdentityDB.Roles[1]));
+        options.AddPolicy("view", policy => policy.RequireRole(IdentityDB.Roles[0], IdentityDB.Roles[1], IdentityDB.Roles[2]));
       });
 
       // Cookie Config

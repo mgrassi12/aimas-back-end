@@ -14,6 +14,8 @@ namespace AIMAS.Data.Identity
 {
   public class IdentityDB
   {
+    public static readonly List<string> Roles = new List<string>() { "Admin", "InventoryManager", "User" };
+
     public AimasContext Aimas { get; set; }
     public UserManager<UserModel_DB> Manager { get; set; }
 
@@ -25,12 +27,8 @@ namespace AIMAS.Data.Identity
 
     public void Initialize()
     {
-      // Admin Role
-      Aimas.Roles.Add(new RoleModel_DB("Admin"));
-      // Admin Role
-      Aimas.Roles.Add(new RoleModel_DB("InventoryManager"));
-      // User Role
-      Aimas.Roles.Add(new RoleModel_DB("User"));
+      // Roles
+      Roles.ForEach(item => Aimas.Roles.Add(new RoleModel_DB(item)));
       // Save Changes
       Aimas.SaveChanges();
       // Admin User
@@ -39,9 +37,7 @@ namespace AIMAS.Data.Identity
       var result = CreateUserAsync(adminUser, "Admin@1").Result;
       if (result.Success)
       {
-        AddUserRoleAsync(adminUser, "Admin").Wait();
-        AddUserRoleAsync(adminUser, "InventoryManager").Wait();
-        AddUserRoleAsync(adminUser, "User").Wait();
+        AddUserRoleAsync(adminUser, Roles[0]).Wait();
       }
       else
       {
