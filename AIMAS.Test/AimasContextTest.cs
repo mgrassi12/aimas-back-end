@@ -17,18 +17,10 @@ namespace AIMAS.Test
   public class AimasContextTest
   {
 
-    private SqliteConnection Connection { get; set; }
-
     private AimasContext GetAimasContext()
     {
-      if (Connection != null && Connection.State == System.Data.ConnectionState.Open)
-        Connection.Close();
-
-      Connection = new SqliteConnection("DataSource=:memory:");
-      Connection.Open();
-
       var options = new DbContextOptionsBuilder<AimasContext>()
-                .UseSqlite(Connection)
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
       return new AimasContext(options);
     }
@@ -72,5 +64,35 @@ namespace AIMAS.Test
 
       Assert.AreEqual(result.Email, "admin@example.com");
     }
+
+    [TestMethod]
+    public void TestAddUser()
+    {
+      var aimas = GetAimasContext();
+      var identity = GetIdentityDB(aimas);
+      var inventory = GetInventoryDB(aimas);
+      SetupDB(aimas, identity, inventory);
+
+      var result = identity.CreateUserAsync(
+        new UserModel_DB("Test", "1", "test1@test.com", "User"),
+        "Test"
+        ).Result;
+
+      Assert.IsTrue(result.Success);
+    }
+
+    [TestMethod]
+    public void TestUserExists()
+    {
+      var aimas = GetAimasContext();
+      var identity = GetIdentityDB(aimas);
+      var inventory = GetInventoryDB(aimas);
+      SetupDB(aimas, identity, inventory);
+
+      var result = identity.GetUserDBAsync("test1@test.com");
+
+      Assert.IsNotNull(result);
+    }
+
   }
 }

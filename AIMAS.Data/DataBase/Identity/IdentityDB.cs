@@ -95,14 +95,8 @@ namespace AIMAS.Data.Identity
 
     public async Task<List<UserModel>> GetUsersAsync()
     {
-      var query = from user in Aimas.Users
-                  select new UserModel()
-                  {
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.FirstName
-                  };
-      return await query.ToListAsync();
+      var users = await GetUsersDBAsync();
+      return users.Select(user => user.ToModel()).ToList();
     }
     public async Task<List<UserModel_DB>> GetUsersDBAsync()
     {
@@ -113,15 +107,8 @@ namespace AIMAS.Data.Identity
 
     public async Task<UserModel> GetUserAsync(string email)
     {
-      var query = from user in Aimas.Users
-                  where user.Email == email
-                  select new UserModel()
-                  {
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.FirstName
-                  };
-      return await query.FirstAsync();
+      var user = await GetUserDBAsync(email);
+      return user.ToModel();
     }
     public async Task<UserModel_DB> GetUserDBAsync(string email)
     {

@@ -41,7 +41,10 @@ namespace AIMAS.API.Controllers
         result.ReturnObj.IsAdmin = User.IsInRole("Admin");
         var user = IdentityDB.Manager.GetUserAsync(User).Result;
         if (user != null)
+        {
           result.ReturnObj.Role = IdentityDB.Manager.GetRolesAsync(user).Result[0];
+          result.ReturnObj.User = user.ToModel();
+        }
         result.Success = true;
       }
       catch (Exception ex)
