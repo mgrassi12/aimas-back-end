@@ -14,8 +14,9 @@ using Newtonsoft.Json.Serialization;
 using AIMAS.Data;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Identity;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+using AIMAS.API.Providers;
+using AIMAS.API.Helpers;
+using AIMAS.API.Services;
 
 namespace AIMAS.API
 {
@@ -67,13 +68,7 @@ namespace AIMAS.API
 
       // Add Auth Services
       services.AddAuthentication();
-      services.AddAuthorization(options =>
-      {
-        //[Authorize(Policy = "RequireAdministratorRole")]
-        options.AddPolicy("Admin", policy => policy.RequireRole(IdentityDB.Roles[0]));
-        options.AddPolicy("Edit", policy => policy.RequireRole(IdentityDB.Roles[0], IdentityDB.Roles[1]));
-        options.AddPolicy("view", policy => policy.RequireRole(IdentityDB.Roles[0], IdentityDB.Roles[1], IdentityDB.Roles[2]));
-      });
+      services.AddAuthorization();
 
       // Cookie Config
       services.ConfigureApplicationCookie(options =>
@@ -87,9 +82,11 @@ namespace AIMAS.API
         };
       });
 
-      // Add application services.
       services.AddTransient<InventoryDB>();
       services.AddTransient<IdentityDB>();
+      services.AddTransient<EmailNotificationProvider>();
+      services.AddTransient<NotificationHelper>();
+      services.AddScoped<NotificationService>();
 
     }
 
@@ -116,9 +113,13 @@ namespace AIMAS.API
 
       if (Configuration.GetSection("Settings").GetValue<bool>("InitializeDB"))
         InitializeDB();
+
+      // Services
+      if (Configuration.GetSection("Settings").GetValue<bool>("Services"))
+        StartupServices();
     }
 
-    public void InitializeDB()
+    private void InitializeDB()
     {
       try
       {
@@ -130,6 +131,11 @@ namespace AIMAS.API
       {
         log.LogError(ex, "An error occurred while seeding the database.");
       }
+    }
+
+    private void StartupServices()
+    {
+      ServiceProvider.CreateScope().ServiceProvider.GetService<NotificationService>().Start();
     }
   }
 }

@@ -138,5 +138,28 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
     }
 
+    public List<InventoryModel> GetExpiredInventory()
+    {
+      var query = from inventory in Aimas.Inventories
+                  where inventory.ExpirationDate <= DateTime.UtcNow
+                  select new InventoryModel()
+                  {
+                    ID = inventory.ID,
+                    Name = inventory.Name,
+                    Description = inventory.Description,
+                    ExpirationDate = inventory.ExpirationDate,
+                    MaintanceDate = inventory.MaintanceDate,
+                    Location = new LocationModel()
+                    {
+                      ID = inventory.Location.ID,
+                      Name = inventory.Location.Name,
+                      Description = inventory.Location.Description
+                    }
+                  };
+      return query.ToList();
+    }
   }
+
+
 }
+

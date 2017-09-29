@@ -33,7 +33,6 @@ namespace AIMAS.Data.Identity
       Aimas.SaveChanges();
       // Admin User
       var adminUser = new UserModel_DB("Admin", "Admin", "admin@example.com", "Admin");
-      // Add Admin User with Role Admin
       var result = CreateUserAsync(adminUser, "Admin@1").Result;
       if (result.Success)
       {
@@ -41,7 +40,17 @@ namespace AIMAS.Data.Identity
       }
       else
       {
-        throw new Exception("Failed to Create Admin User");
+        throw new Exception($"Failed to Create Admin User {result.ErrorMessage}");
+      }
+      var testUser = new UserModel_DB("Test", "User", "aimasbackend@gmail.com", "Test");
+      var result2 = CreateUserAsync(testUser, "Testuser@1").Result;
+      if (result2.Success)
+      {
+        AddUserRoleAsync(testUser, Roles[2]).Wait();
+      }
+      else
+      {
+        throw new Exception($"Failed to Create Test User {result2.ErrorMessage}");
       }
     }
 
@@ -116,6 +125,23 @@ namespace AIMAS.Data.Identity
                   where user.Email == email
                   select user;
       return await query.FirstAsync();
+    }
+
+    public async Task<List<UserModel>> GetUsersForRole(string role)
+    {
+      var query =
+        from u in Aimas.Users
+        join ur in Aimas.UserRoles on u.Id equals ur.UserId
+        join r in Aimas.Roles on ur.RoleId equals r.Id
+        where r.Name == role
+        select new UserModel()
+        {
+          Id = u.Id,
+          Email = u.Email,
+          FirstName = u.FirstName,
+          LastName = u.LastName
+        };
+      return await query.ToListAsync();
     }
 
     #region UTIL

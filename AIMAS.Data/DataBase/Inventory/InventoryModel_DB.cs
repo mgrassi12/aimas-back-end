@@ -4,6 +4,8 @@ using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AIMAS.Data.Models;
+using AIMAS.Data.Util;
+using NpgsqlTypes;
 
 namespace AIMAS.Data.Inventory
 {
@@ -18,13 +20,11 @@ namespace AIMAS.Data.Inventory
 
     public string Description { get; set; }
 
-    [Required, DataType(DataType.DateTime)]
+    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime ExpirationDate { get; set; }
 
-    [Required, DataType(DataType.DateTime)]
+    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime MaintanceDate { get; set; }
-
-    //public ulong LoadOutID { get; set; }
 
     [Required]
     public LocationModel_DB Location { get; set; }

@@ -5,6 +5,6 @@ Using ASP.Net Core
 
 #DataBase Commands
 
-Add-Migration {Migration Name}
+dotnet ef migrations add `{MigrationName}`
 
-Update-DataBase
+dotnet ef database update

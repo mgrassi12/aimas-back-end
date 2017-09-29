@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
+using AIMAS.Data.Util;
 
 namespace AIMAS.Data
 {
@@ -44,5 +46,20 @@ namespace AIMAS.Data
 
       base.OnModelCreating(modelBuilder);
     }
+
+    public override int SaveChanges()
+    {
+      var list = ChangeTracker
+        .Entries()
+        .Where(x => x.State == EntityState.Modified || x.State == EntityState.Added && x.Entity != null)
+        .Select(x => x.Entity)
+        .ToList();
+
+        list.ForEach(entity => DateTimeKindAttribute.Apply(entity));
+
+
+      return base.SaveChanges();
+    }
+
   }
 }

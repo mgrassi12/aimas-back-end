@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace AIMAS.Data.Util
 {
@@ -26,14 +24,11 @@ namespace AIMAS.Data.Util
       if (entity == null)
         return;
 
-      //Find all properties that are of type DateTime or DateTime?;
       var properties = entity.GetType().GetProperties()
-          .Where(x => x.PropertyType == typeof(DateTime)
-                   || x.PropertyType == typeof(DateTime?));
+          .Where(x => x.PropertyType == typeof(DateTime) || x.PropertyType == typeof(DateTime?));
 
       foreach (var property in properties)
       {
-        //Check whether these properties have the DateTimeKindAttribute;
         var attr = property.GetCustomAttribute<DateTimeKindAttribute>();
         if (attr == null)
           continue;
@@ -45,7 +40,12 @@ namespace AIMAS.Data.Util
         if (dt == null)
           continue;
 
-        //If the value is not null set the appropriate DateTimeKind;
+        if (dt.Value.Kind == DateTimeKind.Local && attr.Kind == DateTimeKind.Utc)
+          dt = dt.Value.ToUniversalTime();
+
+        if (dt.Value.Kind == DateTimeKind.Utc && attr.Kind == DateTimeKind.Local)
+          dt = dt.Value.ToLocalTime();
+
         property.SetValue(entity, DateTime.SpecifyKind(dt.Value, attr.Kind));
       }
     }

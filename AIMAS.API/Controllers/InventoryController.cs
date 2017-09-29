@@ -26,7 +26,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("all")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin, InventoryManager, User")]
     public ResultObj<List<InventoryModel>> GetInventory()
     {
       var result = new ResultObj<List<InventoryModel>>();
@@ -48,7 +48,7 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("search")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin, InventoryManager, User")]
     public PageResultObj<List<InventoryModel>> GetInventory([FromBody]InventorySearch search)
     {
       var result = new PageResultObj<List<InventoryModel>>();
