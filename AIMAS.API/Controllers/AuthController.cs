@@ -60,7 +60,7 @@ namespace AIMAS.API.Controllers
     [Authorize(Roles = "Admin")]
     public async Task<Result> RegisterUser([FromBody] RegisterModel registerModel)
     {
-      var userModel = registerModel.ToDBModel();
+      var userModel = registerModel.ToDbModel();
       var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
       result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, "User"));
       if (result.Success)
@@ -83,7 +83,7 @@ namespace AIMAS.API.Controllers
         var signinResult = await SignInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
         if (signinResult.Succeeded)
         {
-          log.LogInformation($"{loginModel.Email} loged in");
+          log.LogInformation($"{loginModel.Email} logged in");
           result.Success = true;
         }
         else
@@ -111,12 +111,12 @@ namespace AIMAS.API.Controllers
       {
         var email = IdentityDB.Manager.GetUserAsync(User).Result.Email;
         await SignInManager.SignOutAsync();
-        log.LogInformation("{0} Loged Out", email);
+        log.LogInformation("{0} Logged Out", email);
         result.Success = true;
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = "Something went wrong while Loging Out";
+        result.ErrorMessage = "Something went wrong while Logging Out";
         result.AddException(ex);
       }
       return result;

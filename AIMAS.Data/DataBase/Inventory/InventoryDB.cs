@@ -45,12 +45,12 @@ namespace AIMAS.Data.Inventory
                     Name = inventory.Name,
                     Description = inventory.Description,
                     ExpirationDate = inventory.ExpirationDate,
-                    MaintanceDate = inventory.MaintanceDate,
-                    Location = new LocationModel()
+                    MaintenanceDate = inventory.MaintenanceDate,
+                    CurrentLocation = new LocationModel()
                     {
-                      ID = inventory.Location.ID,
-                      Name = inventory.Location.Name,
-                      Description = inventory.Location.Description
+                      ID = inventory.CurrentLocation.ID,
+                      Name = inventory.CurrentLocation.Name,
+                      Description = inventory.CurrentLocation.Description
                     }
                   };
       return query.ToList();
@@ -65,12 +65,12 @@ namespace AIMAS.Data.Inventory
                     Name = inventory.Name,
                     Description = inventory.Description,
                     ExpirationDate = inventory.ExpirationDate,
-                    MaintanceDate = inventory.MaintanceDate,
-                    Location = new LocationModel()
+                    MaintenanceDate = inventory.MaintenanceDate,
+                    CurrentLocation = new LocationModel()
                     {
-                      ID = inventory.Location.ID,
-                      Name = inventory.Location.Name,
-                      Description = inventory.Location.Description
+                      ID = inventory.CurrentLocation.ID,
+                      Name = inventory.CurrentLocation.Name,
+                      Description = inventory.CurrentLocation.Description
                     }
                   };
 
@@ -90,9 +90,9 @@ namespace AIMAS.Data.Inventory
 
     public void AddInventory(InventoryModel inventory)
     {
-      var inventoryDB = inventory.ToDBModel();
+      var inventoryDB = inventory.ToDbModel();
 
-      inventoryDB.Location = Aimas.Locations.Single(l => l.ID == inventoryDB.Location.ID);
+      inventoryDB.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventoryDB.CurrentLocation.ID);
 
       if (inventoryDB.ID == default)
       {
@@ -108,7 +108,7 @@ namespace AIMAS.Data.Inventory
     public void UpdateInventory(InventoryModel inventory)
     {
       var result = Aimas.Inventories
-        .Include(item => item.Location)
+        .Include(item => item.CurrentLocation)
         .Where(item => item.ID == inventory.ID)
         .First();
 
@@ -121,11 +121,11 @@ namespace AIMAS.Data.Inventory
       if (inventory.ExpirationDate != default)
         result.ExpirationDate = inventory.ExpirationDate;
 
-      if (inventory.MaintanceDate != default)
-        result.MaintanceDate = inventory.MaintanceDate;
+      if (inventory.MaintenanceDate != default)
+        result.MaintenanceDate = inventory.MaintenanceDate;
 
-      if (inventory.Location.ID != result.Location.ID)
-        result.Location = Aimas.Locations.Single(l => l.ID == inventory.ID);
+      if (inventory.CurrentLocation.ID != result.CurrentLocation.ID)
+        result.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventory.ID);
 
       Aimas.SaveChanges();
 
@@ -148,12 +148,12 @@ namespace AIMAS.Data.Inventory
                     Name = inventory.Name,
                     Description = inventory.Description,
                     ExpirationDate = inventory.ExpirationDate,
-                    MaintanceDate = inventory.MaintanceDate,
-                    Location = new LocationModel()
+                    MaintenanceDate = inventory.MaintenanceDate,
+                    CurrentLocation = new LocationModel()
                     {
-                      ID = inventory.Location.ID,
-                      Name = inventory.Location.Name,
-                      Description = inventory.Location.Description
+                      ID = inventory.CurrentLocation.ID,
+                      Name = inventory.CurrentLocation.Name,
+                      Description = inventory.CurrentLocation.Description
                     }
                   };
       return query.ToList();

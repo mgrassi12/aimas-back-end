@@ -146,9 +146,9 @@ namespace AIMAS.Data.Identity
 
     #region UTIL
 
-    public IdentityUserRole<long> NewIdentityRole(long usrrID, long roleID)
+    public IdentityUserRole<long> NewIdentityRole(long userID, long roleID)
     {
-      return new IdentityUserRole<long>() { UserId = usrrID, RoleId = roleID };
+      return new IdentityUserRole<long>() { UserId = userID, RoleId = roleID };
     }
 
     #endregion

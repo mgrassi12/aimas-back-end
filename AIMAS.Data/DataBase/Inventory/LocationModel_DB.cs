@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AIMAS.Data.Models;
@@ -8,7 +5,7 @@ using AIMAS.Data.Models;
 namespace AIMAS.Data.Inventory
 {
   [Table("location")]
-  public class LocationModel_DB
+  public class LocationModel_DB : IAimasDbModel<LocationModel>
   {
     [Key]
     public long ID { get; set; }
@@ -31,7 +28,7 @@ namespace AIMAS.Data.Inventory
       Description = description;
     }
 
-    public LocationModel TOModel()
+    public LocationModel ToModel()
     {
       return new LocationModel(id: ID, name: Name, description: Description);
     }

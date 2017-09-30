@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AIMAS.Data.Identity;
 
 namespace AIMAS.Data.Models
 {
-  public class UserModel
+  public class UserModel : IAimasModel<UserModel_DB>
   {
     public long Id { get; set; }
     public string Email { get; set; }
@@ -27,7 +23,7 @@ namespace AIMAS.Data.Models
       Position = position;
     }
 
-    public UserModel_DB ToDBModel()
+    public UserModel_DB ToDbModel()
     {
       return new UserModel_DB(id: Id, email: Email, firstName: FirstName, lastName: LastName, position: Position);
     }
