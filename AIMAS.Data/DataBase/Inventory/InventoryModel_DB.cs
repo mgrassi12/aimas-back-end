@@ -23,6 +23,10 @@ namespace AIMAS.Data.Inventory
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime MaintenanceDate { get; set; }
 
+    public long MaintenanceIntervalNumber { get; set; }
+
+    public string MaintenanceIntervalType { get; set; }
+
     [Required]
     public LocationModel_DB CurrentLocation { get; set; }
 
@@ -37,13 +41,15 @@ namespace AIMAS.Data.Inventory
 
     }
 
-    public InventoryModel_DB(string name, DateTime expire, DateTime maintenance, LocationModel_DB currentLocation, LocationModel_DB defaultLocation, bool isArchived, bool isCritical, string description = null, long id = 0) : this()
+    public InventoryModel_DB(string name, DateTime expire, DateTime maintenanceDate, LocationModel_DB currentLocation, LocationModel_DB defaultLocation, string description = null, long intervalNumber = 0, string intervalType = null, bool isArchived = default, bool isCritical = default, long id = 0) : this()
     {
       ID = id;
       Name = name;
       Description = description;
       ExpirationDate = expire;
-      MaintenanceDate = maintenance;
+      MaintenanceDate = maintenanceDate;
+      MaintenanceIntervalNumber = intervalNumber;
+      MaintenanceIntervalType = intervalType;
       CurrentLocation = currentLocation;
       DefaultLocation = DefaultLocation;
       IsArchived = isArchived;
@@ -52,7 +58,7 @@ namespace AIMAS.Data.Inventory
 
     public InventoryModel ToModel()
     {
-      return new InventoryModel(id: ID, name: Name, description: Description, expiration: ExpirationDate, maintenance: MaintenanceDate, currentLocation: CurrentLocation.ToModel(), defaultLocation: DefaultLocation.ToModel(), isArchived: IsArchived, isCritical: IsCritical);
+      return new InventoryModel(id: ID, name: Name, description: Description, expiration: ExpirationDate, maintenanceDate: MaintenanceDate, intervalNumber: MaintenanceIntervalNumber, intervalType: MaintenanceIntervalType, currentLocation: CurrentLocation.ToModel(), defaultLocation: DefaultLocation.ToModel(), isArchived: IsArchived, isCritical: IsCritical);
     }
   }
 }

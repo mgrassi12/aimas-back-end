@@ -5,8 +5,8 @@ namespace AIMAS.Data.Models
 {
   public class ReservationModel : IAimasModel<ReservationModel_DB>
   {
-    public long ID { get; set; }
     public UserModel User { get; set; }
+    public long ID { get; set; }
     public DateTime BookingStart { get; set; }
     public DateTime BookingEnd { get; set; }
     public string BookingPurpose { get; set; }
@@ -29,7 +29,7 @@ namespace AIMAS.Data.Models
 
     public ReservationModel_DB ToDbModel()
     {
-      return new ReservationModel_DB(id: ID, user: User.ToDbModel(), start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToDbModel());
+      return new ReservationModel_DB(user: User.ToDbModel(), id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToDbModel());
     }
   }
 }

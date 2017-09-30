@@ -26,13 +26,13 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       // Add Test Inventory Rows
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now, DateTime.Now, location, id: 1));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now, DateTime.Now, location, id: 2));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now, DateTime.Now, location, id: 3));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now, DateTime.Now, location, location, id: 1));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now, DateTime.Now, location, location, id: 2));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now, DateTime.Now, location, location, id: 3));
       Aimas.SaveChanges();
 
       // Add Reservation
-      Aimas.Reservations.Add(new ReservationModel_DB(Aimas.Users.First(), Aimas.Inventories.First(), DateTime.Now, DateTime.Now, 1));
+      Aimas.Reservations.Add(new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location, 1));
       Aimas.SaveChanges();
     }
 

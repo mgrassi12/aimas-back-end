@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
+using AIMAS.Data.Util;
 
 namespace AIMAS.Data.Inventory
 {
@@ -10,15 +11,15 @@ namespace AIMAS.Data.Inventory
   public class ReservationModel_DB : IAimasDbModel<ReservationModel>
   {
     [Key]
-    public long ID { get; set; }
-
-    [Key]
     public UserModel_DB User { get; set; }
 
-    [Required, DataType(DataType.DateTime)]
+    [Key]
+    public long ID { get; set; }
+
+    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime BookingStart { get; set; }
 
-    [Required, DataType(DataType.DateTime)]
+    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime BookingEnd { get; set; }
 
     [Required]
@@ -44,7 +45,7 @@ namespace AIMAS.Data.Inventory
 
     public ReservationModel ToModel()
     {
-      return new ReservationModel(id: ID, user: User.ToModel(), start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToModel());
+      return new ReservationModel(user: User.ToModel(), id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToModel());
     }
   }
 }

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -12,12 +9,27 @@ namespace AIMAS.Data
 {
   public class AimasContext : IdentityDbContext<UserModel_DB, RoleModel_DB, long>
   {
+    public DbSet<AlertTimeModel_DB> AlertTimes { get; set; }
+
+    public DbSet<CategoryModel_DB> Categories { get; set; }
+
+    public DbSet<CategoryEntryModel_DB> CategoryEntries { get; set; }
+
+    public DbSet<ChangeEventModel_DB> ChangeEvents { get; set; }
 
     public DbSet<InventoryModel_DB> Inventories { get; set; }
 
+    public DbSet<LocationModel_DB> Locations { get; set; }
+
+    public DbSet<NotificationModel_DB> Notifications { get; set; }
+
     public DbSet<ReservationModel_DB> Reservations { get; set; }
 
-    public DbSet<LocationModel_DB> Locations { get; set; }
+    public DbSet<ReportModel_DB> Reports { get; set; }
+
+    public DbSet<ReservationEntryModel_DB> ReservationEntries { get; set; }
+
+    public DbSet<TimeLogModel_DB> TimeLogs { get; set; }
 
 
     public AimasContext(DbContextOptions<AimasContext> options) : base(options)
@@ -43,6 +55,10 @@ namespace AIMAS.Data
       modelBuilder.Entity<RoleModel_DB>()
         .HasAlternateKey(role => role.Name)
         .HasName("AK_AspNetRoles_Name");
+
+      modelBuilder.Entity<CategoryModel_DB>()
+        .HasAlternateKey(category => category.Name)
+        .HasName("AK_category_Name");
 
       base.OnModelCreating(modelBuilder);
     }
