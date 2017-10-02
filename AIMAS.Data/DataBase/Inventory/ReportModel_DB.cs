@@ -9,8 +9,8 @@ namespace AIMAS.Data.Inventory
 {
   [Table("report")]
   public class ReportModel_DB : IAimasDbModel<ReportModel>
-    {
-    [Key]
+  {
+    [Required]
     public InventoryModel_DB Inventory { get; set; }
 
     [Key]

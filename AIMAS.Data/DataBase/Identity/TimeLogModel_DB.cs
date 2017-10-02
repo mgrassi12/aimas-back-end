@@ -9,7 +9,7 @@ namespace AIMAS.Data.Identity
   [Table("timeLog")]
   public class TimeLogModel_DB : IAimasDbModel<TimeLogModel>
   {
-    [Key]
+    [Required]
     public UserModel_DB User { get; set; }
 
     [Key]

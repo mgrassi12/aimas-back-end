@@ -32,7 +32,7 @@ namespace AIMAS.Data.Models
       MaintenanceIntervalNumber = intervalNumber;
       MaintenanceIntervalType = intervalType;
       CurrentLocation = currentLocation;
-      DefaultLocation = DefaultLocation;
+      DefaultLocation = defaultLocation;
       IsArchived = isArchived;
       IsCritical = isCritical;
     }

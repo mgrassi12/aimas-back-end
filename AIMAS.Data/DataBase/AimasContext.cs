@@ -43,6 +43,15 @@ namespace AIMAS.Data
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      //modelBuilder.Entity<InventoryModel_DB>()
+      //  .HasOne(inventory => inventory.CurrentLocation)
+      //  .WithMany()
+      //  .OnDelete(DeleteBehavior.Restrict);
+
+      //modelBuilder.Entity<InventoryModel_DB>()
+      //  .HasOne(inventory => inventory.DefaultLocation)
+      //  .WithMany()
+      //  .OnDelete(DeleteBehavior.Restrict).IsRequired(false);
 
       modelBuilder.Entity<UserModel_DB>()
         .HasAlternateKey(user => user.UserName)

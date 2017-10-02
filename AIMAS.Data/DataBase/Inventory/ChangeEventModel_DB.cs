@@ -9,8 +9,8 @@ namespace AIMAS.Data.Inventory
 {
   [Table("changeEvent")]
   public class ChangeEventModel_DB : IAimasDbModel<ChangeEventModel>
-    {
-    [Key]
+  {
+    [Required]
     public InventoryModel_DB Inventory { get; set; }
 
     [Key]

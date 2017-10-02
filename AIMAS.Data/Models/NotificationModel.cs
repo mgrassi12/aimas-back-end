@@ -5,24 +5,26 @@ namespace AIMAS.Data.Models
 {
   public class NotificationModel : IAimasModel<NotificationModel_DB>
   {
-    public UserModel User { get; set; }
     public InventoryModel Inventory { get; set; }
+    public UserModel User { get; set; }
     public long ID { get; set; }
+    public string Type { get; set; }
     public DateTime AlertDate { get; set; }
     public DateTime UpcomingEventDate { get; set; }
     
-    public NotificationModel(UserModel user, InventoryModel inventory, DateTime alertDate, DateTime upcomingEventDate, long id = default)
+    public NotificationModel(InventoryModel inventory, UserModel user, string type, DateTime alertDate, DateTime upcomingEventDate, long id = default)
     {
-      User = user;
       Inventory = inventory;
+      User = user;
       ID = id;
+      Type = type;
       AlertDate = alertDate;
       UpcomingEventDate = upcomingEventDate;
     }
 
     public NotificationModel_DB ToDbModel()
     {
-      return new NotificationModel_DB(user: User.ToDbModel(), inventory: Inventory.ToDbModel(), id: ID, alertDate: AlertDate, upcomingEventDate: UpcomingEventDate);
+      return new NotificationModel_DB(inventory: Inventory.ToDbModel(), user: User.ToDbModel(), id: ID, type: Type, alertDate: AlertDate, upcomingEventDate: UpcomingEventDate);
     }
   }
 }

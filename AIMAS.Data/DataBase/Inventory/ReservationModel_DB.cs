@@ -10,7 +10,7 @@ namespace AIMAS.Data.Inventory
   [Table("reservation")]
   public class ReservationModel_DB : IAimasDbModel<ReservationModel>
   {
-    [Key]
+    [Required]
     public UserModel_DB User { get; set; }
 
     [Key]

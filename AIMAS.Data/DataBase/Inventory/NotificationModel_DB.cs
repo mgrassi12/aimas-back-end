@@ -10,14 +10,17 @@ namespace AIMAS.Data.Inventory
   [Table("Notification")]
   public class NotificationModel_DB : IAimasDbModel<NotificationModel>
   {
-    [Key]
+    [Required]
+    public InventoryModel_DB Inventory { get; set; }
+
+    [Required]
     public UserModel_DB User { get; set; }
 
     [Key]
-    public InventoryModel_DB Inventory { get; set; }
-
-    [Key]
     public long ID { get; set; }
+
+    [Required]
+    public string Type { get; set; }
 
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime AlertDate { get; set; }
@@ -25,18 +28,19 @@ namespace AIMAS.Data.Inventory
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime UpcomingEventDate { get; set; }
 
-    public NotificationModel_DB(UserModel_DB user, InventoryModel_DB inventory, DateTime alertDate, DateTime upcomingEventDate, long id = default)
+    public NotificationModel_DB(InventoryModel_DB inventory, UserModel_DB user, string type, DateTime alertDate, DateTime upcomingEventDate, long id = default)
     {
-      User = user;
       Inventory = inventory;
+      User = user;
       ID = id;
+      Type = type;
       AlertDate = alertDate;
       UpcomingEventDate = upcomingEventDate;
     }
 
     public NotificationModel ToModel()
     {
-      return new NotificationModel(user: User.ToModel(), inventory: Inventory.ToModel(), id: ID, alertDate: AlertDate, upcomingEventDate: UpcomingEventDate);
+      return new NotificationModel(inventory: Inventory.ToModel(), user: User.ToModel(), id: ID, type: Type, alertDate: AlertDate, upcomingEventDate: UpcomingEventDate);
     }
   }
 }

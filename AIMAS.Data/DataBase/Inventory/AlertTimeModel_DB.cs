@@ -7,7 +7,7 @@ namespace AIMAS.Data.Inventory
   [Table("alertTime")]
   public class AlertTimeModel_DB : IAimasDbModel<AlertTimeModel>
     {
-    [Key]
+    [Required]
     public InventoryModel_DB Inventory { get; set; }
 
     [Key]

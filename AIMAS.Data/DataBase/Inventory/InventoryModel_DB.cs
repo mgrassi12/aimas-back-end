@@ -51,7 +51,7 @@ namespace AIMAS.Data.Inventory
       MaintenanceIntervalNumber = intervalNumber;
       MaintenanceIntervalType = intervalType;
       CurrentLocation = currentLocation;
-      DefaultLocation = DefaultLocation;
+      DefaultLocation = defaultLocation;
       IsArchived = isArchived;
       IsCritical = isCritical;
     }
