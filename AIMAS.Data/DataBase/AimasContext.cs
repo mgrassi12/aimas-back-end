@@ -13,7 +13,7 @@ namespace AIMAS.Data
 
     public DbSet<CategoryModel_DB> Categories { get; set; }
 
-    public DbSet<CategoryEntryModel_DB> CategoryEntries { get; set; }
+    public DbSet<CategoryInventoryModel_DB> CategoryInventory { get; set; }
 
     public DbSet<ChangeEventModel_DB> ChangeEvents { get; set; }
 
@@ -27,7 +27,7 @@ namespace AIMAS.Data
 
     public DbSet<ReportModel_DB> Reports { get; set; }
 
-    public DbSet<ReservationEntryModel_DB> ReservationEntries { get; set; }
+    public DbSet<ReservationInventoryModel_DB> ReservationInventory { get; set; }
 
     public DbSet<TimeLogModel_DB> TimeLogs { get; set; }
 
@@ -65,9 +65,33 @@ namespace AIMAS.Data
         .HasAlternateKey(role => role.Name)
         .HasName("AK_AspNetRoles_Name");
 
-      modelBuilder.Entity<CategoryModel_DB>()
-        .HasAlternateKey(category => category.Name)
-        .HasName("AK_category_Name");
+      // Catergory Inventory Many to Many
+      modelBuilder.Entity<CategoryInventoryModel_DB>()
+            .HasKey(ci => new { ci.CategoryID, ci.InventoryID });
+
+      modelBuilder.Entity<CategoryInventoryModel_DB>()
+          .HasOne(ci => ci.Category)
+          .WithMany(c => c.CategoryInventory)
+          .HasForeignKey(ci => ci.CategoryID);
+
+      modelBuilder.Entity<CategoryInventoryModel_DB>()
+           .HasOne(ci => ci.Inventory)
+           .WithMany(i => i.CategoryInventory)
+           .HasForeignKey(ci => ci.InventoryID);
+
+      // Reservation Inventory Many to Many
+      modelBuilder.Entity<ReservationInventoryModel_DB>()
+            .HasKey(ri => new { ri.ReservationID, ri.InventoryID });
+
+      modelBuilder.Entity<ReservationInventoryModel_DB>()
+          .HasOne(ri => ri.Reservation)
+          .WithMany(r => r.ReservationInventory)
+          .HasForeignKey(ri => ri.ReservationID);
+
+      modelBuilder.Entity<ReservationInventoryModel_DB>()
+           .HasOne(ri => ri.Inventory)
+           .WithMany(i => i.ReservationInventory)
+           .HasForeignKey(ri => ri.InventoryID);
 
       base.OnModelCreating(modelBuilder);
     }
@@ -80,7 +104,7 @@ namespace AIMAS.Data
         .Select(x => x.Entity)
         .ToList();
 
-        list.ForEach(entity => DateTimeKindAttribute.Apply(entity));
+      list.ForEach(entity => DateTimeKindAttribute.Apply(entity));
 
 
       return base.SaveChanges();

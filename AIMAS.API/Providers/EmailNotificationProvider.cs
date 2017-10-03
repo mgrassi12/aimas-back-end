@@ -43,6 +43,7 @@ namespace AIMAS.API.Providers
       }
       catch (Exception ex)
       {
+        Console.Write(ex);
         return false;
       }
     }

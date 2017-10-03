@@ -16,12 +16,7 @@ namespace AIMAS.Data.Inventory
 
     public string Description { get; set; }
 
-    public LocationModel_DB() : base()
-    {
-
-    }
-
-    public LocationModel_DB(string name, string description = default, long id = default) : this()
+    public LocationModel_DB(string name, string description = default, long id = default)
     {
       ID = id;
       Name = name;

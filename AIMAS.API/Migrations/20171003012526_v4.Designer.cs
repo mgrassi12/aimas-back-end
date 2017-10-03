@@ -11,9 +11,10 @@ using System;
 namespace AIMAS.API.Migrations
 {
     [DbContext(typeof(AimasContext))]
-    partial class AimasContextModelSnapshot : ModelSnapshot
+    [Migration("20171003012526_v4")]
+    partial class v4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

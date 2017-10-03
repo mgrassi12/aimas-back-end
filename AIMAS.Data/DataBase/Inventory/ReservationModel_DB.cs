@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
 using AIMAS.Data.Util;
@@ -28,12 +29,12 @@ namespace AIMAS.Data.Inventory
     [Required]
     public LocationModel_DB Location { get; set; }
 
-    public ReservationModel_DB() : base()
-    {
+    public List<ReservationInventoryModel_DB> ReservationInventory { get; set; }
 
-    }
+    [Required]
+    public bool IsArchived { get; set; }
 
-    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, long id = default) : this()
+    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, long id = default)
     {
       ID = id;
       User = user;

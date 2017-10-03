@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AIMAS.Data.Inventory
 {
-  [Table("Notification")]
+  [Table("notification")]
   public class NotificationModel_DB : IAimasDbModel<NotificationModel>
   {
     [Required]
