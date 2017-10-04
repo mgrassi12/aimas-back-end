@@ -10,11 +10,15 @@ namespace AIMAS.Data.Inventory
     Inventory_M_Date
   }
 
+  public enum AlertTimeLinkType
+  {
+    Inventory,
+    Reservation
+  }
+
   [Table("alertTime")]
   public class AlertTimeModel_DB : IAimasDbModel<AlertTimeModel>
   {
-    [Required]
-    public InventoryModel_DB Inventory { get; set; }
 
     [Key]
     public long ID { get; set; }
@@ -24,6 +28,13 @@ namespace AIMAS.Data.Inventory
 
     [Required]
     public long DaysBefore { get; set; }
+
+    //[Required]
+    //public AlertTimeLinkType LinkType;
+
+
+    [Required]
+    public InventoryModel_DB Inventory { get; set; }
 
     public AlertTimeModel_DB()
     {

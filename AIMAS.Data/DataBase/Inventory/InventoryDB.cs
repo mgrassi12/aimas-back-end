@@ -27,9 +27,9 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       // Add Test Inventory Rows
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now, DateTime.Now, location, location, id: 1));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now, DateTime.Now, location, location, id: 2));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now, DateTime.Now, location, location, id: 3));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now.AddDays(20), DateTime.Now.AddDays(10), location, location, id: 1));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now.AddDays(30), DateTime.Now.AddDays(20), location, location, id: 2));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now.AddDays(40), DateTime.Now.AddDays(30), location, location, id: 3));
       Aimas.SaveChanges();
 
       // Add Alerts
@@ -140,13 +140,16 @@ namespace AIMAS.Data.Inventory
 
     public List<AlertTimeModel> GetUpcomingExpiryAlertTimes()
     {
+      //var t = aimas.alerttimes.include(i => i.inventory).tolist();
+      //var s = t.where(x => x.type == alerttimetype.inventoy_e_date).tolist();
+      //var d = s.where(x => (x.inventory.expirationdate - datetime.now) >= timespan.fromdays(x.daysbefore)).tolist();
       var query = from alert in Aimas.AlertTimes
                   where
                     alert.Type == AlertTimeType.Inventoy_E_Date
                     &&
                     alert.Inventory.ExpirationDate >= DateTime.UtcNow
                     &&
-                    (alert.Inventory.ExpirationDate - DateTime.UtcNow) >= TimeSpan.FromDays(alert.DaysBefore)
+                    (alert.Inventory.ExpirationDate - DateTime.Now) >= TimeSpan.FromDays(alert.DaysBefore)
                   select alert.ToModel();
       return query.ToList();
     }
