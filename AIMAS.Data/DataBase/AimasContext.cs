@@ -61,12 +61,12 @@ namespace AIMAS.Data
 
       modelBuilder.Entity<CategoryInventoryModel_DB>()
           .HasOne(ci => ci.Category)
-          .WithMany(c => c.CategoryInventory)
+          .WithMany(c => c.CategoryInventories)
           .HasForeignKey(ci => ci.CategoryID);
 
       modelBuilder.Entity<CategoryInventoryModel_DB>()
            .HasOne(ci => ci.Inventory)
-           .WithMany(i => i.CategoryInventory)
+           .WithMany(i => i.CategoryInventories)
            .HasForeignKey(ci => ci.InventoryID);
 
       // Reservation Inventory Many to Many
@@ -75,12 +75,12 @@ namespace AIMAS.Data
 
       modelBuilder.Entity<ReservationInventoryModel_DB>()
           .HasOne(ri => ri.Reservation)
-          .WithMany(r => r.ReservationInventory)
+          .WithMany(r => r.ReservationInventories)
           .HasForeignKey(ri => ri.ReservationID);
 
       modelBuilder.Entity<ReservationInventoryModel_DB>()
            .HasOne(ri => ri.Inventory)
-           .WithMany(i => i.ReservationInventory)
+           .WithMany(i => i.ReservationInventories)
            .HasForeignKey(ri => ri.InventoryID);
 
       base.OnModelCreating(modelBuilder);

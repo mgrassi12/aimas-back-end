@@ -10,11 +10,11 @@ namespace AIMAS.Data.Inventory
   {
     [Key]
     public long ID { get; set; }
-    
+
     [Required, MaxLength(255)]
     public string Name { get; set; }
 
-    public List<CategoryInventoryModel_DB> CategoryInventory { get; set; }
+    public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 
     private CategoryModel_DB()
     {
@@ -24,6 +24,7 @@ namespace AIMAS.Data.Inventory
     {
       ID = id;
       Name = name;
+      CategoryInventories = new List<CategoryInventoryModel_DB>();
     }
 
     public CategoryModel ToModel()

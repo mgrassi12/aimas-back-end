@@ -104,8 +104,9 @@ namespace AIMAS.Data.Identity
 
     public async Task<List<UserModel>> GetUsersAsync()
     {
-      var users = await GetUsersDBAsync();
-      return users.Select(user => user.ToModel()).ToList();
+      var query = from user in Aimas.Users
+                  select user.ToModel();
+      return await query.ToListAsync();
     }
     public async Task<List<UserModel_DB>> GetUsersDBAsync()
     {

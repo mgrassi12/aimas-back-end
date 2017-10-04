@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using System.Linq;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
 using AIMAS.Data.Util;
@@ -29,7 +30,7 @@ namespace AIMAS.Data.Inventory
     [Required]
     public LocationModel_DB Location { get; set; }
 
-    public List<ReservationInventoryModel_DB> ReservationInventory { get; set; }
+    public List<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
     [Required]
     public bool IsArchived { get; set; }
@@ -46,6 +47,7 @@ namespace AIMAS.Data.Inventory
       BookingEnd = end;
       BookingPurpose = purpose;
       Location = location;
+      ReservationInventories = new List<ReservationInventoryModel_DB>();
     }
 
     public ReservationModel ToModel()
