@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using MoreLinq;
 using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Inventory
@@ -31,48 +32,39 @@ namespace AIMAS.Data.Inventory
       Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now, DateTime.Now, location, location, id: 3));
       Aimas.SaveChanges();
 
+      // Add Alerts
+      var inventory = Aimas.Inventories.First();
+      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 30));
+      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 20));
+      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 10));
+      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 5));
+      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 1));
+      Aimas.SaveChanges();
+
       // Add Reservation
-      Aimas.Reservations.Add(new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location, 1));
+      var reservation = new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location, id: 1);
+      reservation.ReservationInventories.Add(new ReservationInventoryModel_DB(reservation, inventory));
+      Aimas.Reservations.Add(reservation);
+      Aimas.SaveChanges();
+
+      // Add Category
+      var cateogory = new CategoryModel_DB("Test Item");
+      cateogory.CategoryInventories.Add(new CategoryInventoryModel_DB(cateogory, inventory));
+      Aimas.Categories.Add(cateogory);
       Aimas.SaveChanges();
     }
 
     public List<InventoryModel> GetInventories()
     {
       var query = from inventory in Aimas.Inventories
-                  select new InventoryModel()
-                  {
-                    ID = inventory.ID,
-                    Name = inventory.Name,
-                    Description = inventory.Description,
-                    ExpirationDate = inventory.ExpirationDate,
-                    MaintenanceDate = inventory.MaintenanceDate,
-                    CurrentLocation = new LocationModel()
-                    {
-                      ID = inventory.CurrentLocation.ID,
-                      Name = inventory.CurrentLocation.Name,
-                      Description = inventory.CurrentLocation.Description
-                    }
-                  };
+                  select inventory.ToModel();
       return query.ToList();
     }
 
     public (List<InventoryModel> list, int TotalCount) GetInventories(InventorySearch search)
     {
       var query = from inventory in Aimas.Inventories
-                  select new InventoryModel()
-                  {
-                    ID = inventory.ID,
-                    Name = inventory.Name,
-                    Description = inventory.Description,
-                    ExpirationDate = inventory.ExpirationDate,
-                    MaintenanceDate = inventory.MaintenanceDate,
-                    CurrentLocation = new LocationModel()
-                    {
-                      ID = inventory.CurrentLocation.ID,
-                      Name = inventory.CurrentLocation.Name,
-                      Description = inventory.CurrentLocation.Description
-                    }
-                  };
+                  select inventory.ToModel();
 
       if (search.ID.HasValue)
         query = query.Where(i => i.ID == search.ID.Value);
@@ -96,7 +88,7 @@ namespace AIMAS.Data.Inventory
 
       if (inventoryDB.ID == default)
       {
-        var lastID = Aimas.Inventories.LastOrDefault()?.ID;
+        var lastID = Aimas.Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
         var id = lastID.HasValue ? lastID.Value + 1 : 1;
         inventoryDB.ID = id;
       }
@@ -142,20 +134,20 @@ namespace AIMAS.Data.Inventory
     {
       var query = from inventory in Aimas.Inventories
                   where inventory.ExpirationDate <= DateTime.UtcNow
-                  select new InventoryModel()
-                  {
-                    ID = inventory.ID,
-                    Name = inventory.Name,
-                    Description = inventory.Description,
-                    ExpirationDate = inventory.ExpirationDate,
-                    MaintenanceDate = inventory.MaintenanceDate,
-                    CurrentLocation = new LocationModel()
-                    {
-                      ID = inventory.CurrentLocation.ID,
-                      Name = inventory.CurrentLocation.Name,
-                      Description = inventory.CurrentLocation.Description
-                    }
-                  };
+                  select inventory.ToModel();
+      return query.ToList();
+    }
+
+    public List<AlertTimeModel> GetUpcomingExpiryAlertTimes()
+    {
+      var query = from alert in Aimas.AlertTimes
+                  where
+                    alert.Type == AlertTimeType.Inventoy_E_Date
+                    &&
+                    alert.Inventory.ExpirationDate >= DateTime.UtcNow
+                    &&
+                    (alert.Inventory.ExpirationDate - DateTime.UtcNow) >= TimeSpan.FromDays(alert.DaysBefore)
+                  select alert.ToModel();
       return query.ToList();
     }
   }

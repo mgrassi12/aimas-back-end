@@ -45,6 +45,12 @@ namespace AIMAS.API.Services
 
     private void CheckInventory()
     {
+      //CheckExpiredInventory();
+      CheckUpcomingAleryNotifications();
+    }
+
+    private void CheckExpiredInventory()
+    {
       var items = Inventory.GetExpiredInventory();
       foreach (var item in items)
       {
@@ -60,6 +66,11 @@ namespace AIMAS.API.Services
         }
 
       }
+    }
+
+    private void CheckUpcomingAleryNotifications()
+    {
+      var list = Inventory.GetUpcomingExpiryAlertTimes();
     }
 
 

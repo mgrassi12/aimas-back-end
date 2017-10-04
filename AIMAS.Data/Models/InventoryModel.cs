@@ -10,8 +10,7 @@ namespace AIMAS.Data.Models
     public string Description { get; set; }
     public DateTime ExpirationDate { get; set; }
     public DateTime MaintenanceDate { get; set; }
-    public long MaintenanceIntervalNumber { get; set; }
-    public string MaintenanceIntervalType { get; set; }
+    public long MaintenanceIntervalDays { get; set; }
     public LocationModel CurrentLocation { get; set; }
     public LocationModel DefaultLocation { get; set; }
     public bool IsArchived { get; set; }
@@ -22,15 +21,25 @@ namespace AIMAS.Data.Models
 
     }
 
-    public InventoryModel(string name, DateTime expiration, DateTime maintenanceDate, LocationModel currentLocation, LocationModel defaultLocation, string description = default, long intervalNumber = default, string intervalType = default, bool isArchived = default, bool isCritical = default, long id = default) : this()
+    public InventoryModel(
+      string name,
+      DateTime expiration,
+      DateTime maintenanceDate,
+      LocationModel currentLocation,
+      LocationModel defaultLocation,
+      string description = default,
+      long intervalDays = default,
+      bool isArchived = default,
+      bool isCritical = default,
+      long id = default
+      )
     {
       ID = id;
       Name = name;
       Description = description;
       ExpirationDate = expiration;
       MaintenanceDate = maintenanceDate;
-      MaintenanceIntervalNumber = intervalNumber;
-      MaintenanceIntervalType = intervalType;
+      MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
       IsArchived = isArchived;
@@ -39,7 +48,18 @@ namespace AIMAS.Data.Models
 
     public InventoryModel_DB ToDbModel()
     {
-      return new InventoryModel_DB(id: ID, name: Name, description: Description, expire: ExpirationDate, maintenanceDate: MaintenanceDate, intervalNumber: MaintenanceIntervalNumber, intervalType: MaintenanceIntervalType, currentLocation: CurrentLocation.ToDbModel(), defaultLocation: DefaultLocation.ToDbModel(), isArchived : IsArchived, isCritical: IsCritical);
+      return new InventoryModel_DB(
+        id: ID,
+        name: Name,
+        description: Description,
+        expire: ExpirationDate,
+        maintenanceDate: MaintenanceDate,
+        intervalDays: MaintenanceIntervalDays,
+        currentLocation: CurrentLocation?.ToDbModel(),
+        defaultLocation: DefaultLocation?.ToDbModel(),
+        isArchived: IsArchived,
+        isCritical: IsCritical
+        );
     }
   }
 
