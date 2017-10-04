@@ -16,6 +16,10 @@ namespace AIMAS.Data.Inventory
 
     public List<CategoryInventoryModel_DB> CategoryInventory { get; set; }
 
+    private CategoryModel_DB()
+    {
+    }
+
     public CategoryModel_DB(string name, long id = default)
     {
       ID = id;

@@ -30,6 +30,10 @@ namespace AIMAS.Data.Identity
     [Required]
     public string Purpose { get; set; }
 
+    private TimeLogModel_DB()
+    {
+    }
+
     public TimeLogModel_DB(UserModel_DB user, DateTime checkIn, DateTime checkInLodged, string purpose, DateTime checkOut = default, DateTime checkOutLodged = default, long id = default)
     {
       ID = id;

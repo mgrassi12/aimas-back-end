@@ -12,9 +12,12 @@ namespace AIMAS.Data.Inventory
 
     [Required]
     public string Name { get; set; }
-
-
+    
     public string Description { get; set; }
+
+    private LocationModel_DB()
+    {
+    }
 
     public LocationModel_DB(string name, string description = default, long id = default)
     {

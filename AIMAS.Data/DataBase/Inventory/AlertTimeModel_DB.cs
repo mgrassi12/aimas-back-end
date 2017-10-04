@@ -19,6 +19,10 @@ namespace AIMAS.Data.Inventory
     [Required]
     public long DaysBefore { get; set; }
 
+    private AlertTimeModel_DB()
+    {
+    }
+
     public AlertTimeModel_DB(InventoryModel_DB inventory, string type, long daysBefore, long id = default)
     {
       Inventory = inventory;

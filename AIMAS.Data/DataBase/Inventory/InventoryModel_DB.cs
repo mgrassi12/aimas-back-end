@@ -43,6 +43,10 @@ namespace AIMAS.Data.Inventory
     [Required]
     public bool IsArchived { get; set; }
 
+    private InventoryModel_DB()
+    {
+    }
+
     public InventoryModel_DB(string name, DateTime expire, DateTime maintenanceDate, LocationModel_DB currentLocation, LocationModel_DB defaultLocation, string description = null, long intervalNumber = 0, string intervalType = null, bool isArchived = default, bool isCritical = default, long id = default)
     {
       ID = id;

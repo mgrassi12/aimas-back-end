@@ -31,6 +31,10 @@ namespace AIMAS.Data.Inventory
     [Required]
     public string NewValue { get; set; }
 
+    private ChangeEventModel_DB()
+    {
+    }
+
     public ChangeEventModel_DB(InventoryModel_DB inventory, UserModel_DB user, DateTime changeTime, string changeType, string oldValue, string newValue, long id = default)
     {
       Inventory = inventory;

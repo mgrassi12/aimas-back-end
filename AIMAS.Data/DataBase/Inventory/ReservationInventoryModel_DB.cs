@@ -12,6 +12,10 @@ namespace AIMAS.Data.Inventory
     public long InventoryID { get; set; }
     public InventoryModel_DB Inventory { get; set; }
 
+    private ReservationInventoryModel_DB()
+    {
+    }
+
     public ReservationInventoryModel_DB(long reservation, long inventory)
     {
       ReservationID = reservation;

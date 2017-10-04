@@ -5,6 +5,14 @@ Using ASP.Net Core
 
 #DataBase Commands
 
-dotnet ef migrations add `{MigrationName}`
+Run commands from the API folder level.
 
-dotnet ef database update
+Make sure both "InitializeDB" and "Services" settings in appsettings.json from the API are off (false) to run these commands
+
+Create new schema:
+
+`dotnet ef migrations add {MigrationName}`
+
+Update db to new schema:
+
+`dotnet ef database update`

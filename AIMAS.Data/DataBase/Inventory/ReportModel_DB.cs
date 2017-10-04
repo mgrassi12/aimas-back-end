@@ -33,6 +33,10 @@ namespace AIMAS.Data.Inventory
 
     public string Notes { get; set; }
 
+    private ReportModel_DB()
+    {
+    }
+
     public ReportModel_DB(InventoryModel_DB inventory, string type, UserModel_DB creator, DateTime creationDate, UserModel_DB executor, DateTime executionDate, string notes, long id = default)
     {
       Inventory = inventory;

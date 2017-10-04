@@ -34,6 +34,10 @@ namespace AIMAS.Data.Inventory
     [Required]
     public bool IsArchived { get; set; }
 
+    private ReservationModel_DB()
+    {
+    }
+
     public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, long id = default)
     {
       ID = id;
