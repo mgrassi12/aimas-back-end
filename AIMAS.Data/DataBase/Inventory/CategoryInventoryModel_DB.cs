@@ -12,6 +12,10 @@ namespace AIMAS.Data.Inventory
     public long InventoryID { get; set; }
     public InventoryModel_DB Inventory { get; set; }
 
+    private CategoryInventoryModel_DB()
+    {
+    }
+
     public CategoryInventoryModel_DB(long category, long inventory)
     {
       CategoryID = category;

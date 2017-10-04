@@ -28,6 +28,10 @@ namespace AIMAS.Data.Inventory
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime UpcomingEventDate { get; set; }
 
+    private NotificationModel_DB()
+    {
+    }
+
     public NotificationModel_DB(InventoryModel_DB inventory, UserModel_DB user, string type, DateTime alertDate, DateTime upcomingEventDate, long id = default)
     {
       Inventory = inventory;
