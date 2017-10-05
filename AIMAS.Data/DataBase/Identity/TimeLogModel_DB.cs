@@ -49,5 +49,20 @@ namespace AIMAS.Data.Identity
     {
       return new TimeLogModel(id: ID, user: User.ToModel(), checkIn: CheckIn, checkOut: CheckOut, checkInLodged: CheckInLodged, checkOutLodged: CheckOutLodged, purpose: Purpose);
     }
+
+    public void UpdateDb(TimeLogModel log, AimasContext aimas)
+    {
+      CheckOut = log.CheckOut;
+      CheckOutLodged = log.CheckOutLodged;
+
+      if (log.CheckIn != default)
+        CheckIn = log.CheckIn;
+
+      if (log.CheckInLodged != default)
+        CheckInLodged = log.CheckInLodged;
+
+      if (!string.IsNullOrEmpty(log.Purpose))
+        Purpose = log.Purpose;
+    }
   }
 }

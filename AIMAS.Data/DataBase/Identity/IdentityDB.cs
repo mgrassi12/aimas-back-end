@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
 
 
@@ -143,6 +140,51 @@ namespace AIMAS.Data.Identity
           LastName = u.LastName
         };
       return await query.ToListAsync();
+    }
+
+    public void AddTimeLog(TimeLogModel log)
+    {
+      var dbLog = log.ToDbModel();
+      dbLog.User = Aimas.GetDbUser(log.User);
+
+      if (dbLog.ID == default)
+        dbLog.ID = Aimas.GetNewIdForTimeLog();
+
+      Aimas.TimeLogs.Add(dbLog);
+      Aimas.SaveChanges();
+    }
+
+    public async Task<List<TimeLogModel>> GetTimeLogsAsync()
+    {
+      var query = from log in Aimas.TimeLogs
+                  select log.ToModel();
+      return await query.ToListAsync();
+    }
+
+    public async Task<List<TimeLogModel>> GetTimeLogsAsync(UserModel user)
+    {
+      var query = from log in Aimas.TimeLogs
+                  where log.User == Aimas.GetDbUser(user)
+                  select log.ToModel();
+      return await query.ToListAsync();
+    }
+
+    public void UpdateTimeLog(TimeLogModel log)
+    {
+      var result = Aimas.TimeLogs
+        .Include(dbLog => dbLog.User)
+        .Where(dbLog => dbLog.ID == log.ID)
+        .Where(dbLog => dbLog.User.Id == log.User.Id)
+        .First();
+      result.UpdateDb(log, Aimas);
+      Aimas.SaveChanges();
+    }
+
+    public void RemoveTimeLog(int id)
+    {
+      var log = Aimas.TimeLogs.Find((long)id);
+      Aimas.TimeLogs.Remove(log);
+      Aimas.SaveChanges();
     }
 
     #region UTIL

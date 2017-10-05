@@ -53,5 +53,17 @@ namespace AIMAS.Data.Inventory
     {
       return new AlertTimeModel(inventory: Inventory.ToModel(), id: ID, type: Type, daysBefore: DaysBefore);
     }
+
+    public void UpdateDb(AlertTimeModel alertTime, AimasContext aimas)
+    {
+      Type = alertTime.Type;
+
+      if (alertTime.DaysBefore != default)
+        DaysBefore = alertTime.DaysBefore;
+
+      var newInventory = aimas.GetDbInventory(alertTime.Inventory);
+      if (newInventory != null)
+        Inventory = newInventory;
+    }
   }
 }

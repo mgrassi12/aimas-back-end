@@ -91,5 +91,27 @@ namespace AIMAS.Data.Inventory
         isArchived: IsArchived,
         isCritical: IsCritical);
     }
+
+    public void UpdateDb(InventoryModel inventory, AimasContext aimas)
+    {
+      Description = inventory.Description;
+      MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
+      DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
+      IsArchived = inventory.IsArchived;
+      IsCritical = inventory.IsCritical;
+
+      if (!string.IsNullOrEmpty(inventory.Name))
+        Name = inventory.Name;
+
+      if (inventory.ExpirationDate != default)
+        ExpirationDate = inventory.ExpirationDate;
+
+      if (inventory.MaintenanceDate != default)
+        MaintenanceDate = inventory.MaintenanceDate;
+
+      var newCurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
+      if (newCurrentLocation != null)
+        CurrentLocation = newCurrentLocation;
+    }
   }
 }
