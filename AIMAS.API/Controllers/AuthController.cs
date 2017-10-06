@@ -57,12 +57,13 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("register/user")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<Result> RegisterUser([FromBody] RegisterModel registerModel)
     {
       var userModel = registerModel.ToDbModel();
       var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
-      result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, "User"));
+      if (registerModel.UserRoles != null)
+        registerModel.UserRoles.ForEach(async role => result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, role.Name)));
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
@@ -124,7 +125,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("users")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ResultObj<List<UserModel>>> GetUsers()
     {
       var result = new ResultObj<List<UserModel>>();
@@ -140,6 +141,31 @@ namespace AIMAS.API.Controllers
         result.AddException(ex);
       }
       return result;
+    }
+
+    [HttpGet]
+    [Route("users")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ResultObj<List<RoleModel>>> GetRoles()
+    {
+      var result = new ResultObj<List<RoleModel>>();
+      try
+      {
+        var roles = await IdentityDB.GetRolesAsync();
+        result.ReturnObj = roles;
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.ErrorMessage = "Something went wrong while getting Users";
+        result.AddException(ex);
+      }
+      return result;
+    }
+
+    public async Task<Result> UpdateUser([FromBody] UserModel user)
+    {
+      return null;
     }
 
   }
