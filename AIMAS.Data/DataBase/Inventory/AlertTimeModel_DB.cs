@@ -4,17 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AIMAS.Data.Inventory
 {
-  public enum AlertTimeType
-  {
-    Inventoy_E_Date,
-    Inventory_M_Date
-  }
-
-  public enum AlertTimeLinkType
-  {
-    Inventory,
-    Reservation
-  }
 
   [Table("alertTime")]
   public class AlertTimeModel_DB : IAimasDbModel<AlertTimeModel>
@@ -24,34 +13,25 @@ namespace AIMAS.Data.Inventory
     public long ID { get; set; }
 
     [Required]
-    public AlertTimeType Type { get; set; }
-
-    [Required]
     public long DaysBefore { get; set; }
 
-    //[Required]
-    //public AlertTimeLinkType LinkType;
-
-
-    [Required]
-    public InventoryModel_DB Inventory { get; set; }
+    public string Name { get; set; }
 
     public AlertTimeModel_DB()
     {
 
     }
 
-    public AlertTimeModel_DB(InventoryModel_DB inventory, AlertTimeType type, long daysBefore, long id = default)
+    public AlertTimeModel_DB(long daysBefore, string name = default, long id = default)
     {
-      Inventory = inventory;
       ID = id;
-      Type = type;
       DaysBefore = daysBefore;
+      Name = name;
     }
 
     public AlertTimeModel ToModel()
     {
-      return new AlertTimeModel(inventory: Inventory.ToModel(), id: ID, type: Type, daysBefore: DaysBefore);
+      return new AlertTimeModel(id: ID, name: Name, daysBefore: DaysBefore);
     }
   }
 }

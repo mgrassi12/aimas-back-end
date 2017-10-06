@@ -27,22 +27,28 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       // Add Test Inventory Rows
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now.AddDays(20), DateTime.Now.AddDays(10), location, location, id: 1));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now.AddDays(30), DateTime.Now.AddDays(20), location, location, id: 2));
-      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now.AddDays(40), DateTime.Now.AddDays(30), location, location, id: 3));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #1", DateTime.Now.AddDays(20), 10, location, location));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #2", DateTime.Now.AddDays(30), 20, location, location));
+      Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now.AddDays(40), 30, location, location));
       Aimas.SaveChanges();
 
       // Add Alerts
+      Aimas.AlertTimes.Add(new AlertTimeModel_DB(1, "Dayly"));
+      Aimas.AlertTimes.Add(new AlertTimeModel_DB(7, "Weekly"));
+      Aimas.AlertTimes.Add(new AlertTimeModel_DB(14, "Fortnightly"));
+      Aimas.AlertTimes.Add(new AlertTimeModel_DB(30, "Monthly"));
+      Aimas.SaveChanges();
+
       var inventory = Aimas.Inventories.First();
-      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 30));
-      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 20));
-      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 10));
-      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 5));
-      inventory.AlertTimes.Add(new AlertTimeModel_DB(inventory, AlertTimeType.Inventoy_E_Date, 1));
+      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(1), inventory, AlertTimeType.Inventoy_E_Date));
+      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(5), inventory, AlertTimeType.Inventoy_E_Date));
+      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(10), inventory, AlertTimeType.Inventoy_E_Date));
+      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(20), inventory, AlertTimeType.Inventoy_E_Date));
+      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(30), inventory, AlertTimeType.Inventoy_E_Date));
       Aimas.SaveChanges();
 
       // Add Reservation
-      var reservation = new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location, id: 1);
+      var reservation = new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location);
       reservation.ReservationInventories.Add(new ReservationInventoryModel_DB(reservation, inventory));
       Aimas.Reservations.Add(reservation);
       Aimas.SaveChanges();
@@ -84,14 +90,14 @@ namespace AIMAS.Data.Inventory
     {
       var inventoryDB = inventory.ToDbModel();
 
-      inventoryDB.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventoryDB.CurrentLocation.ID);
+      //inventoryDB.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventoryDB.CurrentLocation.ID);
 
-      if (inventoryDB.ID == default)
-      {
-        var lastID = Aimas.Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
-        var id = lastID.HasValue ? lastID.Value + 1 : 1;
-        inventoryDB.ID = id;
-      }
+      //if (inventoryDB.ID == default)
+      //{
+      //  var lastID = Aimas.Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
+      //  var id = lastID.HasValue ? lastID.Value + 1 : 1;
+      //  inventoryDB.ID = id;
+      //}
 
       Aimas.Inventories.Add(inventoryDB);
       Aimas.SaveChanges();
@@ -101,31 +107,30 @@ namespace AIMAS.Data.Inventory
     {
       var result = Aimas.Inventories
         .Include(item => item.CurrentLocation)
-        .Where(item => item.ID == inventory.ID)
-        .First();
+        .Single(item => item.ID == inventory.ID);
 
       if (!string.IsNullOrEmpty(inventory.Name))
         result.Name = inventory.Name;
 
-      if (!string.IsNullOrEmpty(inventory.Description))
-        result.Description = inventory.Description;
+      //if (!string.IsNullOrEmpty(inventory.Description))
+      result.Description = inventory.Description;
 
       if (inventory.ExpirationDate != default)
         result.ExpirationDate = inventory.ExpirationDate;
 
-      if (inventory.MaintenanceDate != default)
-        result.MaintenanceDate = inventory.MaintenanceDate;
+      if (inventory.MaintenanceIntervalDays != default)
+        result.MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
 
       if (inventory.CurrentLocation.ID != result.CurrentLocation.ID)
-        result.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventory.ID);
+        result.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventory.ID); // Can be altered
 
       Aimas.SaveChanges();
 
     }
 
-    public void RemoveInventory(int ID)
+    public void RemoveInventory(long ID)
     {
-      var item = Aimas.Inventories.Find((long)ID);
+      var item = Aimas.Inventories.Find(ID);
       Aimas.Inventories.Remove(item);
       Aimas.SaveChanges();
     }
@@ -138,20 +143,27 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    public List<AlertTimeModel> GetUpcomingExpiryAlertTimes()
+    public List<AlertTimeInventoryModel_DB> GetUpcomingExpiryAlertTimes()
     {
       //var t = aimas.alerttimes.include(i => i.inventory).tolist();
       //var s = t.where(x => x.type == alerttimetype.inventoy_e_date).tolist();
       //var d = s.where(x => (x.inventory.expirationdate - datetime.now) >= timespan.fromdays(x.daysbefore)).tolist();
-      var query = from alert in Aimas.AlertTimes
+      var query = from alertTimeInventory in Aimas.AlertTimeInventories
                   where
-                    alert.Type == AlertTimeType.Inventoy_E_Date
+                    alertTimeInventory.Inventory.ExpirationDate >= DateTime.UtcNow
                     &&
-                    alert.Inventory.ExpirationDate >= DateTime.UtcNow
+                    alertTimeInventory.Type == AlertTimeType.Inventoy_E_Date
                     &&
-                    (alert.Inventory.ExpirationDate - DateTime.Now) >= TimeSpan.FromDays(alert.DaysBefore)
-                  select alert.ToModel();
-      return query.ToList();
+                    (alertTimeInventory.Inventory.ExpirationDate - DateTime.Now) <= TimeSpan.FromDays(alertTimeInventory.AlertTime.DaysBefore)
+                  group alertTimeInventory by alertTimeInventory.Inventory.ID into g
+                  select new { inventoyID = g.Key, minDay = g.Min(x => x.AlertTime.DaysBefore) };
+
+      var query2 = from q in query
+                   join alertTimeInventory in Aimas.AlertTimeInventories on q.inventoyID equals alertTimeInventory.InventoryID
+                   where alertTimeInventory.AlertTime.DaysBefore == q.minDay
+                   select alertTimeInventory;
+
+      return query2.Include(x => x.AlertTime).Include(x => x.Inventory).ToList();
     }
   }
 

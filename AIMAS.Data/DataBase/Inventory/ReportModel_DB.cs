@@ -10,8 +10,6 @@ namespace AIMAS.Data.Inventory
   [Table("report")]
   public class ReportModel_DB : IAimasDbModel<ReportModel>
   {
-    [Required]
-    public InventoryModel_DB Inventory { get; set; }
 
     [Key]
     public long ID { get; set; }
@@ -32,6 +30,9 @@ namespace AIMAS.Data.Inventory
     public DateTime ExecutionDate { get; set; }
 
     public string Notes { get; set; }
+
+    [Required]
+    public InventoryModel_DB Inventory { get; set; }
 
     private ReportModel_DB()
     {

@@ -10,6 +10,20 @@ namespace AIMAS.API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "alertTime",
+                columns: table => new
+                {
+                    ID = table.Column<long>(type: "int8", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    DaysBefore = table.Column<long>(type: "int8", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_alertTime", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -225,7 +239,6 @@ namespace AIMAS.API.Migrations
                     ExpirationDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
                     IsArchived = table.Column<bool>(type: "bool", nullable: false),
                     IsCritical = table.Column<bool>(type: "bool", nullable: false),
-                    MaintenanceDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
                     MaintenanceIntervalDays = table.Column<long>(type: "int8", nullable: false),
                     Name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                 },
@@ -277,20 +290,24 @@ namespace AIMAS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "alertTime",
+                name: "alerttimeinventory",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "int8", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    DaysBefore = table.Column<long>(type: "int8", nullable: false),
+                    AlertID = table.Column<long>(type: "int8", nullable: false),
                     InventoryID = table.Column<long>(type: "int8", nullable: false),
                     Type = table.Column<int>(type: "int4", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_alertTime", x => x.ID);
+                    table.PrimaryKey("PK_alerttimeinventory", x => new { x.AlertID, x.InventoryID });
                     table.ForeignKey(
-                        name: "FK_alertTime_inventory_InventoryID",
+                        name: "FK_alerttimeinventory_alertTime_AlertID",
+                        column: x => x.AlertID,
+                        principalTable: "alertTime",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_alerttimeinventory_inventory_InventoryID",
                         column: x => x.InventoryID,
                         principalTable: "inventory",
                         principalColumn: "ID",
@@ -442,8 +459,8 @@ namespace AIMAS.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_alertTime_InventoryID",
-                table: "alertTime",
+                name: "IX_alerttimeinventory_InventoryID",
+                table: "alerttimeinventory",
                 column: "InventoryID");
 
             migrationBuilder.CreateIndex(
@@ -557,7 +574,7 @@ namespace AIMAS.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "alertTime");
+                name: "alerttimeinventory");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -591,6 +608,9 @@ namespace AIMAS.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "timeLog");
+
+            migrationBuilder.DropTable(
+                name: "alertTime");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

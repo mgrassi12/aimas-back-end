@@ -22,8 +22,8 @@ namespace AIMAS.Data.Inventory
     public DateTime ExpirationDate { get; set; }
 
     // To be removed
-    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
-    public DateTime MaintenanceDate { get; set; }
+    //[Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
+    //public DateTime MaintenanceDate { get; set; }
     //
 
     public long MaintenanceIntervalDays { get; set; }
@@ -33,7 +33,7 @@ namespace AIMAS.Data.Inventory
 
     public LocationModel_DB DefaultLocation { get; set; }
 
-    public List<AlertTimeModel_DB> AlertTimes { get; set; }
+    public List<AlertTimeInventoryModel_DB> AlertTimeInventories { get; set; }
 
     public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 
@@ -53,11 +53,11 @@ namespace AIMAS.Data.Inventory
     public InventoryModel_DB(
       string name,
       DateTime expire,
-      DateTime maintenanceDate,
+      long intervalDays,
+      //DateTime maintenanceDate,
       LocationModel_DB currentLocation,
       LocationModel_DB defaultLocation,
       string description = default,
-      long intervalDays = 0,
       bool isArchived = default,
       bool isCritical = default,
       long id = default)
@@ -66,11 +66,11 @@ namespace AIMAS.Data.Inventory
       Name = name;
       Description = description;
       ExpirationDate = expire;
-      MaintenanceDate = maintenanceDate;
+      //MaintenanceDate = maintenanceDate;
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
-      AlertTimes = new List<AlertTimeModel_DB>();
+      AlertTimeInventories = new List<AlertTimeInventoryModel_DB>();
       CategoryInventories = new List<CategoryInventoryModel_DB>();
       ReservationInventories = new List<ReservationInventoryModel_DB>();
       IsArchived = isArchived;
@@ -84,7 +84,7 @@ namespace AIMAS.Data.Inventory
         name: Name,
         description: Description,
         expiration: ExpirationDate,
-        maintenanceDate: MaintenanceDate,
+        //maintenanceDate: MaintenanceDate,
         intervalDays: MaintenanceIntervalDays,
         currentLocation: CurrentLocation?.ToModel(),
         defaultLocation: DefaultLocation?.ToModel(),

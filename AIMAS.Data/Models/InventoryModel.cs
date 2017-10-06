@@ -9,7 +9,7 @@ namespace AIMAS.Data.Models
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime ExpirationDate { get; set; }
-    public DateTime MaintenanceDate { get; set; }
+    //public DateTime MaintenanceDate { get; set; }
     public long MaintenanceIntervalDays { get; set; }
     public LocationModel CurrentLocation { get; set; }
     public LocationModel DefaultLocation { get; set; }
@@ -24,11 +24,11 @@ namespace AIMAS.Data.Models
     public InventoryModel(
       string name,
       DateTime expiration,
-      DateTime maintenanceDate,
+      long intervalDays,
+      //DateTime maintenanceDate,
       LocationModel currentLocation,
       LocationModel defaultLocation,
       string description = default,
-      long intervalDays = default,
       bool isArchived = default,
       bool isCritical = default,
       long id = default
@@ -38,7 +38,7 @@ namespace AIMAS.Data.Models
       Name = name;
       Description = description;
       ExpirationDate = expiration;
-      MaintenanceDate = maintenanceDate;
+      //MaintenanceDate = maintenanceDate;
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
@@ -53,7 +53,7 @@ namespace AIMAS.Data.Models
         name: Name,
         description: Description,
         expire: ExpirationDate,
-        maintenanceDate: MaintenanceDate,
+        //maintenanceDate: MaintenanceDate,
         intervalDays: MaintenanceIntervalDays,
         currentLocation: CurrentLocation?.ToDbModel(),
         defaultLocation: DefaultLocation?.ToDbModel(),

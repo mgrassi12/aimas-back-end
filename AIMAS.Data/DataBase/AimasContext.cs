@@ -11,9 +11,11 @@ namespace AIMAS.Data
   {
     public DbSet<AlertTimeModel_DB> AlertTimes { get; set; }
 
+    public DbSet<AlertTimeInventoryModel_DB> AlertTimeInventories { get; set; }
+
     public DbSet<CategoryModel_DB> Categories { get; set; }
 
-    public DbSet<CategoryInventoryModel_DB> CategoryInventory { get; set; }
+    public DbSet<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 
     public DbSet<ChangeEventModel_DB> ChangeEvents { get; set; }
 
@@ -27,7 +29,7 @@ namespace AIMAS.Data
 
     public DbSet<ReportModel_DB> Reports { get; set; }
 
-    public DbSet<ReservationInventoryModel_DB> ReservationInventory { get; set; }
+    public DbSet<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
     public DbSet<TimeLogModel_DB> TimeLogs { get; set; }
 
@@ -82,6 +84,20 @@ namespace AIMAS.Data
            .HasOne(ri => ri.Inventory)
            .WithMany(i => i.ReservationInventories)
            .HasForeignKey(ri => ri.InventoryID);
+
+      // Arlert Inventory One to Many Via Link Table
+      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
+           .HasKey(ai => new { ai.AlertID, ai.InventoryID });
+
+      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
+          .HasOne(ai => ai.AlertTime)
+          .WithMany()
+          .HasForeignKey(ai => ai.AlertID);
+
+      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
+           .HasOne(ai => ai.Inventory)
+           .WithMany(i => i.AlertTimeInventories)
+           .HasForeignKey(ai => ai.InventoryID);
 
       base.OnModelCreating(modelBuilder);
     }
