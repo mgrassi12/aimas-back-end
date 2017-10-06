@@ -89,15 +89,11 @@ namespace AIMAS.Data.Inventory
     public void AddInventory(InventoryModel inventory)
     {
       var inventoryDB = inventory.ToDbModel();
+      inventoryDB.CurrentLocation = Aimas.GetDbLocation(inventory.CurrentLocation);
+      inventoryDB.DefaultLocation = Aimas.GetDbLocation(inventory.DefaultLocation);
 
-      //inventoryDB.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventoryDB.CurrentLocation.ID);
-
-      //if (inventoryDB.ID == default)
-      //{
-      //  var lastID = Aimas.Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
-      //  var id = lastID.HasValue ? lastID.Value + 1 : 1;
-      //  inventoryDB.ID = id;
-      //}
+      if (inventoryDB.ID == default)
+        inventoryDB.ID = Aimas.GetNewIdForInventory();
 
       Aimas.Inventories.Add(inventoryDB);
       Aimas.SaveChanges();
@@ -107,25 +103,10 @@ namespace AIMAS.Data.Inventory
     {
       var result = Aimas.Inventories
         .Include(item => item.CurrentLocation)
-        .Single(item => item.ID == inventory.ID);
-
-      if (!string.IsNullOrEmpty(inventory.Name))
-        result.Name = inventory.Name;
-
-      //if (!string.IsNullOrEmpty(inventory.Description))
-      result.Description = inventory.Description;
-
-      if (inventory.ExpirationDate != default)
-        result.ExpirationDate = inventory.ExpirationDate;
-
-      if (inventory.MaintenanceIntervalDays != default)
-        result.MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
-
-      if (inventory.CurrentLocation.ID != result.CurrentLocation.ID)
-        result.CurrentLocation = Aimas.Locations.Single(l => l.ID == inventory.ID); // Can be altered
-
+        .Where(item => item.ID == inventory.ID)
+        .First();
+      result.UpdateDb(inventory, Aimas);
       Aimas.SaveChanges();
-
     }
 
     public void RemoveInventory(long ID)
@@ -165,8 +146,52 @@ namespace AIMAS.Data.Inventory
 
       return query2.Include(x => x.AlertTime).Include(x => x.Inventory).ToList();
     }
+
+    public void AddTimeLog(TimeLogModel log)
+    {
+      //var dbLog = log.ToDbModel();
+      //dbLog.User = Aimas.GetDbUser(log.User);
+
+      //if (dbLog.ID == default)
+      //  dbLog.ID = Aimas.GetNewIdForTimeLog();
+
+      //Aimas.TimeLogs.Add(dbLog);
+      //Aimas.SaveChanges();
+    }
+
+    public List<AlertTimeModel> GetAlertTimes()
+    {
+      var query = from alertTime in Aimas.AlertTimes
+                  select alertTime.ToModel();
+      return query.ToList();
+    }
+
+    public List<AlertTimeModel> GetAlertTimes(InventoryModel inventory)
+    {
+      var query = from alertTime in Aimas.AlertTimes
+                  select alertTime.ToModel();
+      return query.ToList();
+    }
+
+    public void UpdateAlertTime(AlertTimeModel alertTime)
+    {
+      var result = Aimas.AlertTimes
+        .Include(dbAlertTime => dbAlertTime.Inventory)
+        .Where(dbAlertTime => dbAlertTime.ID == alertTime.ID)
+        .First();
+      result.UpdateDb(alertTime, Aimas);
+      Aimas.SaveChanges();
+    }
+
+    public void RemoveAlertTime(int id)
+    {
+      var alertTime = Aimas.AlertTimes.Find((long)id);
+      Aimas.AlertTimes.Remove(alertTime);
+      Aimas.SaveChanges();
+    }
+
+
+    //TODO: Create CRUD methods for all inventory classes
   }
-
-
 }
 

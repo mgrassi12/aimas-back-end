@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Util;
+using AIMAS.Data.Models;
 
 namespace AIMAS.Data
 {
@@ -36,6 +37,44 @@ namespace AIMAS.Data
 
     public AimasContext(DbContextOptions<AimasContext> options) : base(options)
     {
+    }
+
+    public InventoryModel_DB GetDbInventory(InventoryModel inventory)
+    {
+      if (inventory == null)
+        return null;
+      return Inventories.Single(dbInventory => dbInventory.ID == inventory.ID);
+    }
+
+    public LocationModel_DB GetDbLocation(LocationModel location)
+    {
+      if (location == null)
+        return null;
+      return Locations.Single(dbLocation => dbLocation.ID == location.ID);
+    }
+
+    public UserModel_DB GetDbUser(UserModel user)
+    {
+      if (user == null)
+        return null;
+      return Users.Single(dbUser => dbUser.Id == user.Id);
+    }
+
+    public long GetNewIdFromLastId(long? lastId)
+    {
+      return lastId.HasValue ? lastId.Value + 1 : 1;
+    }
+
+    public long GetNewIdForInventory()
+    {
+      var lastId = Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
+      return GetNewIdFromLastId(lastId);
+    }
+
+    public long GetNewIdForTimeLog()
+    {
+      var lastId = TimeLogs.OrderBy(i => i.ID).LastOrDefault()?.ID;
+      return GetNewIdFromLastId(lastId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
