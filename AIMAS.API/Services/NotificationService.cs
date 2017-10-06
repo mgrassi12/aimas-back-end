@@ -78,7 +78,7 @@ namespace AIMAS.API.Services
           $"Description: {item.Inventory.Description}\n" +
           $"Expiration Date: {item.Inventory.ExpirationDate.ToShortDateString()}\n"
           );
-        var users = Identity.GetUsersForRole(IdentityDB.Roles[2]).Result;
+        var users = Identity.GetUsersForRole(Roles.Admin).Result;
         foreach (var user in users)
         {
           Helper.SendNotificationToUser(user, msg);

@@ -38,7 +38,7 @@ namespace AIMAS.API.Controllers
       {
         result.ReturnObj = new CurrentUserInfo();
         result.ReturnObj.IsAuth = User.Identity.IsAuthenticated;
-        result.ReturnObj.IsAdmin = User.IsInRole("Admin");
+        result.ReturnObj.IsAdmin = User.IsInRole(Roles.Admin);
         var user = IdentityDB.Manager.GetUserAsync(User).Result;
         if (user != null)
         {
@@ -69,6 +69,46 @@ namespace AIMAS.API.Controllers
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
 
       }
+      return result;
+    }
+
+    [HttpPost]
+    [Route("users/update")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<Result> UpdateUser([FromBody]UserModel user)
+    {
+      var result = new Result();
+
+      try
+      {
+        await IdentityDB.UpdateUser(user);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpGet]
+    [Route("users/remove/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public Result RemoveUser(long id)
+    {
+      var result = new Result();
+
+      try
+      {
+        IdentityDB.RemoveUser(id);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
       return result;
     }
 
@@ -161,11 +201,6 @@ namespace AIMAS.API.Controllers
         result.AddException(ex);
       }
       return result;
-    }
-
-    public async Task<Result> UpdateUser([FromBody] UserModel user)
-    {
-      return null;
     }
 
   }

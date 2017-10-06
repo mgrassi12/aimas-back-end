@@ -79,6 +79,32 @@ namespace AIMAS.Data.Identity
       return result;
     }
 
+    public async Task UpdateUser(UserModel user)
+    {
+      var result = Aimas.Users.Find(user.Id);
+      result.UpdateDb(user, Aimas);
+      await UpdateUserRoles(user, result);
+      Aimas.SaveChanges();
+    }
+
+    private async Task UpdateUserRoles(UserModel user, UserModel_DB userDb)
+    {
+      var userRoles = user.UserRoles.Select(x => x.Name).ToList();
+      var userDBRoles = (await Manager.GetRolesAsync(userDb)).ToList();
+      var toAdd = userRoles.Except(userDBRoles).ToList();
+      var toRemove = userDBRoles.Except(userRoles).ToList();
+
+      await Manager.AddToRolesAsync(userDb, toAdd);
+      await Manager.RemoveFromRolesAsync(userDb, toRemove);
+    }
+
+    public void RemoveUser(long id)
+    {
+      var user = Aimas.Users.Find(id);
+      Aimas.Users.Remove(user);
+      Aimas.SaveChanges();
+    }
+
     public async Task<Result> AddUserRoleAsync(UserModel_DB user, string roleName)
     {
       var result = new Result();
@@ -148,20 +174,6 @@ namespace AIMAS.Data.Identity
       return await query.ToListAsync();
     }
 
-    public async Task UpdateUser(UserModel user)
-    {
-      var userDB = Aimas.Users.Find(user.Id);
-
-      var userRoles = user.UserRoles.Select(x => x.Name).ToList();
-      var userDBRoles = (await Manager.GetRolesAsync(userDB)).ToList();
-      var toAdd = userRoles.Except(userDBRoles).ToList();
-      var toRemove = userDBRoles.Except(userRoles).ToList();
-
-      await Manager.AddToRolesAsync(userDB, toAdd);
-      await Manager.RemoveFromRolesAsync(userDB, toRemove);
-
-    }
-
     public void AddTimeLog(TimeLogModel log)
     {
       var dbLog = log.ToDbModel();
@@ -191,11 +203,7 @@ namespace AIMAS.Data.Identity
 
     public void UpdateTimeLog(TimeLogModel log)
     {
-      var result = Aimas.TimeLogs
-        .Include(dbLog => dbLog.User)
-        .Where(dbLog => dbLog.ID == log.ID)
-        .Where(dbLog => dbLog.User.Id == log.User.Id)
-        .First();
+      var result = Aimas.TimeLogs.Find(log.ID);
       result.UpdateDb(log, Aimas);
       Aimas.SaveChanges();
     }

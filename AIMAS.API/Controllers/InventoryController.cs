@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Models;
+using AIMAS.Data.Identity;
 
 namespace AIMAS.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("all")]
-    [Authorize(Roles = "Admin, InventoryManager, User")]
+    [Authorize]
     public ResultObj<List<InventoryModel>> GetInventory()
     {
       var result = new ResultObj<List<InventoryModel>>();
@@ -48,7 +49,7 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("search")]
-    [Authorize(Roles = "Admin, InventoryManager, User")]
+    [Authorize]
     public PageResultObj<List<InventoryModel>> GetInventory([FromBody]InventorySearch search)
     {
       var result = new PageResultObj<List<InventoryModel>>();
@@ -73,7 +74,7 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("add")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public Result AddInventory([FromBody]InventoryModel inventory)
     {
       var result = new Result();
@@ -93,7 +94,7 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("update")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public Result UpdateInventory([FromBody]InventoryModel inventory)
     {
       var result = new Result();
@@ -113,7 +114,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("remove/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public Result RemoveInventory(long id)
     {
       var result = new Result();
@@ -133,7 +134,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("alerts")]
-    [Authorize()]
+    [Authorize]
     public ResultObj<List<AlertTimeModel>> GetAlertTimes()
     {
       var result = new ResultObj<List<AlertTimeModel>>();
@@ -153,7 +154,7 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("alerts/{id}")]
-    [Authorize()]
+    [Authorize]
     public ResultObj<List<AlertTimeModel>> GetAlertTimes(long id)
     {
       var result = new ResultObj<List<AlertTimeModel>>();

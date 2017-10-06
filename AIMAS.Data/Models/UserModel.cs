@@ -23,7 +23,7 @@ namespace AIMAS.Data.Models
       FirstName = firstName;
       LastName = lastName;
       Position = position;
-      UserRoles = new List<RoleModel>;
+      UserRoles = new List<RoleModel>();
     }
 
     public UserModel_DB ToDbModel()
