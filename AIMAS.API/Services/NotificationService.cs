@@ -45,7 +45,7 @@ namespace AIMAS.API.Services
 
     private void CheckInventory()
     {
-      //CheckExpiredInventory();
+      CheckExpiredInventory();
       CheckUpcomingAleryNotifications();
     }
 
@@ -64,13 +64,26 @@ namespace AIMAS.API.Services
         {
           Helper.SendNotificationToUser(user, msg);
         }
-
       }
     }
 
     private void CheckUpcomingAleryNotifications()
     {
-      var list = Inventory.GetUpcomingExpiryAlertTimes();
+      var items = Inventory.GetUpcomingExpiryAlertTimes();
+      foreach (var item in items)
+      {
+        var msg = new NotificationMessage(
+          $"Inventory Item is about to Expired in {(item.Inventory.ExpirationDate - DateTime.Now).Days} days",
+          $"Name: {item.Inventory.Name}\n" +
+          $"Description: {item.Inventory.Description}\n" +
+          $"Expiration Date: {item.Inventory.ExpirationDate.ToShortDateString()}\n"
+          );
+        var users = Identity.GetUsersForRole(IdentityDB.Roles[2]).Result;
+        foreach (var user in users)
+        {
+          Helper.SendNotificationToUser(user, msg);
+        }
+      }
     }
 
 

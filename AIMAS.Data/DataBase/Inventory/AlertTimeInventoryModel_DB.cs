@@ -1,3 +1,4 @@
+using AIMAS.Data.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -25,6 +26,9 @@ namespace AIMAS.Data.Inventory
     public InventoryModel_DB Inventory { get; set; }
 
     public AlertTimeType Type { get; set; }
+
+    [Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
+    public DateTime? SentTime { get; set; }
 
     private AlertTimeInventoryModel_DB()
     {

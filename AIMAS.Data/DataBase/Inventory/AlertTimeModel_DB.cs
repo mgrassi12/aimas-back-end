@@ -36,14 +36,10 @@ namespace AIMAS.Data.Inventory
 
     public void UpdateDb(AlertTimeModel alertTime, AimasContext aimas)
     {
-      Type = alertTime.Type;
+      Name = alertTime.Name;
 
       if (alertTime.DaysBefore != default)
         DaysBefore = alertTime.DaysBefore;
-
-      var newInventory = aimas.GetDbInventory(alertTime.Inventory);
-      if (newInventory != null)
-        Inventory = newInventory;
     }
   }
 }

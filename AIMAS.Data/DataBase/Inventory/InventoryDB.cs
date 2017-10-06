@@ -71,7 +71,7 @@ namespace AIMAS.Data.Inventory
     {
       var query = from inventory in Aimas.Inventories
                   select inventory.ToModel();
-
+      query.Include(x => x.CurrentLocation).Include(x => x.DefaultLocation);
       if (search.ID.HasValue)
         query = query.Where(i => i.ID == search.ID.Value);
       if (!string.IsNullOrEmpty(search.Name))
@@ -92,8 +92,8 @@ namespace AIMAS.Data.Inventory
       inventoryDB.CurrentLocation = Aimas.GetDbLocation(inventory.CurrentLocation);
       inventoryDB.DefaultLocation = Aimas.GetDbLocation(inventory.DefaultLocation);
 
-      if (inventoryDB.ID == default)
-        inventoryDB.ID = Aimas.GetNewIdForInventory();
+      //if (inventoryDB.ID == default)
+      //  inventoryDB.ID = Aimas.GetNewIdForInventory();
 
       Aimas.Inventories.Add(inventoryDB);
       Aimas.SaveChanges();
@@ -135,16 +135,12 @@ namespace AIMAS.Data.Inventory
                     &&
                     alertTimeInventory.Type == AlertTimeType.Inventoy_E_Date
                     &&
+                    alertTimeInventory.SentTime.HasValue
+                    &&
                     (alertTimeInventory.Inventory.ExpirationDate - DateTime.Now) <= TimeSpan.FromDays(alertTimeInventory.AlertTime.DaysBefore)
-                  group alertTimeInventory by alertTimeInventory.Inventory.ID into g
-                  select new { inventoyID = g.Key, minDay = g.Min(x => x.AlertTime.DaysBefore) };
+                  select alertTimeInventory;
 
-      var query2 = from q in query
-                   join alertTimeInventory in Aimas.AlertTimeInventories on q.inventoyID equals alertTimeInventory.InventoryID
-                   where alertTimeInventory.AlertTime.DaysBefore == q.minDay
-                   select alertTimeInventory;
-
-      return query2.Include(x => x.AlertTime).Include(x => x.Inventory).ToList();
+      return query.Include(x => x.AlertTime).Include(x => x.Inventory).ToList();
     }
 
     public void AddTimeLog(TimeLogModel log)
@@ -166,17 +162,18 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    public List<AlertTimeModel> GetAlertTimes(InventoryModel inventory)
+    public List<AlertTimeModel> GetAlertTimes(long inventoryID)
     {
-      var query = from alertTime in Aimas.AlertTimes
-                  select alertTime.ToModel();
+      var query = from i in Aimas.Inventories
+                  from alertTimeInventory in i.AlertTimeInventories
+                  where i.ID == inventoryID
+                  select alertTimeInventory.AlertTime.ToModel();
       return query.ToList();
     }
 
     public void UpdateAlertTime(AlertTimeModel alertTime)
     {
       var result = Aimas.AlertTimes
-        .Include(dbAlertTime => dbAlertTime.Inventory)
         .Where(dbAlertTime => dbAlertTime.ID == alertTime.ID)
         .First();
       result.UpdateDb(alertTime, Aimas);

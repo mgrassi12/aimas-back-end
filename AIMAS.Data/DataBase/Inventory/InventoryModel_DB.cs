@@ -95,7 +95,6 @@ namespace AIMAS.Data.Inventory
     public void UpdateDb(InventoryModel inventory, AimasContext aimas)
     {
       Description = inventory.Description;
-      MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
       DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
       IsArchived = inventory.IsArchived;
       IsCritical = inventory.IsCritical;
@@ -106,12 +105,15 @@ namespace AIMAS.Data.Inventory
       if (inventory.ExpirationDate != default)
         ExpirationDate = inventory.ExpirationDate;
 
-      if (inventory.MaintenanceDate != default)
-        MaintenanceDate = inventory.MaintenanceDate;
+      if (inventory.MaintenanceIntervalDays != default)
+        MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
 
-      var newCurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
-      if (newCurrentLocation != null)
+      if (inventory.CurrentLocation?.ID != -1)
+      {
+        var newCurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
         CurrentLocation = newCurrentLocation;
+      }
+
     }
   }
 }

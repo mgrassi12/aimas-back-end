@@ -114,7 +114,7 @@ namespace AIMAS.API.Controllers
     [HttpGet]
     [Route("remove/{id}")]
     [Authorize(Roles = "Admin")]
-    public Result RemoveInventory(int id)
+    public Result RemoveInventory(long id)
     {
       var result = new Result();
 
@@ -130,5 +130,47 @@ namespace AIMAS.API.Controllers
 
       return result;
     }
+
+    [HttpGet]
+    [Route("alerts")]
+    [Authorize()]
+    public ResultObj<List<AlertTimeModel>> GetAlertTimes()
+    {
+      var result = new ResultObj<List<AlertTimeModel>>();
+
+      try
+      {
+        result.ReturnObj = Inventory.GetAlertTimes();
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpGet]
+    [Route("alerts/{id}")]
+    [Authorize()]
+    public ResultObj<List<AlertTimeModel>> GetAlertTimes(long id)
+    {
+      var result = new ResultObj<List<AlertTimeModel>>();
+
+      try
+      {
+        result.ReturnObj = Inventory.GetAlertTimes(id);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+
   }
 }
