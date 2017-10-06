@@ -1,9 +1,10 @@
+using AIMAS.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace AIMAS.Data.Identity
 {
-  public class RoleModel_DB : IdentityRole<long>
+  public class RoleModel_DB : IdentityRole<long>, IAimasDbModel<RoleModel>
   {
     [Key]
     public override long Id { get => base.Id; set => base.Id = value; }
@@ -18,6 +19,11 @@ namespace AIMAS.Data.Identity
     public RoleModel_DB(string name) : this()
     {
       Name = name;
+    }
+
+    public RoleModel ToModel()
+    {
+      return new RoleModel(Name);
     }
   }
 }

@@ -11,8 +11,6 @@ namespace AIMAS.Data.Identity
 {
   public class IdentityDB
   {
-    public static readonly List<string> Roles = new List<string>() { "Admin", "InventoryManager", "User" };
-
     public AimasContext Aimas { get; set; }
     public UserManager<UserModel_DB> Manager { get; set; }
 
@@ -25,7 +23,7 @@ namespace AIMAS.Data.Identity
     public void Initialize()
     {
       // Roles
-      Roles.ForEach(item => Aimas.Roles.Add(new RoleModel_DB(item)));
+      Roles.AllRoles.ForEach(item => Aimas.Roles.Add(new RoleModel_DB(item)));
       // Save Changes
       Aimas.SaveChanges();
       // Admin User
@@ -33,7 +31,7 @@ namespace AIMAS.Data.Identity
       var result = CreateUserAsync(adminUser, "Admin@1").Result;
       if (result.Success)
       {
-        AddUserRoleAsync(adminUser, Roles[0]).Wait();
+        AddUserRoleAsync(adminUser, Roles.Admin).Wait();
       }
       else
       {
@@ -43,7 +41,7 @@ namespace AIMAS.Data.Identity
       var result2 = CreateUserAsync(testUser, "Testuser@1").Result;
       if (result2.Success)
       {
-        AddUserRoleAsync(testUser, Roles[2]).Wait();
+        AddUserRoleAsync(testUser, Roles.User).Wait();
       }
       else
       {
@@ -140,6 +138,28 @@ namespace AIMAS.Data.Identity
           LastName = u.LastName
         };
       return await query.ToListAsync();
+    }
+
+    public async Task<List<RoleModel>> GetRolesAsync()
+    {
+      var query =
+        from r in Aimas.Roles
+        select r.ToModel();
+      return await query.ToListAsync();
+    }
+
+    public async Task UpdateUser(UserModel user)
+    {
+      var userDB = Aimas.Users.Find(user.Id);
+
+      var userRoles = user.UserRoles.Select(x => x.Name).ToList();
+      var userDBRoles = (await Manager.GetRolesAsync(userDB)).ToList();
+      var toAdd = userRoles.Except(userDBRoles).ToList();
+      var toRemove = userDBRoles.Except(userRoles).ToList();
+
+      await Manager.AddToRolesAsync(userDB, toAdd);
+      await Manager.RemoveFromRolesAsync(userDB, toRemove);
+
     }
 
     public void AddTimeLog(TimeLogModel log)

@@ -59,7 +59,7 @@ namespace AIMAS.API.Services
           $"Name: {item.Name}" +
           $"Description: {item.Description}"
           );
-        var users = Identity.GetUsersForRole(IdentityDB.Roles[2]).Result;
+        var users = Identity.GetUsersForRole(Roles.Admin).Result;
         foreach (var user in users)
         {
           Helper.SendNotificationToUser(user, msg);

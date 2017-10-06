@@ -1,4 +1,5 @@
 using AIMAS.Data.Identity;
+using System.Collections.Generic;
 
 namespace AIMAS.Data.Models
 {
@@ -9,6 +10,7 @@ namespace AIMAS.Data.Models
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Position { get; set; }
+    public List<RoleModel> UserRoles { get; set; }
 
     public UserModel()
     {
@@ -21,6 +23,7 @@ namespace AIMAS.Data.Models
       FirstName = firstName;
       LastName = lastName;
       Position = position;
+      UserRoles = new List<RoleModel>;
     }
 
     public UserModel_DB ToDbModel()
