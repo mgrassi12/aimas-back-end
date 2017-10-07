@@ -1,18 +1,15 @@
 using AIMAS.Data.Util;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace AIMAS.Data.Inventory
 {
   public enum AlertTimeType
   {
-    Inventoy_E_Date = 1,
+    Inventory_E_Date = 1,
     Inventory_M_Date = 2,
     ReportAlert_Date = 4,
-    Inventory_Date = Inventoy_E_Date | Inventory_M_Date
+    Inventory_Date = Inventory_E_Date | Inventory_M_Date
   }
 
   [Table("alerttimeinventory")]

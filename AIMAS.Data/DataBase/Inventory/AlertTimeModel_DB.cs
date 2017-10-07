@@ -17,7 +17,7 @@ namespace AIMAS.Data.Inventory
 
     public string Name { get; set; }
 
-    public AlertTimeModel_DB()
+    private AlertTimeModel_DB()
     {
 
     }

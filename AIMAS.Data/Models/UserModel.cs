@@ -20,6 +20,7 @@ namespace AIMAS.Data.Models
     public UserModel(string email, string firstName, string lastName, string position, long id = default) : this()
     {
       Id = id;
+      Email = email;
       FirstName = firstName;
       LastName = lastName;
       Position = position;

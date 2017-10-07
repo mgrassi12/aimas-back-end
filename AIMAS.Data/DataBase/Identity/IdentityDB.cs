@@ -49,6 +49,7 @@ namespace AIMAS.Data.Identity
       }
     }
 
+    #region UserOperations
     public async Task<Result> CreateUserAsync(UserModel_DB user, string password)
     {
       Result result = new Result();
@@ -79,73 +80,18 @@ namespace AIMAS.Data.Identity
       return result;
     }
 
-    public async Task UpdateUser(UserModel user)
-    {
-      var result = Aimas.Users.Find(user.Id);
-      result.UpdateDb(user, Aimas);
-      await UpdateUserRoles(user, result);
-      Aimas.SaveChanges();
-    }
-
-    private async Task UpdateUserRoles(UserModel user, UserModel_DB userDb)
-    {
-      var userRoles = user.UserRoles.Select(x => x.Name).ToList();
-      var userDBRoles = (await Manager.GetRolesAsync(userDb)).ToList();
-      var toAdd = userRoles.Except(userDBRoles).ToList();
-      var toRemove = userDBRoles.Except(userRoles).ToList();
-
-      await Manager.AddToRolesAsync(userDb, toAdd);
-      await Manager.RemoveFromRolesAsync(userDb, toRemove);
-    }
-
-    public void RemoveUser(long id)
-    {
-      var user = Aimas.Users.Find(id);
-      Aimas.Users.Remove(user);
-      Aimas.SaveChanges();
-    }
-
-    public async Task<Result> AddUserRoleAsync(UserModel_DB user, string roleName)
-    {
-      var result = new Result();
-      try
-      {
-        // Add UserRole
-        var role = await Aimas.Roles.FirstAsync(r => r.Name == roleName);
-        await Aimas.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
-        Aimas.SaveChanges();
-        result.Success = true;
-      }
-      catch (Exception ex)
-      {
-        result.AddException(ex);
-      }
-      return result;
-    }
-
     public async Task<List<UserModel>> GetUsersAsync()
     {
       var query = from user in Aimas.Users
                   select user.ToModel();
       return await query.ToListAsync();
     }
-    public async Task<List<UserModel_DB>> GetUsersDBAsync()
-    {
-      var query = from user in Aimas.Users
-                  select user;
-      return await query.ToListAsync();
-    }
 
     public async Task<UserModel> GetUserAsync(string email)
     {
-      var user = await GetUserDBAsync(email);
-      return user.ToModel();
-    }
-    public async Task<UserModel_DB> GetUserDBAsync(string email)
-    {
       var query = from user in Aimas.Users
                   where user.Email == email
-                  select user;
+                  select user.ToModel();
       return await query.FirstAsync();
     }
 
@@ -166,6 +112,57 @@ namespace AIMAS.Data.Identity
       return await query.ToListAsync();
     }
 
+    public async Task UpdateUser(UserModel user)
+    {
+      var result = Aimas.Users.Find(user.Id);
+      result.UpdateDb(user, Aimas);
+      await UpdateUserRoles(user, result);
+      Aimas.SaveChanges();
+    }
+
+    public void RemoveUser(long id)
+    {
+      var user = Aimas.Users.Find(id);
+      Aimas.Users.Remove(user);
+      Aimas.SaveChanges();
+    }
+    #endregion
+
+    #region RoleOperations
+    public async Task<Result> AddUserRoleAsync(UserModel_DB user, string roleName)
+    {
+      var result = new Result();
+      try
+      {
+        // Add UserRole
+        var role = await Aimas.Roles.FirstAsync(r => r.Name == roleName);
+        await Aimas.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
+        Aimas.SaveChanges();
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+      return result;
+    }
+
+    public IdentityUserRole<long> NewIdentityRole(long userID, long roleID)
+    {
+      return new IdentityUserRole<long>() { UserId = userID, RoleId = roleID };
+    }
+
+    private async Task UpdateUserRoles(UserModel user, UserModel_DB userDb)
+    {
+      var userRoles = user.UserRoles.Select(x => x.Name).ToList();
+      var userDBRoles = (await Manager.GetRolesAsync(userDb)).ToList();
+      var toAdd = userRoles.Except(userDBRoles).ToList();
+      var toRemove = userDBRoles.Except(userRoles).ToList();
+
+      await Manager.AddToRolesAsync(userDb, toAdd);
+      await Manager.RemoveFromRolesAsync(userDb, toRemove);
+    }
+
     public async Task<List<RoleModel>> GetRolesAsync()
     {
       var query =
@@ -173,7 +170,9 @@ namespace AIMAS.Data.Identity
         select r.ToModel();
       return await query.ToListAsync();
     }
+    #endregion
 
+    #region TimeLogOperations
     public void AddTimeLog(TimeLogModel log)
     {
       var dbLog = log.ToDbModel();
@@ -214,14 +213,6 @@ namespace AIMAS.Data.Identity
       Aimas.TimeLogs.Remove(log);
       Aimas.SaveChanges();
     }
-
-    #region UTIL
-
-    public IdentityUserRole<long> NewIdentityRole(long userID, long roleID)
-    {
-      return new IdentityUserRole<long>() { UserId = userID, RoleId = roleID };
-    }
-
     #endregion
   }
 }
