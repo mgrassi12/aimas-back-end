@@ -32,19 +32,12 @@ namespace AIMAS.Data.Inventory
       Aimas.Inventories.Add(new InventoryModel_DB("Test Item #3", DateTime.Now.AddDays(40), 30, location));
       Aimas.SaveChanges();
 
-      // Add Alerts
-      Aimas.AlertTimes.Add(new AlertTimeModel_DB(1, "One day before"));
-      Aimas.AlertTimes.Add(new AlertTimeModel_DB(7, "One week before"));
-      Aimas.AlertTimes.Add(new AlertTimeModel_DB(14, "One fortnight before"));
-      Aimas.AlertTimes.Add(new AlertTimeModel_DB(30, "One month before"));
-      Aimas.SaveChanges();
-
       var inventory = Aimas.Inventories.First();
-      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(1), inventory, AlertTimeType.Inventory_E_Date));
-      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(5), inventory, AlertTimeType.Inventory_E_Date));
-      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(10), inventory, AlertTimeType.Inventory_E_Date));
-      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(20), inventory, AlertTimeType.Inventory_E_Date));
-      inventory.AlertTimeInventories.Add(new AlertTimeInventoryModel_DB(new AlertTimeModel_DB(30), inventory, AlertTimeType.Inventory_E_Date));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 1));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 5));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 10));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 20));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 30));
       Aimas.SaveChanges();
 
       // Add Reservation
@@ -127,56 +120,30 @@ namespace AIMAS.Data.Inventory
     }
     #endregion
 
-    private IQueryable<AlertTimeInventoryModel_DB> GetUpcomingAlertTimeQuery(AlertTimeType type, Func<InventoryModel_DB, DateTime> getDate)
+    #region AlertTimeOperations
+    public List<InventoryAlertTimeModel> GetInventoryAlertTimes(long id)
     {
-      var query = from alertTimeInventory in Aimas.AlertTimeInventories
-                  where alertTimeInventory.Inventory.ExpirationDate >= DateTime.UtcNow
-                  && alertTimeInventory.Type == type
-                  && !alertTimeInventory.SentTime.HasValue
-                  && (getDate(alertTimeInventory.Inventory) - DateTime.Now) <= TimeSpan.FromDays(alertTimeInventory.AlertTime.DaysBefore)
-                  select alertTimeInventory;
-      return query;
+      var query = from alert in Aimas.InventoryAlertTimes
+                  where alert.Inventory.ID == id
+                  select alert.ToModel();
+      return query.ToList();
+    }
+    
+    private IQueryable<InventoryAlertTimeModel_DB> GetUpcomingAlertTimeQuery(AlertTimeType type, Func<InventoryModel_DB, DateTime> getDate)
+    {
+      var query = from alert in Aimas.InventoryAlertTimes
+                  where alert.Inventory.ExpirationDate >= DateTime.UtcNow
+                  && alert.Type == type
+                  && !alert.SentTime.HasValue
+                  && (getDate(alert.Inventory) - DateTime.Now) <= TimeSpan.FromDays(alert.DaysBefore)
+                  select alert;
+      return query.Include(alert => alert.Inventory);
     }
 
-    public List<AlertTimeInventoryModel_DB> GetUpcomingExpiryAlertTimes()
+    public List<InventoryAlertTimeModel_DB> GetUpcomingExpiryAlertTimes()
     {
       var query = GetUpcomingAlertTimeQuery(AlertTimeType.Inventory_E_Date, (i) => i.ExpirationDate);
-      return query.Include(x => x.AlertTime).Include(x => x.Inventory).ToList();
-    }
-
-    //TODO: Remove Alert Time model - Move DaysBefore property to AlertTimeInventory model
-    //TODO: In front end, give option of number of days (num * 1), weeks (num * 7) and months (num * 30) before
-    #region AlertTimeOperations
-    public List<AlertTimeModel> GetAlertTimes()
-    {
-      var query = from alertTime in Aimas.AlertTimes
-                  select alertTime.ToModel();
       return query.ToList();
-    }
-
-    public List<AlertTimeModel> GetAlertTimes(long inventoryID)
-    {
-      var query = from i in Aimas.Inventories
-                  from alertTimeInventory in i.AlertTimeInventories
-                  where i.ID == inventoryID
-                  select alertTimeInventory.AlertTime.ToModel();
-      return query.ToList();
-    }
-
-    public void UpdateAlertTime(AlertTimeModel alertTime)
-    {
-      var result = Aimas.AlertTimes
-        .Where(dbAlertTime => dbAlertTime.ID == alertTime.ID)
-        .First();
-      result.UpdateDb(alertTime, Aimas);
-      Aimas.SaveChanges();
-    }
-
-    public void RemoveAlertTime(int id)
-    {
-      var alertTime = Aimas.AlertTimes.Find((long)id);
-      Aimas.AlertTimes.Remove(alertTime);
-      Aimas.SaveChanges();
     }
     #endregion
 

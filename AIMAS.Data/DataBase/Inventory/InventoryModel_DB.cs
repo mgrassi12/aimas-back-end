@@ -33,7 +33,7 @@ namespace AIMAS.Data.Inventory
 
     public LocationModel_DB DefaultLocation { get; set; }
 
-    public List<AlertTimeInventoryModel_DB> AlertTimeInventories { get; set; }
+    public List<InventoryAlertTimeModel_DB> AlertTimeInventories { get; set; }
 
     public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 
@@ -70,7 +70,7 @@ namespace AIMAS.Data.Inventory
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
-      AlertTimeInventories = new List<AlertTimeInventoryModel_DB>();
+      AlertTimeInventories = new List<InventoryAlertTimeModel_DB>();
       CategoryInventories = new List<CategoryInventoryModel_DB>();
       ReservationInventories = new List<ReservationInventoryModel_DB>();
       IsArchived = isArchived;

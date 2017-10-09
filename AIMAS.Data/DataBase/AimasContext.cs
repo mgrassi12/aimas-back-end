@@ -10,10 +10,6 @@ namespace AIMAS.Data
 {
   public class AimasContext : IdentityDbContext<UserModel_DB, RoleModel_DB, long>
   {
-    public DbSet<AlertTimeModel_DB> AlertTimes { get; set; }
-
-    public DbSet<AlertTimeInventoryModel_DB> AlertTimeInventories { get; set; }
-
     public DbSet<CategoryModel_DB> Categories { get; set; }
 
     public DbSet<CategoryInventoryModel_DB> CategoryInventories { get; set; }
@@ -21,6 +17,8 @@ namespace AIMAS.Data
     public DbSet<ChangeEventModel_DB> ChangeEvents { get; set; }
 
     public DbSet<InventoryModel_DB> Inventories { get; set; }
+
+    public DbSet<InventoryAlertTimeModel_DB> InventoryAlertTimes { get; set; }
 
     public DbSet<LocationModel_DB> Locations { get; set; }
 
@@ -123,20 +121,6 @@ namespace AIMAS.Data
            .HasOne(ri => ri.Inventory)
            .WithMany(i => i.ReservationInventories)
            .HasForeignKey(ri => ri.InventoryID);
-
-      // Arlert Inventory One to Many Via Link Table
-      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
-           .HasKey(ai => new { ai.AlertID, ai.InventoryID });
-
-      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
-          .HasOne(ai => ai.AlertTime)
-          .WithMany()
-          .HasForeignKey(ai => ai.AlertID);
-
-      modelBuilder.Entity<AlertTimeInventoryModel_DB>()
-           .HasOne(ai => ai.Inventory)
-           .WithMany(i => i.AlertTimeInventories)
-           .HasForeignKey(ai => ai.InventoryID);
 
       base.OnModelCreating(modelBuilder);
     }

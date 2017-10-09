@@ -133,35 +133,15 @@ namespace AIMAS.API.Controllers
     }
 
     [HttpGet]
-    [Route("alerts")]
-    [Authorize]
-    public ResultObj<List<AlertTimeModel>> GetAlertTimes()
-    {
-      var result = new ResultObj<List<AlertTimeModel>>();
-
-      try
-      {
-        result.ReturnObj = Inventory.GetAlertTimes();
-        result.Success = true;
-      }
-      catch (Exception ex)
-      {
-        result.AddException(ex);
-      }
-
-      return result;
-    }
-
-    [HttpGet]
     [Route("alerts/{id}")]
     [Authorize]
-    public ResultObj<List<AlertTimeModel>> GetAlertTimes(long id)
+    public ResultObj<List<InventoryAlertTimeModel>> GetInventoryAlertTimes(long id)
     {
-      var result = new ResultObj<List<AlertTimeModel>>();
+      var result = new ResultObj<List<InventoryAlertTimeModel>>();
 
       try
       {
-        result.ReturnObj = Inventory.GetAlertTimes(id);
+        result.ReturnObj = Inventory.GetInventoryAlertTimes(id);
         result.Success = true;
       }
       catch (Exception ex)

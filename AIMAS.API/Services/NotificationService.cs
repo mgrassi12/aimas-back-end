@@ -69,20 +69,21 @@ namespace AIMAS.API.Services
 
     private void CheckUpcomingAleryNotifications()
     {
-      var items = Inventory.GetUpcomingExpiryAlertTimes();
-      foreach (var item in items)
+      var alerts = Inventory.GetUpcomingExpiryAlertTimes();
+      foreach (var alert in alerts)
       {
         var msg = new NotificationMessage(
-          $"Inventory Item is about to Expired in {(item.Inventory.ExpirationDate - DateTime.Now).Days} days",
-          $"Name: {item.Inventory.Name}\n" +
-          $"Description: {item.Inventory.Description}\n" +
-          $"Expiration Date: {item.Inventory.ExpirationDate.ToShortDateString()}\n"
+          $"Inventory Item is about to expire in {(alert.Inventory.ExpirationDate - DateTime.Now).Days} days",
+          $"Name: {alert.Inventory.Name}\n" +
+          $"Description: {alert.Inventory.Description}\n" +
+          $"Expiration Date: {alert.Inventory.ExpirationDate.ToShortDateString()}\n"
           );
         var users = Identity.GetUsersForRole(Roles.Admin).Result;
         foreach (var user in users)
         {
           Helper.SendNotificationToUser(user, msg);
         }
+        alert.SentTime = DateTime.Now;
       }
     }
 
