@@ -33,11 +33,11 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       var inventory = Aimas.Inventories.First();
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 1));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 5));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 10));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 20));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 30));
+      Aimas.InventoryAlertTimes.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 1));
+      Aimas.InventoryAlertTimes.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 5));
+      Aimas.InventoryAlertTimes.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 10));
+      Aimas.InventoryAlertTimes.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 20));
+      Aimas.InventoryAlertTimes.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 30));
       Aimas.SaveChanges();
 
       // Add Reservation
@@ -120,6 +120,12 @@ namespace AIMAS.Data.Inventory
     #endregion
 
     #region AlertTimeOperations
+    public void AddInventoryAlertTime(InventoryAlertTimeModel alert)
+    {
+      Aimas.InventoryAlertTimes.Add(alert.CreateNewDbModel(Aimas));
+      Aimas.SaveChanges();
+    }
+
     public List<InventoryAlertTimeModel> GetInventoryAlertTimes(long id)
     {
       var query = from alert in Aimas.InventoryAlertTimes
@@ -143,6 +149,54 @@ namespace AIMAS.Data.Inventory
     {
       var query = GetUpcomingAlertTimeQuery(AlertTimeType.Inventory_E_Date, (i) => i.ExpirationDate);
       return query.ToList();
+    }
+
+    public void RemoveInventoryAlertTime(long ID)
+    {
+      var item = Aimas.InventoryAlertTimes.Find(ID);
+      Aimas.InventoryAlertTimes.Remove(item);
+      Aimas.SaveChanges();
+    }
+    #endregion
+
+    #region ReservationOperations
+    public void Addreservation(ReservationModel reservation)
+    {
+      Aimas.Reservations.Add(reservation.CreateNewDbModel(Aimas));
+      Aimas.SaveChanges();
+    }
+
+    public List<ReservationModel> GetReservations()
+    {
+      var query = from reservation in Aimas.Reservations
+                  select reservation.ToModel();
+      return query.ToList();
+    }
+
+    public List<ReservationModel> GetReservationsForInventory(long inventoryId)
+    {
+      var query = from inventory in Aimas.Inventories
+                  from reservationInventory in Aimas.ReservationInventories
+                  where inventory.ID == inventoryId
+                  select reservationInventory.Reservation.ToModel();
+      return query.ToList();
+    }
+
+    public void UpdateReservation(ReservationModel reservation)
+    {
+      var result = Aimas.Reservations
+        .Include(dbReservation => dbReservation.Location)
+        .Where(dbReservation => dbReservation.ID == reservation.ID)
+        .First();
+      result.UpdateDb(reservation, Aimas);
+      Aimas.SaveChanges();
+    }
+
+    public void RemoveReservation(long ID)
+    {
+      var item = Aimas.Reservations.Find(ID);
+      Aimas.Reservations.Remove(item);
+      Aimas.SaveChanges();
     }
     #endregion
 

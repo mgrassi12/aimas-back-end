@@ -1,4 +1,4 @@
-namespace AIMAS.Data.DataBase
+namespace AIMAS.Data
 {
   interface IAimasDbModelWithUpdate<Model> : IAimasDbModel<Model>
   {
