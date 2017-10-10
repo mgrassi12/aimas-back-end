@@ -56,10 +56,9 @@ namespace AIMAS.Data.Inventory
     #region InventoryOperations
     public void AddInventory(InventoryModel inventory)
     {
-      var inventoryDB = inventory.ToDbModel();
-      inventoryDB.CurrentLocation = Aimas.GetDbLocation(inventory.CurrentLocation);
-      inventoryDB.DefaultLocation = Aimas.GetDbLocation(inventory.DefaultLocation);
+      var inventoryDB = inventory.CreateNewDbModel(Aimas);
 
+      //TODO: Is this ID setting needed? Are IDs automatically incremented if ID is default?
       if (inventoryDB.ID == default)
         inventoryDB.ID = Aimas.GetNewIdForInventory();
 

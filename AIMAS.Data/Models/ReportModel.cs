@@ -26,9 +26,12 @@ namespace AIMAS.Data.Models
       Notes = notes;
     }
 
-    public ReportModel_DB ToDbModel()
+    public ReportModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      return new ReportModel_DB(inventory: Inventory.ToDbModel(), id: ID, type: Type, creator: Creator.ToDbModel(), creationDate: CreationDate, executor: Executor.ToDbModel(), executionDate: ExecutionDate, notes: Notes);
+      var dbInventory = aimas.GetDbInventory(Inventory);
+      var dbCreator = aimas.GetDbUser(Creator);
+      var dbExecutor = aimas.GetDbUser(Executor);
+      return new ReportModel_DB(inventory: dbInventory, id: ID, type: Type, creator: dbCreator, creationDate: CreationDate, executor: dbExecutor, executionDate: ExecutionDate, notes: Notes);
     }
   }
 }

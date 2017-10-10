@@ -1,11 +1,8 @@
 using AIMAS.Data.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AIMAS.Data.Models
 {
-    public class RoleModel: IAimasModel<RoleModel_DB>
+  public class RoleModel: IAimasModel<RoleModel_DB>
     {
     public string Name { get; set; }
 
@@ -14,7 +11,7 @@ namespace AIMAS.Data.Models
       Name = name;
     }
 
-    public RoleModel_DB ToDbModel()
+    public RoleModel_DB CreateNewDbModel(AimasContext aimas)
     {
       return new RoleModel_DB(Name);
     }

@@ -72,7 +72,7 @@ namespace AIMAS.Data.Identity
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = $"Something went wrong while Creating new User, {user.Email}";
+        result.ErrorMessage = $"Something went wrong while creating new User, {user.Email}";
         result.AddException(ex);
       }
 
@@ -175,9 +175,9 @@ namespace AIMAS.Data.Identity
     #region TimeLogOperations
     public void AddTimeLog(TimeLogModel log)
     {
-      var dbLog = log.ToDbModel();
-      dbLog.User = Aimas.GetDbUser(log.User);
+      var dbLog = log.CreateNewDbModel(Aimas);
 
+      //TODO: Is this ID setting needed? Are IDs automatically incremented if ID is default?
       if (dbLog.ID == default)
         dbLog.ID = Aimas.GetNewIdForTimeLog();
 

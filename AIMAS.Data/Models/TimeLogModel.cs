@@ -24,9 +24,10 @@ namespace AIMAS.Data.Models
       Purpose = purpose;
     }
 
-    public TimeLogModel_DB ToDbModel()
+    public TimeLogModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      return new TimeLogModel_DB(id: ID, user: User.ToDbModel(), checkIn: CheckIn, checkOut: CheckOut, checkInLodged: CheckInLodged, checkOutLodged: CheckOutLodged, purpose: Purpose);
+      var dbUser = aimas.GetDbUser(User);
+      return new TimeLogModel_DB(id: ID, user: dbUser, checkIn: CheckIn, checkOut: CheckOut, checkInLodged: CheckInLodged, checkOutLodged: CheckOutLodged, purpose: Purpose);
     }
   }
 }

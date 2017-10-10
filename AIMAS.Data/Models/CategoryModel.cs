@@ -14,7 +14,7 @@ namespace AIMAS.Data.Models
       Name = name;
     }
 
-    public CategoryModel_DB ToDbModel()
+    public CategoryModel_DB CreateNewDbModel(AimasContext aimas)
     {
       return new CategoryModel_DB(id: ID, name: Name);
     }

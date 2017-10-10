@@ -20,7 +20,7 @@ namespace AIMAS.Data.Models
       Description = description;
     }
 
-    public LocationModel_DB ToDbModel()
+    public LocationModel_DB CreateNewDbModel(AimasContext aimas)
     {
       return new LocationModel_DB(id: ID, name: Name, description: Description);
     }

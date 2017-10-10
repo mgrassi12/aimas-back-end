@@ -46,8 +46,11 @@ namespace AIMAS.Data.Models
       IsCritical = isCritical;
     }
 
-    public InventoryModel_DB ToDbModel()
+    public InventoryModel_DB CreateNewDbModel(AimasContext aimas)
     {
+      var dbCurrentLocation = aimas.GetDbLocation(CurrentLocation);
+      var dbDefaultLocation = aimas.GetDbLocation(DefaultLocation);
+
       return new InventoryModel_DB(
         id: ID,
         name: Name,
@@ -55,8 +58,8 @@ namespace AIMAS.Data.Models
         expire: ExpirationDate,
         //maintenanceDate: MaintenanceDate,
         intervalDays: MaintenanceIntervalDays,
-        currentLocation: CurrentLocation?.ToDbModel(),
-        defaultLocation: DefaultLocation?.ToDbModel(),
+        currentLocation: dbCurrentLocation,
+        defaultLocation: dbDefaultLocation,
         isArchived: IsArchived,
         isCritical: IsCritical
         );
