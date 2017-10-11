@@ -9,7 +9,7 @@ using AIMAS.Data.Util;
 namespace AIMAS.Data.Inventory
 {
   [Table("inventory")]
-  public class InventoryModel_DB : IAimasDbModel<InventoryModel>
+  public class InventoryModel_DB : IAimasDbModelWithUpdate<InventoryModel>
   {
     [Key]
     public long ID { get; set; }
@@ -28,8 +28,6 @@ namespace AIMAS.Data.Inventory
     public LocationModel_DB CurrentLocation { get; set; }
 
     public LocationModel_DB DefaultLocation { get; set; }
-
-    public List<InventoryAlertTimeModel_DB> AlertTimeInventories { get; set; }
 
     public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 

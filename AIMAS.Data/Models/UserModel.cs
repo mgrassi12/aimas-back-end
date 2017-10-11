@@ -27,11 +27,16 @@ namespace AIMAS.Data.Models
       UserRoles = new List<RoleModel>();
     }
 
-    public UserModel_DB ToDbModel()
+    //TODO: Remove usage of this method from AuthController
+    public UserModel_DB CreateNewDbModel()
     {
       return new UserModel_DB(id: Id, email: Email, firstName: FirstName, lastName: LastName, position: Position);
     }
 
+    public UserModel_DB CreateNewDbModel(AimasContext aimas)
+    {
+      return CreateNewDbModel();
+    }
   }
 
   public class RegisterModel : UserModel

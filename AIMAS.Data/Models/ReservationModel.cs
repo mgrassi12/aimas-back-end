@@ -12,12 +12,12 @@ namespace AIMAS.Data.Models
     public string BookingPurpose { get; set; }
     public LocationModel Location { get; set; }
 
-    public ReservationModel()
+    private ReservationModel()
     {
 
     }
 
-    public ReservationModel(UserModel user, DateTime start, DateTime end, string purpose, LocationModel location, long id = default) : this()
+    public ReservationModel(UserModel user, DateTime start, DateTime end, string purpose, LocationModel location, long id = default)
     {
       ID = id;
       User = user;
@@ -27,9 +27,11 @@ namespace AIMAS.Data.Models
       Location = location;
     }
 
-    public ReservationModel_DB ToDbModel()
+    public ReservationModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      return new ReservationModel_DB(user: User.ToDbModel(), id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToDbModel());
+      var dbUser = aimas.GetDbUser(User);
+      var dbLocation = aimas.GetDbLocation(Location);
+      return new ReservationModel_DB(user: dbUser, id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: dbLocation);
     }
   }
 }

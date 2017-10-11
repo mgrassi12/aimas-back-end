@@ -60,7 +60,7 @@ namespace AIMAS.API.Controllers
     [Authorize(Roles = Roles.Admin)]
     public async Task<Result> RegisterUser([FromBody] RegisterModel registerModel)
     {
-      var userModel = registerModel.ToDbModel();
+      var userModel = registerModel.CreateNewDbModel();
       var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
       if (registerModel.UserRoles != null)
         registerModel.UserRoles.ForEach(async role => result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, role.Name)));

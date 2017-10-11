@@ -24,9 +24,11 @@ namespace AIMAS.Data.Models
       NewValue = newValue;
     }
 
-    public ChangeEventModel_DB ToDbModel()
+    public ChangeEventModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      return new ChangeEventModel_DB(inventory: Inventory.ToDbModel(), id: ID, user: User.ToDbModel(), changeTime: ChangeTime, changeType: ChangeType, oldValue: OldValue, newValue: NewValue);
+      var dbInventory = aimas.GetDbInventory(Inventory);
+      var dbUser = aimas.GetDbUser(User);
+      return new ChangeEventModel_DB(inventory: dbInventory, id: ID, user: dbUser, changeTime: ChangeTime, changeType: ChangeType, oldValue: OldValue, newValue: NewValue);
     }
   }
 }

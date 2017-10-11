@@ -48,16 +48,19 @@ namespace AIMAS.Data.Models
       AlertTimeInventories = alertTimeInventories ?? new List<InventoryAlertTimeModel>();
     }
 
-    public InventoryModel_DB ToDbModel()
+    public InventoryModel_DB CreateNewDbModel(AimasContext aimas)
     {
+      var dbCurrentLocation = aimas.GetDbLocation(CurrentLocation);
+      var dbDefaultLocation = aimas.GetDbLocation(DefaultLocation);
+
       return new InventoryModel_DB(
         id: ID,
         name: Name,
         description: Description,
         expire: ExpirationDate,
         intervalDays: MaintenanceIntervalDays,
-        currentLocation: CurrentLocation?.ToDbModel(),
-        defaultLocation: DefaultLocation?.ToDbModel(),
+        currentLocation: dbCurrentLocation,
+        defaultLocation: dbDefaultLocation,
         isArchived: IsArchived,
         isCritical: IsCritical,
          alertTimeInventories: AlertTimeInventories?.Select(item => item.ToDbModel()).ToList()

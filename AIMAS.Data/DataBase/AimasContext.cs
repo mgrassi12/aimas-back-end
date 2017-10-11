@@ -22,8 +22,6 @@ namespace AIMAS.Data
 
     public DbSet<LocationModel_DB> Locations { get; set; }
 
-    public DbSet<NotificationModel_DB> Notifications { get; set; }
-
     public DbSet<ReservationModel_DB> Reservations { get; set; }
 
     public DbSet<ReportModel_DB> Reports { get; set; }

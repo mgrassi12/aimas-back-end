@@ -2,11 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using AIMAS.Data.Models;
 using System;
-using System.Collections.Generic;
 
 namespace AIMAS.Data.Identity
 {
-  public class UserModel_DB : IdentityUser<long>, IAimasDbModel<UserModel>
+  public class UserModel_DB : IdentityUser<long>, IAimasDbModelWithUpdate<UserModel>
   {
     [Key]
     public override long Id { get => base.Id; set => base.Id = value; }

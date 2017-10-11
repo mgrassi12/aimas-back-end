@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AIMAS.Data.Identity
 {
   [Table("timeLog")]
-  public class TimeLogModel_DB : IAimasDbModel<TimeLogModel>
+  public class TimeLogModel_DB : IAimasDbModelWithUpdate<TimeLogModel>
   {
     [Required]
     public UserModel_DB User { get; set; }

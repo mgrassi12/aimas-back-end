@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
-using System.Linq;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
 using AIMAS.Data.Util;
@@ -10,7 +9,7 @@ using AIMAS.Data.Util;
 namespace AIMAS.Data.Inventory
 {
   [Table("reservation")]
-  public class ReservationModel_DB : IAimasDbModel<ReservationModel>
+  public class ReservationModel_DB : IAimasDbModelWithUpdate<ReservationModel>
   {
     [Required]
     public UserModel_DB User { get; set; }
@@ -32,9 +31,6 @@ namespace AIMAS.Data.Inventory
 
     public List<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
-    [Required]
-    public bool IsArchived { get; set; }
-
     private ReservationModel_DB()
     {
     }
@@ -53,6 +49,18 @@ namespace AIMAS.Data.Inventory
     public ReservationModel ToModel()
     {
       return new ReservationModel(user: User.ToModel(), id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToModel());
+    }
+
+    public void UpdateDb(ReservationModel model, AimasContext aimas)
+    {
+      if (model.BookingStart != default)
+        BookingStart = model.BookingStart;
+      if (model.BookingEnd != default)
+        BookingEnd = model.BookingEnd;
+      if (!string.IsNullOrEmpty(model.BookingPurpose))
+        BookingPurpose = model.BookingPurpose;
+      if (model.Location != null)
+        Location = aimas.GetDbLocation(model.Location);
     }
   }
 }
