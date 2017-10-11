@@ -50,8 +50,8 @@ namespace AIMAS.Data.Models
 
     public InventoryModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      var dbCurrentLocation = CurrentLocation?.ID != -1 ? aimas.GetDbLocation(CurrentLocation) : null;
-      var dbDefaultLocation = DefaultLocation?.ID != -1 ? aimas.GetDbLocation(DefaultLocation) : null;
+      var dbCurrentLocation = aimas.GetDbLocation(CurrentLocation);
+      var dbDefaultLocation = DefaultLocation?.ID == default(long) ? null : aimas.GetDbLocation(DefaultLocation);
 
       return new InventoryModel_DB(
         id: ID,

@@ -92,6 +92,8 @@ namespace AIMAS.Data.Inventory
     public void UpdateDb(InventoryModel inventory, AimasContext aimas)
     {
       Description = inventory.Description;
+      CurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
+      DefaultLocation = inventory.DefaultLocation?.ID == default(long) ? null : aimas.GetDbLocation(inventory.DefaultLocation);
       IsArchived = inventory.IsArchived;
       IsCritical = inventory.IsCritical;
 
@@ -103,12 +105,6 @@ namespace AIMAS.Data.Inventory
 
       if (inventory.MaintenanceIntervalDays != default)
         MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
-
-      if (inventory.CurrentLocation?.ID != -1)
-        CurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
-
-      if (inventory.DefaultLocation?.ID != -1)
-        DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
 
       // Update Alerts
       var addAlerts = inventory.AlertTimeInventories.Where(item => AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).Select(item => item.CreateNewDbModel()).ToList();
