@@ -81,12 +81,12 @@ namespace AIMAS.Data.Inventory
     {
       var query = Aimas.Inventories.AsQueryable();
 
-      if (search.ID.HasValue)
+      if (search.ID.HasValue && search.ID.Value != default)
         query = query.Where(i => i.ID == search.ID.Value);
       if (!string.IsNullOrEmpty(search.Name))
-        query = query.Where(i => i.Name.Contains(search.Name));
+        query = query.Where(i => i.Name.ToLower().Contains(search.Name.ToLower()));
       if (!string.IsNullOrEmpty(search.Description))
-        query = query.Where(i => i.Description.Contains(search.Description));
+        query = query.Where(i => i.Description.ToLower().Contains(search.Description.ToLower()));
 
       var count = query.Count();
       query = query.Skip(search.PageSize * search.PageIndex);
