@@ -148,38 +148,6 @@ namespace AIMAS.API.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Inventory.AlertTimeInventoryModel_DB", b =>
-                {
-                    b.Property<long>("AlertID");
-
-                    b.Property<long>("InventoryID");
-
-                    b.Property<DateTime?>("SentTime")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("AlertID", "InventoryID");
-
-                    b.HasIndex("InventoryID");
-
-                    b.ToTable("alerttimeinventory");
-                });
-
-            modelBuilder.Entity("AIMAS.Data.Inventory.AlertTimeModel_DB", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<long>("DaysBefore");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("alertTime");
-                });
-
             modelBuilder.Entity("AIMAS.Data.Inventory.CategoryInventoryModel_DB", b =>
                 {
                     b.Property<long>("CategoryID");
@@ -235,6 +203,27 @@ namespace AIMAS.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("changeEvent");
+                });
+
+            modelBuilder.Entity("AIMAS.Data.Inventory.InventoryAlertTimeModel_DB", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long>("DaysBefore");
+
+                    b.Property<long?>("InventoryID");
+
+                    b.Property<DateTime?>("SentTime")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<int>("Type");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("InventoryID");
+
+                    b.ToTable("alerttimeinventory");
                 });
 
             modelBuilder.Entity("AIMAS.Data.Inventory.InventoryModel_DB", b =>
@@ -476,19 +465,6 @@ namespace AIMAS.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Inventory.AlertTimeInventoryModel_DB", b =>
-                {
-                    b.HasOne("AIMAS.Data.Inventory.AlertTimeModel_DB", "AlertTime")
-                        .WithMany()
-                        .HasForeignKey("AlertID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("AIMAS.Data.Inventory.InventoryModel_DB", "Inventory")
-                        .WithMany("AlertTimeInventories")
-                        .HasForeignKey("InventoryID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("AIMAS.Data.Inventory.CategoryInventoryModel_DB", b =>
                 {
                     b.HasOne("AIMAS.Data.Inventory.CategoryModel_DB", "Category")
@@ -513,6 +489,13 @@ namespace AIMAS.API.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("AIMAS.Data.Inventory.InventoryAlertTimeModel_DB", b =>
+                {
+                    b.HasOne("AIMAS.Data.Inventory.InventoryModel_DB", "Inventory")
+                        .WithMany("AlertTimeInventories")
+                        .HasForeignKey("InventoryID");
                 });
 
             modelBuilder.Entity("AIMAS.Data.Inventory.InventoryModel_DB", b =>

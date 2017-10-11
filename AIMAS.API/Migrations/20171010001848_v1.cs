@@ -10,20 +10,6 @@ namespace AIMAS.API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "alertTime",
-                columns: table => new
-                {
-                    ID = table.Column<long>(type: "int8", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    DaysBefore = table.Column<long>(type: "int8", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_alertTime", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -293,25 +279,22 @@ namespace AIMAS.API.Migrations
                 name: "alerttimeinventory",
                 columns: table => new
                 {
-                    AlertID = table.Column<long>(type: "int8", nullable: false),
-                    InventoryID = table.Column<long>(type: "int8", nullable: false),
+                    ID = table.Column<long>(type: "int8", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    DaysBefore = table.Column<long>(type: "int8", nullable: false),
+                    InventoryID = table.Column<long>(type: "int8", nullable: true),
+                    SentTime = table.Column<DateTime>(type: "timestamptz", nullable: true),
                     Type = table.Column<int>(type: "int4", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_alerttimeinventory", x => new { x.AlertID, x.InventoryID });
-                    table.ForeignKey(
-                        name: "FK_alerttimeinventory_alertTime_AlertID",
-                        column: x => x.AlertID,
-                        principalTable: "alertTime",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_alerttimeinventory", x => x.ID);
                     table.ForeignKey(
                         name: "FK_alerttimeinventory_inventory_InventoryID",
                         column: x => x.InventoryID,
                         principalTable: "inventory",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -608,9 +591,6 @@ namespace AIMAS.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "timeLog");
-
-            migrationBuilder.DropTable(
-                name: "alertTime");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

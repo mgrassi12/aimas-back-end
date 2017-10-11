@@ -5,15 +5,13 @@ namespace AIMAS.Data.Models
 {
   public class InventoryAlertTimeModel : IAimasModel<InventoryAlertTimeModel_DB>
   {
-    public InventoryModel Inventory { get; set; }
     public long ID { get; set; }
-    public AlertTimeType Type { get; set; }
+    public AlertInventoryTimeType Type { get; set; }
     public long DaysBefore { get; set; }
     public DateTime? SentTime { get; set; }
 
-    public InventoryAlertTimeModel(InventoryModel inventory, AlertTimeType type, long daysBefore, DateTime? sentTime = default, long id = default)
+    public InventoryAlertTimeModel(AlertInventoryTimeType type, long daysBefore, DateTime? sentTime = default, long id = default)
     {
-      Inventory = inventory;
       ID = id;
       Type = type;
       DaysBefore = daysBefore;
@@ -22,7 +20,7 @@ namespace AIMAS.Data.Models
 
     public InventoryAlertTimeModel_DB ToDbModel()
     {
-      return new InventoryAlertTimeModel_DB(inventory: Inventory.ToDbModel(), id: ID, type: Type, daysBefore: DaysBefore, sentTime: SentTime);
+      return new InventoryAlertTimeModel_DB(id: ID, type: Type, daysBefore: DaysBefore, sentTime: SentTime);
     }
   }
 }

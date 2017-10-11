@@ -33,11 +33,11 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       var inventory = Aimas.Inventories.First();
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 1));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 5));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 10));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 20));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 30));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 1));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 5));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 10));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 20));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 30));
       Aimas.SaveChanges();
 
       // Add Reservation
@@ -54,14 +54,18 @@ namespace AIMAS.Data.Inventory
     }
 
     #region InventoryOperations
+
     public void AddInventory(InventoryModel inventory)
     {
       var inventoryDB = inventory.ToDbModel();
       inventoryDB.CurrentLocation = Aimas.GetDbLocation(inventory.CurrentLocation);
+      if (inventoryDB.DefaultLocation?.ID == -1)
+        inventoryDB.DefaultLocation = null;
+      else
       inventoryDB.DefaultLocation = Aimas.GetDbLocation(inventory.DefaultLocation);
 
-      if (inventoryDB.ID == default)
-        inventoryDB.ID = Aimas.GetNewIdForInventory();
+      //if (inventoryDB.ID == default)
+      //  inventoryDB.ID = Aimas.GetNewIdForInventory();
 
       Aimas.Inventories.Add(inventoryDB);
       Aimas.SaveChanges();
@@ -69,16 +73,18 @@ namespace AIMAS.Data.Inventory
 
     public List<InventoryModel> GetInventories()
     {
-      var query = from inventory in Aimas.Inventories
-                  select inventory.ToModel();
+      var query = Aimas.Inventories
+        .Include(x => x.CurrentLocation)
+        .Include(x => x.DefaultLocation)
+        .Include(x => x.AlertTimeInventories)
+        .Select(i => i.ToModel());
       return query.ToList();
     }
 
     public (List<InventoryModel> list, int TotalCount) GetInventories(InventorySearch search)
     {
-      var query = from inventory in Aimas.Inventories
-                  select inventory.ToModel();
-      query.Include(x => x.CurrentLocation).Include(x => x.DefaultLocation);
+      var query = Aimas.Inventories.AsQueryable();
+
       if (search.ID.HasValue)
         query = query.Where(i => i.ID == search.ID.Value);
       if (!string.IsNullOrEmpty(search.Name))
@@ -90,7 +96,13 @@ namespace AIMAS.Data.Inventory
       query = query.Skip(search.PageSize * search.PageIndex);
       query = query.Take(search.PageSize);
 
-      return (query.ToList(), count);
+      var finalQuery = query
+        .Include(x => x.CurrentLocation)
+        .Include(x => x.DefaultLocation)
+        .Include(x => x.AlertTimeInventories)
+        .Select(i => i.ToModel());
+
+      return (finalQuery.ToList(), count);
     }
 
     public List<InventoryModel> GetExpiredInventory()
@@ -118,9 +130,22 @@ namespace AIMAS.Data.Inventory
       Aimas.Inventories.Remove(item);
       Aimas.SaveChanges();
     }
+
+    #endregion
+
+    #region LocationOperations
+
+    public List<LocationModel> GetLocations()
+    {
+      var query = from location in Aimas.Locations
+                  select location.ToModel();
+      return query.ToList();
+    }
+
     #endregion
 
     #region AlertTimeOperations
+
     public List<InventoryAlertTimeModel> GetInventoryAlertTimes(long id)
     {
       var query = from alert in Aimas.InventoryAlertTimes
@@ -128,8 +153,8 @@ namespace AIMAS.Data.Inventory
                   select alert.ToModel();
       return query.ToList();
     }
-    
-    private IQueryable<InventoryAlertTimeModel_DB> GetUpcomingAlertTimeQuery(AlertTimeType type, Func<InventoryModel_DB, DateTime> getDate)
+
+    private IQueryable<InventoryAlertTimeModel_DB> GetUpcomingAlertTimeQuery(AlertInventoryTimeType type, Func<InventoryModel_DB, DateTime> getDate)
     {
       var query = from alert in Aimas.InventoryAlertTimes
                   where alert.Inventory.ExpirationDate >= DateTime.UtcNow
@@ -142,9 +167,10 @@ namespace AIMAS.Data.Inventory
 
     public List<InventoryAlertTimeModel_DB> GetUpcomingExpiryAlertTimes()
     {
-      var query = GetUpcomingAlertTimeQuery(AlertTimeType.Inventory_E_Date, (i) => i.ExpirationDate);
+      var query = GetUpcomingAlertTimeQuery(AlertInventoryTimeType.Inventory_E_Date, (i) => i.ExpirationDate);
       return query.ToList();
     }
+
     #endregion
 
     //TODO: Create CRUD methods for all inventory classes

@@ -1,5 +1,7 @@
 using System;
 using AIMAS.Data.Inventory;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AIMAS.Data.Models
 {
@@ -9,12 +11,12 @@ namespace AIMAS.Data.Models
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime ExpirationDate { get; set; }
-    //public DateTime MaintenanceDate { get; set; }
     public long MaintenanceIntervalDays { get; set; }
     public LocationModel CurrentLocation { get; set; }
     public LocationModel DefaultLocation { get; set; }
     public bool IsArchived { get; set; }
     public bool IsCritical { get; set; }
+    public List<InventoryAlertTimeModel> AlertTimeInventories { get; set; }
 
     public InventoryModel()
     {
@@ -25,12 +27,12 @@ namespace AIMAS.Data.Models
       string name,
       DateTime expiration,
       long intervalDays,
-      //DateTime maintenanceDate,
       LocationModel currentLocation,
-      LocationModel defaultLocation,
+      LocationModel defaultLocation = default,
       string description = default,
       bool isArchived = default,
       bool isCritical = default,
+      List<InventoryAlertTimeModel> alertTimeInventories = default,
       long id = default
       )
     {
@@ -38,12 +40,12 @@ namespace AIMAS.Data.Models
       Name = name;
       Description = description;
       ExpirationDate = expiration;
-      //MaintenanceDate = maintenanceDate;
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
       IsArchived = isArchived;
       IsCritical = isCritical;
+      AlertTimeInventories = alertTimeInventories ?? new List<InventoryAlertTimeModel>();
     }
 
     public InventoryModel_DB ToDbModel()
@@ -53,12 +55,12 @@ namespace AIMAS.Data.Models
         name: Name,
         description: Description,
         expire: ExpirationDate,
-        //maintenanceDate: MaintenanceDate,
         intervalDays: MaintenanceIntervalDays,
         currentLocation: CurrentLocation?.ToDbModel(),
         defaultLocation: DefaultLocation?.ToDbModel(),
         isArchived: IsArchived,
-        isCritical: IsCritical
+        isCritical: IsCritical,
+         alertTimeInventories: AlertTimeInventories?.Select(item => item.ToDbModel()).ToList()
         );
     }
   }
@@ -68,8 +70,6 @@ namespace AIMAS.Data.Models
     public long? ID { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    //public LocationModel Location { get; set; }
-
     public int PageIndex { get; set; }
     public int PageSize { get; set; }
 

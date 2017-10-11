@@ -90,8 +90,8 @@ namespace AIMAS.Test
     public void GetUpcomingExpiryAlertTimeSuccessfully()
     {
       var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, Aimas.Locations.First());
-      var alertTime = new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 15);
-      GetUpcomingAlertTimes_TestSetUp(inventory, new InventoryAlertTimeModel_DB[] {alertTime});
+      var alertTime = new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 15, inventory);
+      GetUpcomingAlertTimes_TestSetUp(inventory, new InventoryAlertTimeModel_DB[] { alertTime });
 
       var result = Inventory.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();
@@ -103,9 +103,9 @@ namespace AIMAS.Test
     public void NotGetUpcomingExpiryAlertTimeThatHasBeenSent()
     {
       var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, Aimas.Locations.First());
-      var alertTime = new InventoryAlertTimeModel_DB(inventory, AlertTimeType.Inventory_E_Date, 15);
+      var alertTime = new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 15, inventory);
       alertTime.SentTime = DateTime.Now;
-      GetUpcomingAlertTimes_TestSetUp(inventory, new InventoryAlertTimeModel_DB[] {alertTime});
+      GetUpcomingAlertTimes_TestSetUp(inventory, new InventoryAlertTimeModel_DB[] { alertTime });
 
       var result = Inventory.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();

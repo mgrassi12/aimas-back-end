@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using System.Linq;
 using AIMAS.Data.Models;
 using AIMAS.Data.Util;
 
@@ -20,11 +21,6 @@ namespace AIMAS.Data.Inventory
 
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime ExpirationDate { get; set; }
-
-    // To be removed
-    //[Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
-    //public DateTime MaintenanceDate { get; set; }
-    //
 
     public long MaintenanceIntervalDays { get; set; }
 
@@ -54,27 +50,27 @@ namespace AIMAS.Data.Inventory
       string name,
       DateTime expire,
       long intervalDays,
-      //DateTime maintenanceDate,
       LocationModel_DB currentLocation,
+      LocationModel_DB defaultLocation = default,
       string description = default,
       bool isArchived = default,
       bool isCritical = default,
-      LocationModel_DB defaultLocation = default,
-      long id = default)
+      List<InventoryAlertTimeModel_DB> alertTimeInventories = default,
+      long id = default
+      )
     {
       ID = id;
       Name = name;
       Description = description;
       ExpirationDate = expire;
-      //MaintenanceDate = maintenanceDate;
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
-      AlertTimeInventories = new List<InventoryAlertTimeModel_DB>();
-      CategoryInventories = new List<CategoryInventoryModel_DB>();
-      ReservationInventories = new List<ReservationInventoryModel_DB>();
       IsArchived = isArchived;
       IsCritical = isCritical;
+      AlertTimeInventories = alertTimeInventories ?? new List<InventoryAlertTimeModel_DB>();
+      CategoryInventories = new List<CategoryInventoryModel_DB>();
+      ReservationInventories = new List<ReservationInventoryModel_DB>();
     }
 
     public InventoryModel ToModel()
@@ -84,18 +80,18 @@ namespace AIMAS.Data.Inventory
         name: Name,
         description: Description,
         expiration: ExpirationDate,
-        //maintenanceDate: MaintenanceDate,
         intervalDays: MaintenanceIntervalDays,
         currentLocation: CurrentLocation?.ToModel(),
         defaultLocation: DefaultLocation?.ToModel(),
         isArchived: IsArchived,
-        isCritical: IsCritical);
+        isCritical: IsCritical,
+        alertTimeInventories: AlertTimeInventories?.Select(item => item.ToModel()).ToList()
+        );
     }
 
     public void UpdateDb(InventoryModel inventory, AimasContext aimas)
     {
-      Description = inventory.Description;
-      DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
+      Description = inventory.Description;      
       IsArchived = inventory.IsArchived;
       IsCritical = inventory.IsCritical;
 
@@ -109,10 +105,10 @@ namespace AIMAS.Data.Inventory
         MaintenanceIntervalDays = inventory.MaintenanceIntervalDays;
 
       if (inventory.CurrentLocation?.ID != -1)
-      {
-        var newCurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
-        CurrentLocation = newCurrentLocation;
-      }
+        CurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
+
+      if (inventory.DefaultLocation?.ID != -1)
+        DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
 
     }
   }
