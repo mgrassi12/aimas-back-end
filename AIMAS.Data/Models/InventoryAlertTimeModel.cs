@@ -18,7 +18,7 @@ namespace AIMAS.Data.Models
       SentTime = sentTime;
     }
 
-    public InventoryAlertTimeModel_DB CreateNewDbModel(AimasContext aimas)
+    public InventoryAlertTimeModel_DB CreateNewDbModel(AimasContext aimas = default)
     {
       return new InventoryAlertTimeModel_DB(id: ID, type: Type, daysBefore: DaysBefore, sentTime: SentTime);
     }

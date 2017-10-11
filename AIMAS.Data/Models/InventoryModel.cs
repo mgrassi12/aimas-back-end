@@ -50,8 +50,8 @@ namespace AIMAS.Data.Models
 
     public InventoryModel_DB CreateNewDbModel(AimasContext aimas)
     {
-      var dbCurrentLocation = aimas.GetDbLocation(CurrentLocation);
-      var dbDefaultLocation = aimas.GetDbLocation(DefaultLocation);
+      var dbCurrentLocation = CurrentLocation?.ID != -1 ? aimas.GetDbLocation(CurrentLocation) : null;
+      var dbDefaultLocation = DefaultLocation?.ID != -1 ? aimas.GetDbLocation(DefaultLocation) : null;
 
       return new InventoryModel_DB(
         id: ID,
@@ -63,7 +63,7 @@ namespace AIMAS.Data.Models
         defaultLocation: dbDefaultLocation,
         isArchived: IsArchived,
         isCritical: IsCritical,
-         alertTimeInventories: AlertTimeInventories?.Select(item => item.ToDbModel()).ToList()
+        alertTimeInventories: AlertTimeInventories?.Select(item => item.CreateNewDbModel()).ToList()
         );
     }
   }

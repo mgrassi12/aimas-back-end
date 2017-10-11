@@ -29,6 +29,8 @@ namespace AIMAS.Data.Inventory
 
     public LocationModel_DB DefaultLocation { get; set; }
 
+    public List<InventoryAlertTimeModel_DB> AlertTimeInventories { get; set; }
+
     public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
 
     public List<ReservationInventoryModel_DB> ReservationInventories { get; set; }
@@ -89,7 +91,7 @@ namespace AIMAS.Data.Inventory
 
     public void UpdateDb(InventoryModel inventory, AimasContext aimas)
     {
-      Description = inventory.Description;      
+      Description = inventory.Description;
       IsArchived = inventory.IsArchived;
       IsCritical = inventory.IsCritical;
 
@@ -107,6 +109,12 @@ namespace AIMAS.Data.Inventory
 
       if (inventory.DefaultLocation?.ID != -1)
         DefaultLocation = aimas.GetDbLocation(inventory.DefaultLocation);
+
+      // Update Alerts
+      var addAlerts = inventory.AlertTimeInventories.Where(item => AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).Select(item => item.CreateNewDbModel()).ToList();
+      var removeAlerts = AlertTimeInventories.Where(item => inventory.AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).ToList();
+      AlertTimeInventories.AddRange(addAlerts);
+      removeAlerts.ForEach(item => AlertTimeInventories.Remove(item));
 
     }
   }
