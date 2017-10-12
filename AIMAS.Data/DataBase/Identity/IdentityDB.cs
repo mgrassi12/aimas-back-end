@@ -52,7 +52,7 @@ namespace AIMAS.Data.Identity
     #region UserOperations
     public async Task<Result> CreateUserAsync(UserModel_DB user, string password)
     {
-      Result result = new Result();
+      var result = new Result();
       try
       {
         // Add User

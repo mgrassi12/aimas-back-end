@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using MoreLinq;
 using AIMAS.Data.Models;
 
 namespace AIMAS.Data.Inventory
@@ -14,9 +11,9 @@ namespace AIMAS.Data.Inventory
 
     public AimasContext Aimas { get; }
 
-    public InventoryDB(AimasContext Aimas)
+    public InventoryDB(AimasContext aimas)
     {
-      this.Aimas = Aimas;
+      this.Aimas = aimas;
     }
 
     public void Initialize()
@@ -57,13 +54,13 @@ namespace AIMAS.Data.Inventory
 
     public void AddInventory(InventoryModel inventory)
     {
-      var inventoryDB = inventory.CreateNewDbModel(Aimas);
+      var inventoryDb = inventory.CreateNewDbModel(Aimas);
 
       //TODO: Is this ID setting needed? Are IDs automatically incremented if ID is default?
       //if (inventoryDB.ID == default)
       //  inventoryDB.ID = Aimas.GetNewIdForInventory();
 
-      Aimas.Inventories.Add(inventoryDB);
+      Aimas.Inventories.Add(inventoryDb);
       Aimas.SaveChanges();
     }
 
@@ -115,15 +112,14 @@ namespace AIMAS.Data.Inventory
         .Include(item => item.CurrentLocation)
         .Include(item => item.DefaultLocation)
         .Include(item => item.AlertTimeInventories)
-        .Where(item => item.ID == inventory.ID)
-        .First();
+        .First(item => item.ID == inventory.ID);
       result.UpdateDb(inventory, Aimas);
       Aimas.SaveChanges();
     }
 
-    public void RemoveInventory(long ID)
+    public void RemoveInventory(long id)
     {
-      var item = Aimas.Inventories.Find(ID);
+      var item = Aimas.Inventories.Find(id);
       Aimas.Inventories.Remove(item);
       Aimas.SaveChanges();
     }
@@ -174,9 +170,9 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    public void RemoveInventoryAlertTime(long ID)
+    public void RemoveInventoryAlertTime(long id)
     {
-      var item = Aimas.InventoryAlertTimes.Find(ID);
+      var item = Aimas.InventoryAlertTimes.Find(id);
       Aimas.InventoryAlertTimes.Remove(item);
       Aimas.SaveChanges();
     }
@@ -228,8 +224,7 @@ namespace AIMAS.Data.Inventory
     {
       var result = Aimas.Reservations
         .Include(dbReservation => dbReservation.Location)
-        .Where(dbReservation => dbReservation.ID == reservation.ID)
-        .First();
+        .First(dbReservation => dbReservation.ID == reservation.ID);
       result.UpdateDb(reservation, Aimas);
       Aimas.SaveChanges();
     }
