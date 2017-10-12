@@ -17,12 +17,12 @@ namespace AIMAS.API.Controllers
   {
     private ILogger log;
 
-    private InventoryDB Inventory { get; }
+    private InventoryDB InventoryDB { get; }
 
     public InventoryController(InventoryDB inventoryDB)
     {
       log = Startup.LoggerFactory.CreateLogger<InventoryController>();
-      Inventory = inventoryDB;
+      InventoryDB = inventoryDB;
     }
 
     [HttpGet]
@@ -34,7 +34,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = Inventory.GetInventories();
+        var items = InventoryDB.GetInventories();
         result.Success = true;
         result.ReturnObj = items;
 
@@ -56,7 +56,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = Inventory.GetInventories(search);
+        var items = InventoryDB.GetInventories(search);
         result.Success = true;
         result.ReturnObj = items.list;
         result.TotalCount = items.TotalCount;
@@ -81,7 +81,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        Inventory.AddInventory(inventory);
+        InventoryDB.AddInventory(inventory);
         result.Success = true;
       }
       catch (Exception ex)
@@ -101,7 +101,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        Inventory.UpdateInventory(inventory);
+        InventoryDB.UpdateInventory(inventory);
         result.Success = true;
       }
       catch (Exception ex)
@@ -121,7 +121,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        Inventory.RemoveInventory(id);
+        InventoryDB.RemoveInventory(id);
         result.Success = true;
       }
       catch (Exception ex)
@@ -141,7 +141,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        result.ReturnObj = Inventory.GetLocations();
+        result.ReturnObj = InventoryDB.GetLocations();
         result.Success = true;
       }
       catch (Exception ex)
@@ -161,7 +161,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        result.ReturnObj = Inventory.GetInventoryAlertTimes(id);
+        result.ReturnObj = InventoryDB.GetInventoryAlertTimes(id);
         result.Success = true;
       }
       catch (Exception ex)

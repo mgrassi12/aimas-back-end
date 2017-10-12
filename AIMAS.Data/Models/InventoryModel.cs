@@ -68,18 +68,4 @@ namespace AIMAS.Data.Models
     }
   }
 
-  public class InventorySearch
-  {
-    public long? ID { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public int PageIndex { get; set; }
-    public int PageSize { get; set; }
-
-    public InventorySearch()
-    {
-      PageIndex = 0;
-      PageSize = 25;
-    }
-  }
 }

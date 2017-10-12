@@ -196,6 +196,25 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
+    public (List<ReservationModel> list, int TotalCount) GetReservations(ReservationSearch search)
+    {
+      var query = Aimas.Reservations.AsQueryable();
+
+      if (!string.IsNullOrEmpty(search.UserName))
+        query = query.Where(i => i.User.FirstName.ToLower().Contains(search.UserName.ToLower()) || i.User.LastName.ToLower().Contains(search.UserName.ToLower()));
+
+      var count = query.Count();
+      query = query.Skip(search.PageSize * search.PageIndex);
+      query = query.Take(search.PageSize);
+
+      var finalQuery = query
+        .Include(x => x.User)
+        .Include(x => x.Location)
+        .Select(i => i.ToModel());
+
+      return (finalQuery.ToList(), count);
+    }
+
     public List<ReservationModel> GetReservationsForInventory(long inventoryId)
     {
       var query = from inventory in Aimas.Inventories

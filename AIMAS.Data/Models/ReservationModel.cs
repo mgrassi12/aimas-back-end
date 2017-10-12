@@ -34,4 +34,6 @@ namespace AIMAS.Data.Models
       return new ReservationModel_DB(user: dbUser, id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: dbLocation);
     }
   }
+
 }
+
