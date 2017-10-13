@@ -17,14 +17,14 @@ namespace AIMAS.Data.Models
 
     }
 
-    public UserModel(string email, string firstName, string lastName, string position, long id = default) : this()
+    public UserModel(string email, string firstName, string lastName, string position, long id = default, List<RoleModel> roles = default) : this()
     {
       Id = id;
       Email = email;
       FirstName = firstName;
       LastName = lastName;
       Position = position;
-      UserRoles = new List<RoleModel>();
+      UserRoles = roles ?? new List<RoleModel>();
     }
 
     //TODO: Remove usage of this method from AuthController
@@ -37,6 +37,7 @@ namespace AIMAS.Data.Models
     {
       return CreateNewDbModel();
     }
+
   }
 
   public class RegisterModel : UserModel

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using AIMAS.Data.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AIMAS.Data.Identity
 {
@@ -25,6 +27,8 @@ namespace AIMAS.Data.Identity
     [Required, MaxLength(50)]
     public string Position { get; set; }
 
+    //public List<IdentityUserRole<long>> Roles { get; set; }
+
     public UserModel_DB() : base()
     {
     }
@@ -42,12 +46,12 @@ namespace AIMAS.Data.Identity
 
     public UserModel ToModel()
     {
-      return new UserModel(id: Id, email:Email, firstName: FirstName, lastName: LastName, position: Position);
+      return new UserModel(id: Id, email: Email, firstName: FirstName, lastName: LastName, position: Position);
     }
 
     public void UpdateDb(UserModel user, AimasContext aimas)
     {
-      var setFunctions = new Action<string>[] {s => { UserName = s; }, s => { FirstName = s; }, s => { LastName = s; }, s => { Email = s; }, s => { Position = s; }};
+      var setFunctions = new Action<string>[] { s => { UserName = s; }, s => { FirstName = s; }, s => { LastName = s; }, s => { Email = s; }, s => { Position = s; } };
       var newProperties = new string[] { user.Email, user.FirstName, user.LastName, user.Email, user.Position };
       for (int i = 0; i < setFunctions.Length; i++)
       {

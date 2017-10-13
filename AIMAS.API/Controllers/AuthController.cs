@@ -183,6 +183,31 @@ namespace AIMAS.API.Controllers
       return result;
     }
 
+    [HttpPost]
+    [Route("user/search")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<PageResultObj<List<UserModel>>> SearchUsers([FromBody]UserSearch search)
+    {
+      var result = new PageResultObj<List<UserModel>>();
+
+      try
+      {
+        var items = await IdentityDB.GetUsersAsync(search);
+        result.Success = true;
+        result.ReturnObj = items.list;
+        result.TotalCount = items.TotalCount;
+        result.PageIndex = search.PageIndex;
+        result.PageSize = search.PageSize;
+
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
     [HttpGet]
     [Route("users")]
     [Authorize(Roles = Roles.Admin)]

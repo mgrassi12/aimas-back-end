@@ -33,4 +33,12 @@ namespace AIMAS.Data.Models
 
   }
 
+  public class UserSearch : Search
+  {
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+
+  }
+
 }

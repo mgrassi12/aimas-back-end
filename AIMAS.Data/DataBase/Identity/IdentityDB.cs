@@ -87,6 +87,30 @@ namespace AIMAS.Data.Identity
       return await query.ToListAsync();
     }
 
+    public async Task<(List<UserModel> list, int TotalCount)> GetUsersAsync(UserSearch search)
+    {
+      var query = Aimas.Users.AsQueryable();
+
+      if (!string.IsNullOrEmpty(search.FirstName))
+        query = query.Where(i => i.FirstName.ToLower().Contains(search.FirstName.ToLower()));
+      if (!string.IsNullOrEmpty(search.LastName))
+        query = query.Where(i => i.LastName.ToLower().Contains(search.LastName.ToLower()));
+      if (!string.IsNullOrEmpty(search.Email))
+        query = query.Where(i => i.Email.Contains(search.Email));
+
+      var count = await query.CountAsync();
+      query = query.Skip(search.PageSize * search.PageIndex);
+      query = query.Take(search.PageSize);
+
+      var finalQuery = query
+        .Select(i => i.ToModel());
+
+      var results = await finalQuery.ToListAsync();
+      results.ForEach(x => x.UserRoles = Manager.GetRolesAsync(new UserModel_DB() { Id = x.Id }).Result.Select(y => new RoleModel(y)).ToList());
+
+      return (results, count);
+    }
+
     public async Task<UserModel> GetUserAsync(string email)
     {
       var query = from user in Aimas.Users

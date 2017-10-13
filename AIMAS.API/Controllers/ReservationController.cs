@@ -28,7 +28,7 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("search")]
     [Authorize]
-    public PageResultObj<List<ReservationModel>> GetInventory([FromBody]ReservationSearch search)
+    public PageResultObj<List<ReservationModel>> GetReservation([FromBody]ReservationSearch search)
     {
       var result = new PageResultObj<List<ReservationModel>>();
 
@@ -53,7 +53,7 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("add")]
     [Authorize(Roles = Roles.Admin)]
-    public Result AddInventory([FromBody]ReservationModel reservation)
+    public Result AddReservation([FromBody]ReservationModel reservation)
     {
       var result = new Result();
 
@@ -73,7 +73,7 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("update")]
     [Authorize(Roles = Roles.Admin)]
-    public Result UpdateInventory([FromBody]ReservationModel reservation)
+    public Result UpdateReservation([FromBody]ReservationModel reservation)
     {
       var result = new Result();
 
@@ -93,7 +93,7 @@ namespace AIMAS.API.Controllers
     [HttpGet]
     [Route("remove/{id}")]
     [Authorize(Roles = Roles.Admin)]
-    public Result RemoveInventory(long id)
+    public Result RemoveReservation(long id)
     {
       var result = new Result();
 
