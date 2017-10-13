@@ -59,7 +59,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDB.Addreservation(reservation);
+        InventoryDB.AddReservation(reservation);
         result.Success = true;
       }
       catch (Exception ex)

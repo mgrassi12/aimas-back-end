@@ -9,11 +9,11 @@ namespace AIMAS.Data.Inventory
   public class InventoryDB
   {
 
-    public AimasContext Aimas { get; }
+    private AimasContext Aimas { get; }
 
     public InventoryDB(AimasContext aimas)
     {
-      this.Aimas = aimas;
+      Aimas = aimas;
     }
 
     public void Initialize()
@@ -44,32 +44,31 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       // Add Category
-      var cateogory = new CategoryModel_DB("Test Item");
-      cateogory.CategoryInventories.Add(new CategoryInventoryModel_DB(cateogory, inventory));
-      Aimas.Categories.Add(cateogory);
+      var category = new CategoryModel_DB("Test Item");
+      category.CategoryInventories.Add(new CategoryInventoryModel_DB(category, inventory));
+      Aimas.Categories.Add(category);
       Aimas.SaveChanges();
     }
 
     #region InventoryOperations
 
+    private static IQueryable<InventoryModel_DB> IncludeOtherModels_Inventory(IQueryable<InventoryModel_DB> query)
+    {
+      return query.Include(x => x.CurrentLocation)
+        .Include(x => x.DefaultLocation)
+        .Include(x => x.AlertTimeInventories);
+    }
+
     public void AddInventory(InventoryModel inventory)
     {
       var inventoryDb = inventory.CreateNewDbModel(Aimas);
-
-      //TODO: Is this ID setting needed? Are IDs automatically incremented if ID is default?
-      //if (inventoryDB.ID == default)
-      //  inventoryDB.ID = Aimas.GetNewIdForInventory();
-
       Aimas.Inventories.Add(inventoryDb);
       Aimas.SaveChanges();
     }
 
     public List<InventoryModel> GetInventories()
     {
-      var query = Aimas.Inventories
-        .Include(x => x.CurrentLocation)
-        .Include(x => x.DefaultLocation)
-        .Include(x => x.AlertTimeInventories)
+      var query = IncludeOtherModels_Inventory(Aimas.Inventories)
         .Select(i => i.ToModel());
       return query.ToList();
     }
@@ -89,10 +88,7 @@ namespace AIMAS.Data.Inventory
       query = query.Skip(search.PageSize * search.PageIndex);
       query = query.Take(search.PageSize);
 
-      var finalQuery = query
-        .Include(x => x.CurrentLocation)
-        .Include(x => x.DefaultLocation)
-        .Include(x => x.AlertTimeInventories)
+      var finalQuery = IncludeOtherModels_Inventory(query)
         .Select(i => i.ToModel());
 
       return (finalQuery.ToList(), count);
@@ -108,10 +104,7 @@ namespace AIMAS.Data.Inventory
 
     public void UpdateInventory(InventoryModel inventory)
     {
-      var result = Aimas.Inventories
-        .Include(item => item.CurrentLocation)
-        .Include(item => item.DefaultLocation)
-        .Include(item => item.AlertTimeInventories)
+      var result = IncludeOtherModels_Inventory(Aimas.Inventories)
         .First(item => item.ID == inventory.ID);
       result.UpdateDb(inventory, Aimas);
       Aimas.SaveChanges();
@@ -122,17 +115,6 @@ namespace AIMAS.Data.Inventory
       var item = Aimas.Inventories.Find(id);
       Aimas.Inventories.Remove(item);
       Aimas.SaveChanges();
-    }
-
-    #endregion
-
-    #region LocationOperations
-
-    public List<LocationModel> GetLocations()
-    {
-      var query = from location in Aimas.Locations
-                  select location.ToModel();
-      return query.ToList();
     }
 
     #endregion
@@ -178,8 +160,81 @@ namespace AIMAS.Data.Inventory
     }
     #endregion
 
+    #region LocationOperations
+
+    public void AddLocation(LocationModel location)
+    {
+      var locationDb = location.CreateNewDbModel(Aimas);
+      Aimas.Locations.Add(locationDb);
+      Aimas.SaveChanges();
+    }
+
+    public List<LocationModel> GetLocations()
+    {
+      var query = from location in Aimas.Locations
+        select location.ToModel();
+      return query.ToList();
+    }
+
+    public void UpdateLocation(LocationModel location)
+    {
+      var result = Aimas.Locations
+        .First(dbLocation => dbLocation.ID == location.ID);
+      result.UpdateDb(location, Aimas);
+      Aimas.SaveChanges();
+    }
+
+    public void RemoveLocation(long id)
+    {
+      var location = Aimas.Locations.Find(id);
+      Aimas.Locations.Remove(location);
+      Aimas.SaveChanges();
+    }
+
+    #endregion
+
+    #region ReportModelOperations
+
+    private static IQueryable<ReportModel_DB> IncludeOtherModels_Report(IQueryable<ReportModel_DB> query)
+    {
+      return query.Include(r => r.Inventory)
+        .Include(r => r.Creator)
+        .Include(r => r.Executor);
+    }
+
+    public void AddReport(ReportModel report)
+    {
+      var reportDb = report.CreateNewDbModel(Aimas);
+      Aimas.Reports.Add(reportDb);
+      Aimas.SaveChanges();
+    }
+
+    public List<ReportModel> GetReports()
+    {
+      var query = IncludeOtherModels_Report(Aimas.Reports)
+        .Select(r => r.ToModel());
+      return query.ToList();
+    }
+
+    public List<ReportModel> GetReportsForInventory(long inventoryId)
+    {
+      var query = IncludeOtherModels_Report(Aimas.Reports)
+        .Where(r => r.Inventory.ID == inventoryId)
+        .Select(r => r.ToModel());
+      return query.ToList();
+    }
+
+    public void RemoveReport(long id)
+    {
+      var report = Aimas.Reports.Find(id);
+      Aimas.Reports.Remove(report);
+      Aimas.SaveChanges();
+    }
+
+    #endregion
+
     #region ReservationOperations
-    public void Addreservation(ReservationModel reservation)
+    public void AddReservation(ReservationModel reservation)
     {
       Aimas.Reservations.Add(reservation.CreateNewDbModel(Aimas));
       Aimas.SaveChanges();
@@ -211,15 +266,6 @@ namespace AIMAS.Data.Inventory
       return (finalQuery.ToList(), count);
     }
 
-    public List<ReservationModel> GetReservationsForInventory(long inventoryId)
-    {
-      var query = from inventory in Aimas.Inventories
-                  from reservationInventory in Aimas.ReservationInventories
-                  where inventory.ID == inventoryId
-                  select reservationInventory.Reservation.ToModel();
-      return query.ToList();
-    }
-
     public void UpdateReservation(ReservationModel reservation)
     {
       var result = Aimas.Reservations
@@ -229,16 +275,51 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
     }
 
-    public void RemoveReservation(long ID)
+    public void RemoveReservation(long id)
     {
-      var item = Aimas.Reservations.Find(ID);
-      Aimas.Reservations.Remove(item);
+      var reservation = Aimas.Reservations.Find(id);
+      Aimas.Reservations.Remove(reservation);
       Aimas.SaveChanges();
     }
 
     #endregion
 
-    //TODO: Create CRUD methods for all inventory classes
+    #region ReservationInventoryOperations
+
+    public void AddInventoryToReservation(long reservationId, long inventoryId)
+    {
+      var reservation = Aimas.Reservations.Find(reservationId);
+      var inventory = Aimas.Inventories.Find(inventoryId);
+      Aimas.ReservationInventories.Add(new ReservationInventoryModel_DB(reservation, inventory));
+      Aimas.SaveChanges();
+    }
+    
+    public List<ReservationModel> GetReservationsForInventory(long inventoryId)
+    {
+      var query = from inventory in Aimas.Inventories
+        from reservationInventory in Aimas.ReservationInventories
+        where inventory.ID == inventoryId
+        select reservationInventory.Reservation.ToModel();
+      return query.ToList();
+    }
+
+    public List<InventoryModel> GetItemsForReservation(long reservationId)
+    {
+      var query = from reservation in Aimas.Reservations
+        from reservationInventory in Aimas.ReservationInventories
+        where reservation.ID == reservationId
+        select reservationInventory.Inventory.ToModel();
+      return query.ToList();
+    }
+
+    public void RemoveInventoryFromReservation(long reservationId, long inventoryId)
+    {
+      var entry = Aimas.ReservationInventories.Find(reservationId, inventoryId);
+      Aimas.ReservationInventories.Remove(entry);
+      Aimas.SaveChanges();
+    }
+
+    #endregion
   }
 }
 

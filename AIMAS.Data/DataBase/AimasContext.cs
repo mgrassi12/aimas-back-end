@@ -28,8 +28,6 @@ namespace AIMAS.Data
 
     public DbSet<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
-    public DbSet<TimeLogModel_DB> TimeLogs { get; set; }
-
 
     public AimasContext(DbContextOptions<AimasContext> options) : base(options)
     {
@@ -54,23 +52,6 @@ namespace AIMAS.Data
       if (user == null)
         return null;
       return Users.Single(dbUser => dbUser.Id == user.Id);
-    }
-
-    public long GetNewIdFromLastId(long? lastId)
-    {
-      return lastId.HasValue ? lastId.Value + 1 : 1;
-    }
-
-    public long GetNewIdForInventory()
-    {
-      var lastId = Inventories.OrderBy(i => i.ID).LastOrDefault()?.ID;
-      return GetNewIdFromLastId(lastId);
-    }
-
-    public long GetNewIdForTimeLog()
-    {
-      var lastId = TimeLogs.OrderBy(i => i.ID).LastOrDefault()?.ID;
-      return GetNewIdFromLastId(lastId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

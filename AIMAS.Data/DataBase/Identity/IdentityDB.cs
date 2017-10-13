@@ -195,48 +195,5 @@ namespace AIMAS.Data.Identity
       return await query.ToListAsync();
     }
     #endregion
-
-    #region TimeLogOperations
-    public void AddTimeLog(TimeLogModel log)
-    {
-      var dbLog = log.CreateNewDbModel(Aimas);
-
-      //TODO: Is this ID setting needed? Are IDs automatically incremented if ID is default?
-      if (dbLog.ID == default)
-        dbLog.ID = Aimas.GetNewIdForTimeLog();
-
-      Aimas.TimeLogs.Add(dbLog);
-      Aimas.SaveChanges();
-    }
-
-    public async Task<List<TimeLogModel>> GetTimeLogsAsync()
-    {
-      var query = from log in Aimas.TimeLogs
-                  select log.ToModel();
-      return await query.ToListAsync();
-    }
-
-    public async Task<List<TimeLogModel>> GetTimeLogsAsync(UserModel user)
-    {
-      var query = from log in Aimas.TimeLogs
-                  where log.User == Aimas.GetDbUser(user)
-                  select log.ToModel();
-      return await query.ToListAsync();
-    }
-
-    public void UpdateTimeLog(TimeLogModel log)
-    {
-      var result = Aimas.TimeLogs.Find(log.ID);
-      result.UpdateDb(log, Aimas);
-      Aimas.SaveChanges();
-    }
-
-    public void RemoveTimeLog(int id)
-    {
-      var log = Aimas.TimeLogs.Find((long)id);
-      Aimas.TimeLogs.Remove(log);
-      Aimas.SaveChanges();
-    }
-    #endregion
   }
 }
