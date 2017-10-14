@@ -14,7 +14,6 @@ namespace AIMAS.Data.Models
     public long MaintenanceIntervalDays { get; set; }
     public LocationModel CurrentLocation { get; set; }
     public LocationModel DefaultLocation { get; set; }
-    public bool IsArchived { get; set; }
     public bool IsCritical { get; set; }
     public List<InventoryAlertTimeModel> AlertTimeInventories { get; set; }
 
@@ -30,7 +29,6 @@ namespace AIMAS.Data.Models
       LocationModel currentLocation,
       LocationModel defaultLocation = default,
       string description = default,
-      bool isArchived = default,
       bool isCritical = default,
       List<InventoryAlertTimeModel> alertTimeInventories = default,
       long id = default
@@ -43,7 +41,6 @@ namespace AIMAS.Data.Models
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
-      IsArchived = isArchived;
       IsCritical = isCritical;
       AlertTimeInventories = alertTimeInventories ?? new List<InventoryAlertTimeModel>();
     }
@@ -61,7 +58,6 @@ namespace AIMAS.Data.Models
         intervalDays: MaintenanceIntervalDays,
         currentLocation: dbCurrentLocation,
         defaultLocation: dbDefaultLocation,
-        isArchived: IsArchived,
         isCritical: IsCritical,
         alertTimeInventories: AlertTimeInventories?.Select(item => item.CreateNewDbModel()).ToList()
         );

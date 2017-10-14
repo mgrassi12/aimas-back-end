@@ -6,11 +6,11 @@ namespace AIMAS.Data.Models
   public class InventoryAlertTimeModel : IAimasModel<InventoryAlertTimeModel_DB>
   {
     public long ID { get; set; }
-    public AlertInventoryTimeType Type { get; set; }
+    public InventoryAlertTimeType Type { get; set; }
     public long DaysBefore { get; set; }
     public DateTime? SentTime { get; set; }
 
-    public InventoryAlertTimeModel(AlertInventoryTimeType type, long daysBefore, DateTime? sentTime = default, long id = default)
+    public InventoryAlertTimeModel(InventoryAlertTimeType type, long daysBefore, DateTime? sentTime = default, long id = default)
     {
       ID = id;
       Type = type;

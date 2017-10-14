@@ -10,10 +10,6 @@ namespace AIMAS.Data
 {
   public class AimasContext : IdentityDbContext<UserModel_DB, RoleModel_DB, long>
   {
-    public DbSet<CategoryModel_DB> Categories { get; set; }
-
-    public DbSet<CategoryInventoryModel_DB> CategoryInventories { get; set; }
-
     public DbSet<ChangeEventModel_DB> ChangeEvents { get; set; }
 
     public DbSet<InventoryModel_DB> Inventories { get; set; }
@@ -73,20 +69,6 @@ namespace AIMAS.Data
         .HasAlternateKey(role => role.Name)
         .HasName("AK_AspNetRoles_Name");
 
-      // Catergory Inventory Many to Many
-      modelBuilder.Entity<CategoryInventoryModel_DB>()
-            .HasKey(ci => new { ci.CategoryID, ci.InventoryID });
-
-      modelBuilder.Entity<CategoryInventoryModel_DB>()
-          .HasOne(ci => ci.Category)
-          .WithMany(c => c.CategoryInventories)
-          .HasForeignKey(ci => ci.CategoryID);
-
-      modelBuilder.Entity<CategoryInventoryModel_DB>()
-           .HasOne(ci => ci.Inventory)
-           .WithMany(i => i.CategoryInventories)
-           .HasForeignKey(ci => ci.InventoryID);
-
       // Reservation Inventory Many to Many
       modelBuilder.Entity<ReservationInventoryModel_DB>()
             .HasKey(ri => new { ri.ReservationID, ri.InventoryID });
@@ -112,7 +94,7 @@ namespace AIMAS.Data
         .Select(x => x.Entity)
         .ToList();
 
-      list.ForEach(entity => DateTimeKindAttribute.Apply(entity));
+      list.ForEach(DateTimeKindAttribute.Apply);
 
 
       return base.SaveChanges();

@@ -112,14 +112,14 @@ namespace AIMAS.API
       // End
 
       if (Configuration.GetSection("Settings").GetValue<bool>("InitializeDB"))
-        InitializeDB();
+        InitializeDb();
 
       // Services
       if (Configuration.GetSection("Settings").GetValue<bool>("Services"))
         StartupServices();
     }
 
-    private void InitializeDB()
+    private void InitializeDb()
     {
       try
       {
@@ -133,7 +133,7 @@ namespace AIMAS.API
       }
     }
 
-    private void StartupServices()
+    private static void StartupServices()
     {
       ServiceProvider.CreateScope().ServiceProvider.GetService<NotificationService>().Start();
     }

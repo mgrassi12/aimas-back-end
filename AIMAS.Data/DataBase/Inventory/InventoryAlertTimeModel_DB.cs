@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AIMAS.Data.Inventory
 {
-  public enum AlertInventoryTimeType
+  public enum InventoryAlertTimeType
   {
     Inventory_E_Date = 1,
     Inventory_M_Date = 2
@@ -22,7 +22,7 @@ namespace AIMAS.Data.Inventory
     public long ID { get; set; }
 
     [Required]
-    public AlertInventoryTimeType Type { get; set; }
+    public InventoryAlertTimeType Type { get; set; }
 
     [Required]
     public long DaysBefore { get; set; }
@@ -34,7 +34,7 @@ namespace AIMAS.Data.Inventory
     {
     }
 
-    public InventoryAlertTimeModel_DB(AlertInventoryTimeType type, long daysBefore, InventoryModel_DB inventory = default, DateTime? sentTime = default, long id = default)
+    public InventoryAlertTimeModel_DB(InventoryAlertTimeType type, long daysBefore, InventoryModel_DB inventory = default, DateTime? sentTime = default, long id = default)
     {
       Inventory = inventory;
       ID = id;

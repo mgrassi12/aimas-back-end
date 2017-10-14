@@ -7,14 +7,14 @@ namespace AIMAS.Data.Models
   {
     public InventoryModel Inventory { get; set; }
     public long ID { get; set; }
-    public string Type { get; set; }
+    public ReportType Type { get; set; }
     public UserModel Creator { get; set; }
     public DateTime CreationDate { get; set; }
     public UserModel Executor { get; set; }
     public DateTime ExecutionDate { get; set; }
     public string Notes { get; set; }
 
-    public ReportModel(InventoryModel inventory, string type, UserModel creator, DateTime creationDate, UserModel executor, DateTime executionDate, string notes, long id = default)
+    public ReportModel(InventoryModel inventory, ReportType type, UserModel creator, DateTime creationDate, UserModel executor, DateTime executionDate, string notes = default, long id = default)
     {
       Inventory = inventory;
       ID = id;
