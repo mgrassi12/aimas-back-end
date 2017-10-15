@@ -48,35 +48,6 @@ namespace AIMAS.API.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Identity.TimeLogModel_DB", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("CheckIn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<DateTime>("CheckInLodged")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<DateTime>("CheckOut")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<DateTime>("CheckOutLodged")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired();
-
-                    b.Property<long>("UserId");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("timeLog");
-                });
-
             modelBuilder.Entity("AIMAS.Data.Identity.UserModel_DB", b =>
                 {
                     b.Property<long>("Id")
@@ -148,33 +119,6 @@ namespace AIMAS.API.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Inventory.CategoryInventoryModel_DB", b =>
-                {
-                    b.Property<long>("CategoryID");
-
-                    b.Property<long>("InventoryID");
-
-                    b.HasKey("CategoryID", "InventoryID");
-
-                    b.HasIndex("InventoryID");
-
-                    b.ToTable("categoryIdentity");
-                });
-
-            modelBuilder.Entity("AIMAS.Data.Inventory.CategoryModel_DB", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.HasKey("ID");
-
-                    b.ToTable("category");
-                });
-
             modelBuilder.Entity("AIMAS.Data.Inventory.ChangeEventModel_DB", b =>
                 {
                     b.Property<long>("ID")
@@ -231,6 +175,9 @@ namespace AIMAS.API.Migrations
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamptz");
+
                     b.Property<long>("CurrentLocationID");
 
                     b.Property<long?>("DefaultLocationID");
@@ -239,8 +186,6 @@ namespace AIMAS.API.Migrations
 
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("timestamptz");
-
-                    b.Property<bool>("IsArchived");
 
                     b.Property<bool>("IsCritical");
 
@@ -293,8 +238,7 @@ namespace AIMAS.API.Migrations
 
                     b.Property<string>("Notes");
 
-                    b.Property<string>("Type")
-                        .IsRequired();
+                    b.Property<int>("Type");
 
                     b.HasKey("ID");
 
@@ -428,27 +372,6 @@ namespace AIMAS.API.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("AIMAS.Data.Identity.TimeLogModel_DB", b =>
-                {
-                    b.HasOne("AIMAS.Data.Identity.UserModel_DB", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("AIMAS.Data.Inventory.CategoryInventoryModel_DB", b =>
-                {
-                    b.HasOne("AIMAS.Data.Inventory.CategoryModel_DB", "Category")
-                        .WithMany("CategoryInventories")
-                        .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("AIMAS.Data.Inventory.InventoryModel_DB", "Inventory")
-                        .WithMany("CategoryInventories")
-                        .HasForeignKey("InventoryID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("AIMAS.Data.Inventory.ChangeEventModel_DB", b =>
                 {
                     b.HasOne("AIMAS.Data.Inventory.InventoryModel_DB", "Inventory")
@@ -495,7 +418,7 @@ namespace AIMAS.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("AIMAS.Data.Inventory.InventoryModel_DB", "Inventory")
-                        .WithMany()
+                        .WithMany("Reports")
                         .HasForeignKey("InventoryID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

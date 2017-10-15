@@ -57,19 +57,6 @@ namespace AIMAS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "category",
-                columns: table => new
-                {
-                    ID = table.Column<long>(type: "int8", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_category", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "location",
                 columns: table => new
                 {
@@ -190,40 +177,16 @@ namespace AIMAS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "timeLog",
-                columns: table => new
-                {
-                    ID = table.Column<long>(type: "int8", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    CheckIn = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    CheckInLodged = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    CheckOut = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    CheckOutLodged = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    Purpose = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<long>(type: "int8", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_timeLog", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_timeLog_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "inventory",
                 columns: table => new
                 {
                     ID = table.Column<long>(type: "int8", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    CreationDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
                     CurrentLocationID = table.Column<long>(type: "int8", nullable: false),
                     DefaultLocationID = table.Column<long>(type: "int8", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    IsArchived = table.Column<bool>(type: "bool", nullable: false),
                     IsCritical = table.Column<bool>(type: "bool", nullable: false),
                     MaintenanceIntervalDays = table.Column<long>(type: "int8", nullable: false),
                     Name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
@@ -254,7 +217,6 @@ namespace AIMAS.API.Migrations
                     BookingEnd = table.Column<DateTime>(type: "timestamptz", nullable: false),
                     BookingPurpose = table.Column<string>(type: "text", nullable: false),
                     BookingStart = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    IsArchived = table.Column<bool>(type: "bool", nullable: false),
                     LocationID = table.Column<long>(type: "int8", nullable: false),
                     UserId = table.Column<long>(type: "int8", nullable: false)
                 },
@@ -282,7 +244,7 @@ namespace AIMAS.API.Migrations
                     ID = table.Column<long>(type: "int8", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     DaysBefore = table.Column<long>(type: "int8", nullable: false),
-                    InventoryID = table.Column<long>(type: "int8", nullable: true),
+                    InventoryID = table.Column<long>(type: "int8", nullable: false),
                     SentTime = table.Column<DateTime>(type: "timestamptz", nullable: true),
                     Type = table.Column<int>(type: "int4", nullable: false)
                 },
@@ -291,30 +253,6 @@ namespace AIMAS.API.Migrations
                     table.PrimaryKey("PK_alerttimeinventory", x => x.ID);
                     table.ForeignKey(
                         name: "FK_alerttimeinventory_inventory_InventoryID",
-                        column: x => x.InventoryID,
-                        principalTable: "inventory",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "categoryIdentity",
-                columns: table => new
-                {
-                    CategoryID = table.Column<long>(type: "int8", nullable: false),
-                    InventoryID = table.Column<long>(type: "int8", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_categoryIdentity", x => new { x.CategoryID, x.InventoryID });
-                    table.ForeignKey(
-                        name: "FK_categoryIdentity_category_CategoryID",
-                        column: x => x.CategoryID,
-                        principalTable: "category",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_categoryIdentity_inventory_InventoryID",
                         column: x => x.InventoryID,
                         principalTable: "inventory",
                         principalColumn: "ID",
@@ -352,35 +290,6 @@ namespace AIMAS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "notification",
-                columns: table => new
-                {
-                    ID = table.Column<long>(type: "int8", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    AlertDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    InventoryID = table.Column<long>(type: "int8", nullable: false),
-                    Type = table.Column<string>(type: "text", nullable: false),
-                    UpcomingEventDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
-                    UserId = table.Column<long>(type: "int8", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_notification", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_notification_inventory_InventoryID",
-                        column: x => x.InventoryID,
-                        principalTable: "inventory",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_notification_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "report",
                 columns: table => new
                 {
@@ -392,7 +301,7 @@ namespace AIMAS.API.Migrations
                     ExecutorId = table.Column<long>(type: "int8", nullable: false),
                     InventoryID = table.Column<long>(type: "int8", nullable: false),
                     Notes = table.Column<string>(type: "text", nullable: true),
-                    Type = table.Column<string>(type: "text", nullable: false)
+                    Type = table.Column<int>(type: "int4", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -484,11 +393,6 @@ namespace AIMAS.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_categoryIdentity_InventoryID",
-                table: "categoryIdentity",
-                column: "InventoryID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_changeEvent_InventoryID",
                 table: "changeEvent",
                 column: "InventoryID");
@@ -507,16 +411,6 @@ namespace AIMAS.API.Migrations
                 name: "IX_inventory_DefaultLocationID",
                 table: "inventory",
                 column: "DefaultLocationID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_notification_InventoryID",
-                table: "notification",
-                column: "InventoryID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_notification_UserId",
-                table: "notification",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_report_CreatorId",
@@ -547,11 +441,6 @@ namespace AIMAS.API.Migrations
                 name: "IX_reservationIdentity_InventoryID",
                 table: "reservationIdentity",
                 column: "InventoryID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_timeLog_UserId",
-                table: "timeLog",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -575,13 +464,7 @@ namespace AIMAS.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "categoryIdentity");
-
-            migrationBuilder.DropTable(
                 name: "changeEvent");
-
-            migrationBuilder.DropTable(
-                name: "notification");
 
             migrationBuilder.DropTable(
                 name: "report");
@@ -590,13 +473,7 @@ namespace AIMAS.API.Migrations
                 name: "reservationIdentity");
 
             migrationBuilder.DropTable(
-                name: "timeLog");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "category");
 
             migrationBuilder.DropTable(
                 name: "inventory");
