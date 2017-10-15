@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using System.Linq;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Models;
 using AIMAS.Data.Util;
@@ -28,14 +29,13 @@ namespace AIMAS.Data.Inventory
 
     [Required]
     public LocationModel_DB Location { get; set; }
-
     public List<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
     private ReservationModel_DB()
     {
     }
 
-    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, long id = default)
+    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, List<ReservationInventoryModel_DB> reservationInventories, long id = default)
     {
       ID = id;
       User = user;
@@ -43,12 +43,20 @@ namespace AIMAS.Data.Inventory
       BookingEnd = end;
       BookingPurpose = purpose;
       Location = location;
-      ReservationInventories = new List<ReservationInventoryModel_DB>();
+      ReservationInventories = reservationInventories ?? new List<ReservationInventoryModel_DB>();
     }
 
     public ReservationModel ToModel()
     {
-      return new ReservationModel(user: User.ToModel(), id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: Location.ToModel());
+      return new ReservationModel(
+        user: User.ToModel(),
+        id: ID,
+        start: BookingStart,
+        end: BookingEnd,
+        purpose: BookingPurpose,
+        location: Location.ToModel(),
+        inventories: ReservationInventories?.Select(x => x.Inventory.ToModel()).ToList()
+        );
     }
 
     public void UpdateDb(ReservationModel model, AimasContext aimas)
@@ -61,6 +69,13 @@ namespace AIMAS.Data.Inventory
         BookingPurpose = model.BookingPurpose;
       if (model.Location != null)
         Location = aimas.GetDbLocation(model.Location);
+
+
+      // Update ReservationInventories
+      var addAlerts = model.Inventories.Where(item => ReservationInventories.Find(item2 => item2.Inventory.ID == item.ID) == null).Select(item => item.CreateNewDbModel(aimas)).ToList();
+      var removeAlerts = ReservationInventories.Where(item => model.Inventories.Find(item2 => item2.ID == item.Inventory.ID) == null).ToList();
+      ReservationInventories.AddRange(addAlerts.Select(x => new ReservationInventoryModel_DB(this, x)));
+      removeAlerts.ForEach(item => ReservationInventories.Remove(item));
     }
   }
 }

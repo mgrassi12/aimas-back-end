@@ -102,13 +102,32 @@ namespace AIMAS.Data.Identity
       query = query.Skip(search.PageSize * search.PageIndex);
       query = query.Take(search.PageSize);
 
-      var finalQuery = query
-        .Select(i => i.ToModel());
+      var finalQuery = from user in query
+                       select user
+                       .ToModel()
+                       .SetRoles(
+                         (
+                          from role in Aimas.Roles
+                          join userRole in Aimas.UserRoles on role.Id equals userRole.RoleId
+                          where userRole.UserId == user.Id
+                          select role.ToModel()
+                         )
+                         .ToList()
+                       );
 
-      var results = await finalQuery.ToListAsync();
-      results.ForEach(x => x.UserRoles = Manager.GetRolesAsync(new UserModel_DB() { Id = x.Id }).Result.Select(y => new RoleModel(y)).ToList());
+      //var users = await query.Select(x => x.ToModel()).ToListAsync();
+      //users.ForEach(u =>
+      //{
+      //  var roles = (
+      //                from role in Aimas.Roles
+      //                join userRole in Aimas.UserRoles on role.Id equals userRole.RoleId
+      //                where userRole.UserId == u.Id
+      //                select role.ToModel()
+      //              ).ToList();
+      //  u.SetRoles(roles);
+      //});
 
-      return (results, count);
+      return (finalQuery.ToList(), count);
     }
 
     public async Task<UserModel> GetUserAsync(string email)

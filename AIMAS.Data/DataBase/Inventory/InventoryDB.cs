@@ -172,7 +172,7 @@ namespace AIMAS.Data.Inventory
     public List<LocationModel> GetLocations()
     {
       var query = from location in Aimas.Locations
-        select location.ToModel();
+                  select location.ToModel();
       return query.ToList();
     }
 
@@ -269,8 +269,9 @@ namespace AIMAS.Data.Inventory
     public void UpdateReservation(ReservationModel reservation)
     {
       var result = Aimas.Reservations
-        .Include(dbReservation => dbReservation.Location)
-        .First(dbReservation => dbReservation.ID == reservation.ID);
+        .Include(x => x.Location)
+        .Include(x => x.ReservationInventories)
+        .First(r => r.ID == reservation.ID);
       result.UpdateDb(reservation, Aimas);
       Aimas.SaveChanges();
     }
@@ -293,22 +294,22 @@ namespace AIMAS.Data.Inventory
       Aimas.ReservationInventories.Add(new ReservationInventoryModel_DB(reservation, inventory));
       Aimas.SaveChanges();
     }
-    
+
     public List<ReservationModel> GetReservationsForInventory(long inventoryId)
     {
       var query = from inventory in Aimas.Inventories
-        from reservationInventory in Aimas.ReservationInventories
-        where inventory.ID == inventoryId
-        select reservationInventory.Reservation.ToModel();
+                  from reservationInventory in Aimas.ReservationInventories
+                  where inventory.ID == inventoryId
+                  select reservationInventory.Reservation.ToModel();
       return query.ToList();
     }
 
     public List<InventoryModel> GetItemsForReservation(long reservationId)
     {
       var query = from reservation in Aimas.Reservations
-        from reservationInventory in Aimas.ReservationInventories
-        where reservation.ID == reservationId
-        select reservationInventory.Inventory.ToModel();
+                  from reservationInventory in Aimas.ReservationInventories
+                  where reservation.ID == reservationId
+                  select reservationInventory.Inventory.ToModel();
       return query.ToList();
     }
 

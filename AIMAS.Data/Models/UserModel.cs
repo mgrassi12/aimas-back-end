@@ -38,6 +38,12 @@ namespace AIMAS.Data.Models
       return CreateNewDbModel();
     }
 
+    public UserModel SetRoles(List<RoleModel> roles)
+    {
+      UserRoles = roles;
+      return this;
+    }
+
   }
 
   public class RegisterModel : UserModel
