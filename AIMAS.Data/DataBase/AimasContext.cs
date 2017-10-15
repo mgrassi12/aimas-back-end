@@ -1,6 +1,5 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
@@ -32,21 +31,21 @@ namespace AIMAS.Data
 
     public InventoryModel_DB GetDbInventory(InventoryModel inventory)
     {
-      if (inventory == null)
+      if (inventory == null || inventory.ID == 0L)
         return null;
       return Inventories.Single(dbInventory => dbInventory.ID == inventory.ID);
     }
 
     public LocationModel_DB GetDbLocation(LocationModel location)
     {
-      if (location == null)
+      if (location == null || location.ID == 0L)
         return null;
       return Locations.Single(dbLocation => dbLocation.ID == location.ID);
     }
 
     public UserModel_DB GetDbUser(UserModel user)
     {
-      if (user == null)
+      if (user == null || user.Id == 0L)
         return null;
       return Users.Single(dbUser => dbUser.Id == user.Id);
     }

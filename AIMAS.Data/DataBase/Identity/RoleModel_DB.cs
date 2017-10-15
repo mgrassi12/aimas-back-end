@@ -25,11 +25,5 @@ namespace AIMAS.Data.Identity
     {
       return new RoleModel(Name);
     }
-
-    public void UpdateDb(RoleModel model, AimasContext aimas)
-    {
-      if (!string.IsNullOrEmpty(model.Name))
-        Name = model.Name;
-    }
   }
 }

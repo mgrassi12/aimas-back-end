@@ -1,5 +1,4 @@
 using AIMAS.Data.Identity;
-using AIMAS.Data.Models;
 using AIMAS.Data.Util;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AIMAS.Data.Inventory
 {
   [Table("changeEvent")]
-  public class ChangeEventModel_DB : IAimasDbModel<ChangeEventModel>
+  public class ChangeEventModel_DB
   {
     [Required]
     public InventoryModel_DB Inventory { get; set; }
@@ -31,24 +30,20 @@ namespace AIMAS.Data.Inventory
     [Required]
     public string NewValue { get; set; }
 
+    private const string NullValue = "NULL";
+
     private ChangeEventModel_DB()
     {
     }
 
-    public ChangeEventModel_DB(InventoryModel_DB inventory, UserModel_DB user, DateTime changeTime, string changeType, string oldValue, string newValue, long id = default)
+    public ChangeEventModel_DB(InventoryModel_DB inventory, UserModel_DB user, string changeType, string oldValue, string newValue)
     {
       Inventory = inventory;
-      ID = id;
       User = user;
-      ChangeTime = changeTime;
+      ChangeTime = DateTime.UtcNow;
       ChangeType = changeType;
-      OldValue = oldValue;
-      NewValue = newValue;
-    }
-
-    public ChangeEventModel ToModel()
-    {
-      return new ChangeEventModel(inventory: Inventory.ToModel(), id: ID, user: User.ToModel(), changeTime: ChangeTime, changeType: ChangeType, oldValue: OldValue, newValue: NewValue);
+      OldValue = oldValue ?? NullValue;
+      NewValue = newValue ?? NullValue;
     }
   }
 }

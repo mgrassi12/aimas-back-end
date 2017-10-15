@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Models;
@@ -17,12 +14,14 @@ namespace AIMAS.API.Controllers
   {
     private ILogger log;
 
-    private InventoryDB InventoryDB { get; }
+    private IdentityDB IdentityDb { get; }
+    private InventoryDB InventoryDb { get; }
 
-    public InventoryController(InventoryDB inventoryDB)
+    public InventoryController(IdentityDB identityDb, InventoryDB inventoryDb)
     {
       log = Startup.LoggerFactory.CreateLogger<InventoryController>();
-      InventoryDB = inventoryDB;
+      IdentityDb = identityDb;
+      InventoryDb = inventoryDb;
     }
 
     [HttpGet]
@@ -34,7 +33,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = InventoryDB.GetInventories();
+        var items = InventoryDb.GetInventories();
         result.Success = true;
         result.ReturnObj = items;
 
@@ -56,7 +55,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = InventoryDB.GetInventories(search);
+        var items = InventoryDb.GetInventories(search);
         result.Success = true;
         result.ReturnObj = items.list;
         result.TotalCount = items.TotalCount;
@@ -81,7 +80,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDB.AddInventory(inventory);
+        InventoryDb.AddInventory(inventory);
         result.Success = true;
       }
       catch (Exception ex)
@@ -101,7 +100,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDB.UpdateInventory(inventory);
+        InventoryDb.UpdateInventory(inventory, IdentityDb.GetCurrentUser(User).Result);
         result.Success = true;
       }
       catch (Exception ex)
@@ -121,7 +120,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDB.RemoveInventory(id);
+        InventoryDb.RemoveInventory(id);
         result.Success = true;
       }
       catch (Exception ex)
@@ -141,7 +140,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        result.ReturnObj = InventoryDB.GetLocations();
+        result.ReturnObj = InventoryDb.GetLocations();
         result.Success = true;
       }
       catch (Exception ex)
@@ -161,7 +160,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        result.ReturnObj = InventoryDB.GetInventoryAlertTimes(id);
+        result.ReturnObj = InventoryDb.GetInventoryAlertTimes(id);
         result.Success = true;
       }
       catch (Exception ex)

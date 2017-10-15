@@ -5,7 +5,7 @@ using AIMAS.Data.Models;
 namespace AIMAS.Data.Inventory
 {
   [Table("location")]
-  public class LocationModel_DB : IAimasDbModelWithUpdate<LocationModel>
+  public class LocationModel_DB : IAimasDbModel<LocationModel>
   {
     [Key]
     public long ID { get; set; }
@@ -31,7 +31,7 @@ namespace AIMAS.Data.Inventory
       return new LocationModel(id: ID, name: Name, description: Description);
     }
 
-    public void UpdateDb(LocationModel model, AimasContext aimas)
+    public void UpdateDb(LocationModel model)
     {
       Description = model.Description;
       if (!string.IsNullOrEmpty(model.Name))

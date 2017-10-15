@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AIMAS.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using AIMAS.Data.Models;
 
@@ -106,11 +107,11 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    public void UpdateInventory(InventoryModel inventory)
+    public void UpdateInventory(InventoryModel inventory, UserModel_DB changeUser)
     {
       var result = IncludeOtherModels_Inventory(Aimas.Inventories)
         .First(item => item.ID == inventory.ID);
-      result.UpdateDb(inventory, Aimas);
+      result.UpdateDb(inventory, changeUser, Aimas);
       Aimas.SaveChanges();
     }
 
@@ -189,7 +190,7 @@ namespace AIMAS.Data.Inventory
     {
       var result = Aimas.Locations
         .First(dbLocation => dbLocation.ID == location.ID);
-      result.UpdateDb(location, Aimas);
+      result.UpdateDb(location);
       Aimas.SaveChanges();
     }
 
