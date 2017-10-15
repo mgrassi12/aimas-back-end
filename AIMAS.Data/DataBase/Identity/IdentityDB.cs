@@ -184,8 +184,7 @@ namespace AIMAS.Data.Identity
       try
       {
         // Add UserRole
-        var role = await Aimas.Roles.FirstAsync(r => r.Name == roleName);
-        await Aimas.UserRoles.AddAsync(NewIdentityRole(user.Id, role.Id));
+        await Manager.AddToRoleAsync(user, roleName);
         Aimas.SaveChanges();
         result.Success = true;
       }
@@ -194,11 +193,6 @@ namespace AIMAS.Data.Identity
         result.AddException(ex);
       }
       return result;
-    }
-
-    public IdentityUserRole<long> NewIdentityRole(long userID, long roleID)
-    {
-      return new IdentityUserRole<long>() { UserId = userID, RoleId = roleID };
     }
 
     private async Task UpdateUserRoles(UserModel user, UserModel_DB userDb)

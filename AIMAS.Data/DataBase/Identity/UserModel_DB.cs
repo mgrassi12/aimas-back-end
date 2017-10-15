@@ -10,7 +10,7 @@ namespace AIMAS.Data.Identity
     public override long Id { get => base.Id; set => base.Id = value; }
 
     [Required, MaxLength(50)]
-    public override string UserName { get => base.UserName; set => base.UserName = value; }
+    public override string UserName { get => base.UserName; set { base.UserName = value; base.NormalizedUserName = value.ToUpper(); } }
 
     [Required, MaxLength(50)]
     public string FirstName { get; set; }
@@ -19,7 +19,7 @@ namespace AIMAS.Data.Identity
     public string LastName { get; set; }
 
     [Required, MaxLength(100)]
-    public override string Email { get => base.Email; set => base.Email = value; }
+    public override string Email { get => base.Email; set { base.Email = value; base.NormalizedEmail = value.ToUpper(); } }
 
     [Required, MaxLength(50)]
     public string Position { get; set; }
