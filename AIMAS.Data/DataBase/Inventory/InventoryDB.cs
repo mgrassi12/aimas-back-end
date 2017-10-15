@@ -30,23 +30,17 @@ namespace AIMAS.Data.Inventory
       Aimas.SaveChanges();
 
       var inventory = Aimas.Inventories.First();
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 1));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 5));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 10));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 20));
-      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 30));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 1));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 5));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 10));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 20));
+      inventory.AlertTimeInventories.Add(new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 30));
       Aimas.SaveChanges();
 
       // Add Reservation
       var reservation = new ReservationModel_DB(Aimas.Users.First(), DateTime.Now, DateTime.Now, "Test Purpose", location);
       reservation.ReservationInventories.Add(new ReservationInventoryModel_DB(reservation, inventory));
       Aimas.Reservations.Add(reservation);
-      Aimas.SaveChanges();
-
-      // Add Category
-      var category = new CategoryModel_DB("Test Item");
-      category.CategoryInventories.Add(new CategoryInventoryModel_DB(category, inventory));
-      Aimas.Categories.Add(category);
       Aimas.SaveChanges();
     }
 
@@ -98,7 +92,17 @@ namespace AIMAS.Data.Inventory
     {
       var query = from inventory in Aimas.Inventories
                   where inventory.ExpirationDate <= DateTime.UtcNow
+                  where !inventory.IsDisposed()
                   select inventory.ToModel();
+      return query.ToList();
+    }
+
+    public List<InventoryModel> GetInventoryNeedingMaintenance()
+    {
+      var query = from inventory in Aimas.Inventories
+        where inventory.GetMaintenanceDate() <= DateTime.UtcNow
+        where !inventory.IsDisposed()
+        select inventory.ToModel();
       return query.ToList();
     }
 
@@ -135,21 +139,26 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    private IQueryable<InventoryAlertTimeModel_DB> GetUpcomingAlertTimeQuery(AlertInventoryTimeType type, Func<InventoryModel_DB, DateTime> getDate)
+    private IQueryable<InventoryAlertTimeModel_DB> GetUpcomingAlertTimeQuery(InventoryAlertTimeType type, Func<InventoryModel_DB, DateTime> getDate)
     {
       var query = from alert in Aimas.InventoryAlertTimes
                   where alert.Inventory.ExpirationDate >= DateTime.UtcNow
+                  && !alert.Inventory.IsDisposed()
                   && alert.Type == type
                   && !alert.SentTime.HasValue
                   && (getDate(alert.Inventory) - DateTime.Now) <= TimeSpan.FromDays(alert.DaysBefore)
                   select alert;
-      return query.Include(alert => alert.Inventory);
+      return query.Include(alert => alert.Inventory).Include(alert => alert.Inventory.Reports);
     }
 
     public List<InventoryAlertTimeModel_DB> GetUpcomingExpiryAlertTimes()
     {
-      var query = GetUpcomingAlertTimeQuery(AlertInventoryTimeType.Inventory_E_Date, (i) => i.ExpirationDate);
-      return query.ToList();
+      return GetUpcomingAlertTimeQuery(InventoryAlertTimeType.Inventory_E_Date, i => i.ExpirationDate).ToList();
+    }
+
+    public List<InventoryAlertTimeModel_DB> GetUpcomingMaintenanceAlertTimes()
+    {
+      return GetUpcomingAlertTimeQuery(InventoryAlertTimeType.Inventory_M_Date, i => i.GetMaintenanceDate()).ToList();
     }
 
     public void RemoveInventoryAlertTime(long id)

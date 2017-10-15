@@ -20,6 +20,9 @@ namespace AIMAS.Data.Inventory
     public string Description { get; set; }
 
     [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
+    public DateTime CreationDate { get; set; }
+
+    [Required, Column(TypeName = "timestamptz"), DateTimeKind(DateTimeKind.Utc)]
     public DateTime ExpirationDate { get; set; }
 
     public long MaintenanceIntervalDays { get; set; }
@@ -31,15 +34,12 @@ namespace AIMAS.Data.Inventory
 
     public List<InventoryAlertTimeModel_DB> AlertTimeInventories { get; set; }
 
-    public List<CategoryInventoryModel_DB> CategoryInventories { get; set; }
+    public List<ReportModel_DB> Reports { get; set; }
 
     public List<ReservationInventoryModel_DB> ReservationInventories { get; set; }
 
     [Required]
     public bool IsCritical { get; set; }
-
-    [Required]
-    public bool IsArchived { get; set; }
 
     private InventoryModel_DB()
     {
@@ -53,7 +53,6 @@ namespace AIMAS.Data.Inventory
       LocationModel_DB currentLocation,
       LocationModel_DB defaultLocation = default,
       string description = default,
-      bool isArchived = default,
       bool isCritical = default,
       List<InventoryAlertTimeModel_DB> alertTimeInventories = default,
       long id = default
@@ -62,15 +61,40 @@ namespace AIMAS.Data.Inventory
       ID = id;
       Name = name;
       Description = description;
+      CreationDate = DateTime.UtcNow;
       ExpirationDate = expire;
       MaintenanceIntervalDays = intervalDays;
       CurrentLocation = currentLocation;
       DefaultLocation = defaultLocation;
-      IsArchived = isArchived;
       IsCritical = isCritical;
       AlertTimeInventories = alertTimeInventories ?? new List<InventoryAlertTimeModel_DB>();
-      CategoryInventories = new List<CategoryInventoryModel_DB>();
+      Reports = new List<ReportModel_DB>();
       ReservationInventories = new List<ReservationInventoryModel_DB>();
+    }
+
+    public DateTime GetMaintenanceDate()
+    {
+      var reports = Reports.Where(r => r.Type == ReportType.Maintenance).ToList();
+      var lastMaintenance = CreationDate;
+      if (reports.Any())
+      {
+        var report = reports.OrderByDescending(r => r.ExecutionDate).First();
+        lastMaintenance = report.ExecutionDate;
+      }
+      return lastMaintenance.AddDays(MaintenanceIntervalDays);
+    }
+
+    public bool IsAvailable()
+    {
+      return ExpirationDate >= DateTime.UtcNow
+        && GetMaintenanceDate() >= DateTime.UtcNow
+        && !IsDisposed();
+      //TODO: ADD RESERVATION STUFF AS WELL
+    }
+
+    public bool IsDisposed()
+    {
+      return Reports.Exists(r => r.Type == ReportType.ExpirationDisposal);
     }
 
     public InventoryModel ToModel()
@@ -83,7 +107,6 @@ namespace AIMAS.Data.Inventory
         intervalDays: MaintenanceIntervalDays,
         currentLocation: CurrentLocation?.ToModel(),
         defaultLocation: DefaultLocation?.ToModel(),
-        isArchived: IsArchived,
         isCritical: IsCritical,
         alertTimeInventories: AlertTimeInventories?.Select(item => item.ToModel()).ToList()
         );
@@ -93,8 +116,9 @@ namespace AIMAS.Data.Inventory
     {
       Description = inventory.Description;
       CurrentLocation = aimas.GetDbLocation(inventory.CurrentLocation);
-      DefaultLocation = inventory.DefaultLocation?.ID == default(long) ? null : aimas.GetDbLocation(inventory.DefaultLocation);
-      IsArchived = inventory.IsArchived;
+      DefaultLocation = inventory.DefaultLocation?.ID == default(long)
+        ? null
+        : aimas.GetDbLocation(inventory.DefaultLocation);
       IsCritical = inventory.IsCritical;
 
       if (!string.IsNullOrEmpty(inventory.Name))
@@ -111,7 +135,6 @@ namespace AIMAS.Data.Inventory
       var removeAlerts = AlertTimeInventories.Where(item => inventory.AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).ToList();
       AlertTimeInventories.AddRange(addAlerts);
       removeAlerts.ForEach(item => AlertTimeInventories.Remove(item));
-
     }
   }
 }

@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Timers;
 using AIMAS.API.Helpers;
 using AIMAS.API.Models;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
-using Microsoft.EntityFrameworkCore;
 
 namespace AIMAS.API.Services
 {
@@ -46,7 +43,8 @@ namespace AIMAS.API.Services
     private void CheckInventory()
     {
       CheckExpiredInventory();
-      CheckUpcomingAleryNotifications();
+      CheckInventoryNeedingMaintenance();
+      CheckUpcomingAlertNotifications();
     }
 
     private void CheckExpiredInventory()
@@ -54,39 +52,57 @@ namespace AIMAS.API.Services
       var items = Inventory.GetExpiredInventory();
       foreach (var item in items)
       {
-        var msg = new NotificationMessage(
-          $"Inventory Item Has Expired - {item.Name}",
-          $"Name: {item.Name}" +
-          $"Description: {item.Description}"
+        SendMessageToAdminUsers(new NotificationMessage(
+          $"Inventory Item has expired - {item.Name}",
+          $"Name: {item.Name}\n" +
+          $"Description: {item.Description}\n")
           );
-        var users = Identity.GetUsersForRole(Roles.Admin).Result;
-        foreach (var user in users)
-        {
-          Helper.SendNotificationToUser(user, msg);
-        }
       }
     }
 
-    private void CheckUpcomingAleryNotifications()
+    private void CheckInventoryNeedingMaintenance()
     {
-      var alerts = Inventory.GetUpcomingExpiryAlertTimes();
+      var items = Inventory.GetInventoryNeedingMaintenance();
+      foreach (var item in items)
+      {
+        SendMessageToAdminUsers(new NotificationMessage(
+          $"Inventory Item needs maintenance - {item.Name}",
+          $"Name: {item.Name}" +
+          $"Description: {item.Description}")
+        );
+      }
+    }
+
+    private void CheckUpcomingAlertNotifications()
+    {
+      SendUpcomingAlertNotifications(Inventory.GetUpcomingExpiryAlertTimes(), item => item.ExpirationDate, "Expiration", "is about to expire");
+      SendUpcomingAlertNotifications(Inventory.GetUpcomingMaintenanceAlertTimes(), item => item.GetMaintenanceDate(), "Maintenance", "needs maintenance");
+    }
+
+    private void SendMessageToAdminUsers(NotificationMessage msg)
+    {
+      var users = Identity.GetUsersForRole(Roles.Admin).Result;
+      foreach (var user in users)
+      {
+        Helper.SendNotificationToUser(user, msg);
+      }
+    }
+
+    private void SendUpcomingAlertNotifications(IEnumerable<InventoryAlertTimeModel_DB> alerts,
+      Func<InventoryModel_DB, DateTime> getDate, string alertType, string alertTypeDescription)
+    {
       foreach (var alert in alerts)
       {
-        var msg = new NotificationMessage(
-          $"Inventory Item is about to expire in {(alert.Inventory.ExpirationDate - DateTime.Now).Days} days",
+        var date = getDate(alert.Inventory);
+        SendMessageToAdminUsers(new NotificationMessage(
+          $"Inventory Item {alertTypeDescription} in {(date - DateTime.Now).Days} days",
           $"Name: {alert.Inventory.Name}\n" +
           $"Description: {alert.Inventory.Description}\n" +
-          $"Expiration Date: {alert.Inventory.ExpirationDate.ToShortDateString()}\n"
-          );
-        var users = Identity.GetUsersForRole(Roles.Admin).Result;
-        foreach (var user in users)
-        {
-          Helper.SendNotificationToUser(user, msg);
-        }
-        alert.SentTime = DateTime.Now;
+          $"{alertType} Date: {date.ToShortDateString()}\n")
+        );
+        alert.SentTime = DateTime.UtcNow;
       }
     }
-
 
   }
 }

@@ -95,11 +95,28 @@ namespace AIMAS.Test
     public void GetExpiredInventorySuccessfully()
     {
       var dbLocation = _aimas.Locations.First();
-      var inventory = new InventoryModel("Test", DateTime.Now.AddDays(-10), 10, dbLocation.ToModel());
+      var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
       Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
 
-      _inventoryDb.AddInventory(inventory);
+      _aimas.Inventories.Add(inventory);
+      _aimas.SaveChanges();
       Assert.AreEqual(1, _inventoryDb.GetExpiredInventory().Count);
+    }
+
+    [TestMethod]
+    public void GetExpiredInventory_ExcludeDisposedItemsCorrectly()
+    {
+      var dbLocation = _aimas.Locations.First();
+      var dbUser = _aimas.Users.First();
+      var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
+      var report = new ReportModel_DB(inventory, ReportType.ExpirationDisposal, dbUser, DateTime.Now, dbUser, DateTime.Now);
+      Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
+
+      _aimas.Inventories.Add(inventory);
+      _aimas.SaveChanges();
+      _aimas.Reports.Add(report);
+      _aimas.SaveChanges();
+      Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
     }
 
     [TestMethod]
@@ -128,7 +145,7 @@ namespace AIMAS.Test
     public void GetUpcomingExpiryAlertTimeSuccessfully()
     {
       var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
-      var alertTime = new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 15, inventory);
+      var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
 
       var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
@@ -141,9 +158,37 @@ namespace AIMAS.Test
     public void NotGetUpcomingExpiryAlertTimeThatHasBeenSent()
     {
       var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
-      var alertTime = new InventoryAlertTimeModel_DB(AlertInventoryTimeType.Inventory_E_Date, 15, inventory);
+      var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       alertTime.SentTime = DateTime.Now;
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
+
+      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      result = result.Where(alert => alert.Inventory == inventory).ToList();
+      Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void NotGetUpcomingExpiryAlertTimeWhenItemIsExpired()
+    {
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(-10), 10, _aimas.Locations.First());
+      var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
+      GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
+
+      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      result = result.Where(alert => alert.Inventory == inventory).ToList();
+      Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void NotGetUpcomingExpiryAlertTimeWhenItemIsDisposed()
+    {
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
+      var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
+      GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
+
+      var user = _aimas.Users.First();
+      _aimas.Reports.Add(new ReportModel_DB(inventory, ReportType.ExpirationDisposal, user, DateTime.Now, user, DateTime.Now));
+      _aimas.SaveChanges();
 
       var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();

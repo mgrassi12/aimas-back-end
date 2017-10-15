@@ -7,15 +7,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AIMAS.Data.Inventory
 {
+  public enum ReportType
+  {
+    ExpirationDisposal = 1,
+    Maintenance = 2,
+    General = 3
+  }
+
   [Table("report")]
   public class ReportModel_DB : IAimasDbModel<ReportModel>
   {
+    [Required]
+    public InventoryModel_DB Inventory { get; set; }
 
     [Key]
     public long ID { get; set; }
 
     [Required]
-    public string Type { get; set; }
+    public ReportType Type { get; set; }
 
     [Required]
     public UserModel_DB Creator { get; set; }
@@ -31,14 +40,11 @@ namespace AIMAS.Data.Inventory
 
     public string Notes { get; set; }
 
-    [Required]
-    public InventoryModel_DB Inventory { get; set; }
-
     private ReportModel_DB()
     {
     }
 
-    public ReportModel_DB(InventoryModel_DB inventory, string type, UserModel_DB creator, DateTime creationDate, UserModel_DB executor, DateTime executionDate, string notes, long id = default)
+    public ReportModel_DB(InventoryModel_DB inventory, ReportType type, UserModel_DB creator, DateTime creationDate, UserModel_DB executor, DateTime executionDate, string notes = default, long id = default)
     {
       Inventory = inventory;
       ID = id;
