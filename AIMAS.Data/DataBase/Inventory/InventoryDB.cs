@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using AIMAS.Data.Models;
+using AIMAS.Data.Identity;
 
 namespace AIMAS.Data.Inventory
 {
@@ -100,9 +101,9 @@ namespace AIMAS.Data.Inventory
     public List<InventoryModel> GetInventoryNeedingMaintenance()
     {
       var query = from inventory in Aimas.Inventories
-        where inventory.GetMaintenanceDate() <= DateTime.UtcNow
-        where !inventory.IsDisposed()
-        select inventory.ToModel();
+                  where inventory.GetMaintenanceDate() <= DateTime.UtcNow
+                  where !inventory.IsDisposed()
+                  select inventory.ToModel();
       return query.ToList();
     }
 
@@ -243,9 +244,11 @@ namespace AIMAS.Data.Inventory
     #endregion
 
     #region ReservationOperations
-    public void AddReservation(ReservationModel reservation)
+    public void AddReservation(ReservationModel reservation, UserModel_DB user)
     {
-      Aimas.Reservations.Add(reservation.CreateNewDbModel(Aimas));
+      var res = reservation.CreateNewDbModel(Aimas);
+      res.User = user;
+      Aimas.Reservations.Add(res);
       Aimas.SaveChanges();
     }
 
@@ -270,6 +273,8 @@ namespace AIMAS.Data.Inventory
       var finalQuery = query
         .Include(x => x.User)
         .Include(x => x.Location)
+        .Include(x => x.ReservationInventories)
+        .ThenInclude(x => x.Inventory)
         .Select(i => i.ToModel());
 
       return (finalQuery.ToList(), count);

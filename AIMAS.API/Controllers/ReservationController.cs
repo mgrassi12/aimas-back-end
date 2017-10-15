@@ -18,10 +18,12 @@ namespace AIMAS.API.Controllers
   public class ReservationController : Controller
   {
     public InventoryDB InventoryDB { get; }
+    public IdentityDB IdentityDB { get; }
 
-    public ReservationController(InventoryDB inventoryDB)
+    public ReservationController(InventoryDB inventoryDB, IdentityDB identityDB)
     {
       InventoryDB = inventoryDB;
+      IdentityDB = identityDB;
     }
 
 
@@ -59,7 +61,8 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDB.AddReservation(reservation);
+        var user = IdentityDB.Manager.GetUserAsync(User).Result;
+        InventoryDB.AddReservation(reservation, user);
         result.Success = true;
       }
       catch (Exception ex)

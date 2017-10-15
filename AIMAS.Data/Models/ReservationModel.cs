@@ -36,10 +36,10 @@ namespace AIMAS.Data.Models
     {
       var dbUser = aimas.GetDbUser(User);
       var dbLocation = aimas.GetDbLocation(Location);
-      return new ReservationModel_DB(
-        user: dbUser, id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: dbLocation,
-        reservationInventories: Inventories.Select(x => new ReservationInventoryModel_DB(null, x.CreateNewDbModel(aimas))).ToList()
-        );
+      var res = new ReservationModel_DB(user: dbUser, id: ID, start: BookingStart, end: BookingEnd, purpose: BookingPurpose, location: dbLocation);
+      res.ReservationInventories = Inventories.Select(x => new ReservationInventoryModel_DB(res, aimas.Inventories.Find(x.ID))).ToList();
+
+      return res;
     }
   }
 

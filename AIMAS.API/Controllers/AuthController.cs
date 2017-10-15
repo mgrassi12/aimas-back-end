@@ -21,10 +21,10 @@ namespace AIMAS.API.Controllers
     private IdentityDB IdentityDB { get; }
     private SignInManager<UserModel_DB> SignInManager { get; }
 
-    public AuthController(IdentityDB identityController, SignInManager<UserModel_DB> signInManager)
+    public AuthController(IdentityDB identiryDB, SignInManager<UserModel_DB> signInManager)
     {
       log = Startup.LoggerFactory.CreateLogger<AuthController>();
-      IdentityDB = identityController;
+      IdentityDB = identiryDB;
       SignInManager = signInManager;
     }
 
