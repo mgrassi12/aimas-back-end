@@ -10,7 +10,7 @@ namespace AIMAS.Data.Identity
     public override long Id { get => base.Id; set => base.Id = value; }
 
     [Required, MaxLength(50)]
-    public override string Name { get => base.Name; set => base.Name = value; }
+    public override string Name { get => base.Name; set { base.Name = value; base.NormalizedName = value; } }
 
     public RoleModel_DB() : base()
     {
@@ -19,6 +19,7 @@ namespace AIMAS.Data.Identity
     public RoleModel_DB(string name) : this()
     {
       Name = name;
+      NormalizedName = name;
     }
 
     public RoleModel ToModel()
