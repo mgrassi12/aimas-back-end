@@ -35,7 +35,7 @@ namespace AIMAS.Data.Inventory
     {
     }
 
-    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, List<ReservationInventoryModel_DB> reservationInventories, long id = default)
+    public ReservationModel_DB(UserModel_DB user, DateTime start, DateTime end, string purpose, LocationModel_DB location, List<ReservationInventoryModel_DB> reservationInventories = default, long id = default)
     {
       ID = id;
       User = user;
