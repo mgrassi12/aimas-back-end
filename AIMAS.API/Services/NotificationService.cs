@@ -42,9 +42,25 @@ namespace AIMAS.API.Services
 
     private void CheckInventory()
     {
+      CheckCriticalInventoryNotInDefaultLocation();
       CheckExpiredInventory();
       CheckInventoryNeedingMaintenance();
       CheckUpcomingAlertNotifications();
+    }
+
+    private void CheckCriticalInventoryNotInDefaultLocation()
+    {
+      var items = Inventory.GetCriticalInventoryNotInDefaultLocation();
+      foreach (var item in items)
+      {
+        SendMessageToAdminUsers(new NotificationMessage(
+          $"Inventory Item is not in its default location - {item.Name}",
+          $"Name: {item.Name}\n" +
+          $"Current Location: {item.CurrentLocation.Name}\n" +
+          $"Default Location: {item.DefaultLocation.Name}\n" +
+          $"Description: {item.Description}\n")
+        );
+      }
     }
 
     private void CheckExpiredInventory()

@@ -20,7 +20,7 @@ namespace AIMAS.Data.Inventory
     public void Initialize()
     {
       // Add Location
-      var location = new LocationModel_DB("Test Location", id: 1, description: "Test");
+      var location = new LocationModel_DB("Test Location", "Test");
       Aimas.Locations.Add(location);
       Aimas.SaveChanges();
 
@@ -103,6 +103,16 @@ namespace AIMAS.Data.Inventory
       var query = from inventory in Aimas.Inventories
         where inventory.GetMaintenanceDate() <= DateTime.UtcNow
         where !inventory.IsDisposed()
+        select inventory.ToModel();
+      return query.ToList();
+    }
+
+    public List<InventoryModel> GetCriticalInventoryNotInDefaultLocation()
+    {
+      var query = from inventory in Aimas.Inventories
+        where inventory.IsCritical
+        where inventory.DefaultLocation != null
+        where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
         select inventory.ToModel();
       return query.ToList();
     }
