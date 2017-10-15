@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AIMAS.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using AIMAS.Data.Models;
 using AIMAS.Data.Identity;
@@ -20,7 +21,7 @@ namespace AIMAS.Data.Inventory
     public void Initialize()
     {
       // Add Location
-      var location = new LocationModel_DB("Test Location", id: 1, description: "Test");
+      var location = new LocationModel_DB("Test Location", "Test");
       Aimas.Locations.Add(location);
       Aimas.SaveChanges();
 
@@ -107,11 +108,21 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
-    public void UpdateInventory(InventoryModel inventory)
+    public List<InventoryModel> GetCriticalInventoryNotInDefaultLocation()
+    {
+      var query = from inventory in Aimas.Inventories
+        where inventory.IsCritical
+        where inventory.DefaultLocation != null
+        where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
+        select inventory.ToModel();
+      return query.ToList();
+    }
+
+    public void UpdateInventory(InventoryModel inventory, UserModel_DB changeUser)
     {
       var result = IncludeOtherModels_Inventory(Aimas.Inventories)
         .First(item => item.ID == inventory.ID);
-      result.UpdateDb(inventory, Aimas);
+      result.UpdateDb(inventory, changeUser, Aimas);
       Aimas.SaveChanges();
     }
 
@@ -190,7 +201,7 @@ namespace AIMAS.Data.Inventory
     {
       var result = Aimas.Locations
         .First(dbLocation => dbLocation.ID == location.ID);
-      result.UpdateDb(location, Aimas);
+      result.UpdateDb(location);
       Aimas.SaveChanges();
     }
 

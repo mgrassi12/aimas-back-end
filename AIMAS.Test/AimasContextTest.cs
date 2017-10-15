@@ -120,6 +120,38 @@ namespace AIMAS.Test
     }
 
     [TestMethod]
+    public void GetCriticalInventoryNotInDefaultLocationSuccessfully()
+    {
+      var currentLocation = new LocationModel_DB("Test Current Location");
+      var defaultLocation = new LocationModel_DB("Test Default Location");
+      _aimas.Locations.Add(currentLocation);
+      _aimas.Locations.Add(defaultLocation);
+      _aimas.SaveChanges();
+
+      var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(10), 10, currentLocation, defaultLocation, isCritical:true);
+      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+
+      _aimas.Inventories.Add(inventory);
+      _aimas.SaveChanges();
+      Assert.AreEqual(1, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+    }
+
+    [TestMethod]
+    public void GetCriticalInventory_ExcludeInventoryWithNoDefaultLocationCorrectly()
+    {
+      var currentLocation = new LocationModel_DB("Test Current Location");
+      _aimas.Locations.Add(currentLocation);
+      _aimas.SaveChanges();
+
+      var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(10), 10, currentLocation, defaultLocation: null, isCritical: true);
+      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+
+      _aimas.Inventories.Add(inventory);
+      _aimas.SaveChanges();
+      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+    }
+
+    [TestMethod]
     public void RemoveInventorySuccessfully()
     {
       var inventory = _aimas.Inventories.First();

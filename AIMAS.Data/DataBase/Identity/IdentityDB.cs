@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -78,6 +79,11 @@ namespace AIMAS.Data.Identity
 
       // Return Result;
       return result;
+    }
+
+    public async Task<UserModel_DB> GetCurrentUser(ClaimsPrincipal user)
+    {
+      return await Manager.GetUserAsync(user);
     }
 
     public async Task<List<UserModel>> GetUsersAsync()
@@ -158,7 +164,7 @@ namespace AIMAS.Data.Identity
     public async Task UpdateUser(UserModel user)
     {
       var result = Aimas.Users.Find(user.Id);
-      result.UpdateDb(user, Aimas);
+      result.UpdateDb(user);
       await UpdateUserRoles(user, result);
       Aimas.SaveChanges();
     }

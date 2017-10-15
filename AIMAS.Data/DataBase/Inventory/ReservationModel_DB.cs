@@ -10,7 +10,7 @@ using AIMAS.Data.Util;
 namespace AIMAS.Data.Inventory
 {
   [Table("reservation")]
-  public class ReservationModel_DB : IAimasDbModelWithUpdate<ReservationModel>
+  public class ReservationModel_DB : IAimasDbModel<ReservationModel>
   {
     [Required]
     public UserModel_DB User { get; set; }
