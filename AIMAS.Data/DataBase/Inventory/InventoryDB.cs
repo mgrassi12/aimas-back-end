@@ -245,6 +245,25 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
+    public (List<ReportModel> list, int TotalCount) GetReports(ReportSearch search)
+    {
+      var query = Aimas.Reports.AsQueryable();
+
+      if (search.InventoryId.HasValue && search.InventoryId.Value != default)
+        query = query.Where(i => i.Inventory.ID == search.InventoryId.Value);
+      if (search.Type.HasValue)
+        query = query.Where(i => i.Type == search.Type.Value);
+
+      var count = query.Count();
+      query = query.Skip(search.PageSize * search.PageIndex);
+      query = query.Take(search.PageSize);
+
+      var finalQuery = IncludeOtherModels_Report(query)
+        .Select(i => i.ToModel());
+
+      return (finalQuery.ToList(), count);
+    }
+
     public void RemoveReport(long id)
     {
       var report = Aimas.Reports.Find(id);
