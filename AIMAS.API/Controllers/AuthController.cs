@@ -36,15 +36,15 @@ namespace AIMAS.API.Controllers
       var result = new ResultObj<CurrentUserInfo>();
       try
       {
-        result.ReturnObj = new CurrentUserInfo();
-        result.ReturnObj.IsAuth = User.Identity.IsAuthenticated;
-        result.ReturnObj.IsAdmin = User.IsInRole(Roles.Admin);
+        result.ReturnObj = new CurrentUserInfo
+        {
+          IsAuth = User.Identity.IsAuthenticated
+        };
         var user = IdentityDB.Manager.GetUserAsync(User).Result;
         if (user != null)
         {
-          // FIX
-          result.ReturnObj.Role = IdentityDB.Manager.GetRolesAsync(user).Result.FirstOrDefault();
           result.ReturnObj.User = user.ToModel();
+          result.ReturnObj.User.UserRoles = IdentityDB.Manager.GetRolesAsync(user).Result.Select(x => new RoleModel(x)).ToList();
         }
         result.Success = true;
       }
@@ -63,12 +63,11 @@ namespace AIMAS.API.Controllers
     {
       var userModel = registerModel.CreateNewDbModel();
       var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
-      if (registerModel.UserRoles != null)
-        registerModel.UserRoles.ForEach(async role => result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, role.Name)));
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
-
+        if (registerModel.UserRoles != null)
+          registerModel.UserRoles.ForEach(role => result.MergeResult(IdentityDB.AddUserRoleAsync(userModel, role.Name).Result));
       }
       return result;
     }
