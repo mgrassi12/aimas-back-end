@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AIMAS.Data.Inventory;
 
 namespace AIMAS.Data.Models
 {
@@ -26,6 +27,11 @@ namespace AIMAS.Data.Models
 
   }
 
+  public class ReportSearch : Search
+  {
+    public long? InventoryId { get; set; }
+    public ReportType? Type { get; set; }
+  }
 
   public class ReservationSearch : Search
   {

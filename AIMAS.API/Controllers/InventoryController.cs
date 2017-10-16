@@ -71,6 +71,29 @@ namespace AIMAS.API.Controllers
       return result;
     }
 
+    [HttpGet]
+    [Route("attention")]
+    [Authorize(Roles = Roles.Admin)]
+    public ResultObj<List<InventoryModel>> GetInventoryNeedingAttention()
+    {
+      var result = new ResultObj<List<InventoryModel>>();
+
+      try
+      {
+        var items = InventoryDb.GetExpiredInventory();
+        items.AddRange(InventoryDb.GetInventoryNeedingMaintenance());
+        result.Success = true;
+        result.ReturnObj = items;
+
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
     [HttpPost]
     [Route("add")]
     [Authorize(Roles = Roles.Admin)]

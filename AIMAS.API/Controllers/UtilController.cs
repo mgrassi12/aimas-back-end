@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,13 +12,12 @@ namespace AIMAS.API.Controllers
   [Route("api/util")]
   public class UtilController : Controller
   {
-    public InventoryDB InventoryDB { get; }
+    public InventoryDB InventoryDb { get; }
 
-    public UtilController(InventoryDB inventoryDB)
+    public UtilController(InventoryDB inventoryDb)
     {
-      InventoryDB = inventoryDB;
+      InventoryDb = inventoryDb;
     }
-
 
     [HttpGet]
     [Route("locations")]
@@ -31,7 +28,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        result.ReturnObj = InventoryDB.GetLocations();
+        result.ReturnObj = InventoryDb.GetLocations();
         result.Success = true;
       }
       catch (Exception ex)

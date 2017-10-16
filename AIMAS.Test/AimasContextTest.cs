@@ -1,9 +1,5 @@
-using AIMAS.Data;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -13,67 +9,40 @@ using AIMAS.Data.Models;
 namespace AIMAS.Test
 {
   [TestClass]
-  public class AimasContextTest
+  public class AimasContextTest : AimasTestBase
   {
-    private AimasContext _aimas;
-    private IdentityDB _identityDb;
-    private InventoryDB _inventoryDb;
-
-    [TestInitialize]
-    public void TestInitialize()
-    {
-      _aimas = GetAimasContext();
-      _identityDb = GetIdentityDb(_aimas);
-      _inventoryDb = GetInventoryDb(_aimas);
-      SetupDb(_aimas, _identityDb, _inventoryDb);
-    }
-
-    private static AimasContext GetAimasContext()
-    {
-      var options = new DbContextOptionsBuilder<AimasContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-      return new AimasContext(options);
-    }
-
-    private static IdentityDB GetIdentityDb(AimasContext context)
-    {
-      var manager = new UserManager<UserModel_DB>(new UserStore<UserModel_DB, RoleModel_DB, AimasContext, long>(context), null, new PasswordHasher<UserModel_DB>(), null, null, null, null, null, null);
-      return new IdentityDB(context, manager);
-    }
-
-    private static InventoryDB GetInventoryDb(AimasContext context)
-    {
-      return new InventoryDB(context);
-    }
-
-    private static void SetupDb(AimasContext aimas, IdentityDB identity, InventoryDB inventory)
-    {
-      aimas.Database.EnsureCreated();
-      identity.Initialize();
-      inventory.Initialize();
-    }
-
     #region UserTests
     [TestMethod]
-    public void GetUserSuccessfully()
+    public void GetUsersSuccessfully()
     {
-      var result = _identityDb.GetUserAsync("test1@test.com");
-      Assert.IsNotNull(result);
+      var user1 = new UserModel_DB("Test1", "T", "test1@test.com", "T");
+      var user2 = new UserModel_DB("Test2", "T", "test2@test.com", "T");
+      AddTestUser(user1);
+      AddTestUser(user2);
+
+      var result = IdentityDb.GetUsersAsync().Result;
+      Assert.AreEqual(2, result.Count);
+      Assert.AreEqual(user1.Email, result[0].Email);
+      Assert.AreEqual(user2.Email, result[1].Email);
     }
 
     [TestMethod]
     public void GetUserWithMatchingEmail()
     {
-      var result = _identityDb.GetUserAsync("admin@example.com").Result;
-      Assert.AreEqual("admin@example.com", result.Email);
+      var user = new UserModel_DB("Test1", "T", "test1@test.com", "T");
+      AddTestUser(user);
+
+      var result = IdentityDb.GetUserAsync(user.Email).Result;
+      Assert.AreEqual(user.Email, result.Email);
     }
 
     [TestMethod]
     public void AddUserSuccessfully()
     {
       var newUser = new UserModel_DB("Test", "1", "test1@test.com", "User");
-      var result = _identityDb.CreateUserAsync(newUser, "Test").Result;
+      var result = IdentityDb.CreateUserAsync(newUser, "Test").Result;
       Assert.IsTrue(result.Success);
-      Assert.AreEqual(newUser, _aimas.Users.Find(newUser.Id));
+      Assert.AreEqual(newUser, Aimas.Users.Find(newUser.Id));
     }
     #endregion
 
@@ -81,106 +50,100 @@ namespace AIMAS.Test
     [TestMethod]
     public void AddInventorySuccessfully()
     {
-      //TODO: Currently dependent on Initialize data of method
-      var dbLocation = _aimas.Locations.First();
+      var dbLocation = AddTestLocation("Test");
       var inventory = new InventoryModel("Test", DateTime.Now, 10, dbLocation.ToModel());
-      Assert.AreEqual(3, _aimas.Inventories.Count());
+      Assert.AreEqual(0, Aimas.Inventories.Count());
 
-      _inventoryDb.AddInventory(inventory);
-      Assert.AreEqual(4, _aimas.Inventories.Count());
-      Assert.AreEqual(inventory.Name, _aimas.Inventories.Last().Name);
+      InventoryDb.AddInventory(inventory);
+      Assert.AreEqual(1, Aimas.Inventories.Count());
+      Assert.AreEqual(inventory.Name, Aimas.Inventories.Last().Name);
     }
 
     [TestMethod]
     public void GetExpiredInventorySuccessfully()
     {
-      var dbLocation = _aimas.Locations.First();
+      var dbLocation = AddTestLocation("Test");
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
-      Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
+      Assert.AreEqual(0, InventoryDb.GetExpiredInventory().Count);
 
-      _aimas.Inventories.Add(inventory);
-      _aimas.SaveChanges();
-      Assert.AreEqual(1, _inventoryDb.GetExpiredInventory().Count);
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
+      Assert.AreEqual(1, InventoryDb.GetExpiredInventory().Count);
     }
 
     [TestMethod]
     public void GetExpiredInventory_ExcludeDisposedItemsCorrectly()
     {
-      var dbLocation = _aimas.Locations.First();
-      var dbUser = _aimas.Users.First();
+      var dbLocation = AddTestLocation("Test");
+      var dbUser = AddTestUser();
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
       var report = new ReportModel_DB(inventory, ReportType.ExpirationDisposal, dbUser, DateTime.Now, dbUser, DateTime.Now);
-      Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
+      Assert.AreEqual(0, InventoryDb.GetExpiredInventory().Count);
 
-      _aimas.Inventories.Add(inventory);
-      _aimas.SaveChanges();
-      _aimas.Reports.Add(report);
-      _aimas.SaveChanges();
-      Assert.AreEqual(0, _inventoryDb.GetExpiredInventory().Count);
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
+      Aimas.Reports.Add(report);
+      Aimas.SaveChanges();
+      Assert.AreEqual(0, InventoryDb.GetExpiredInventory().Count);
     }
 
     [TestMethod]
     public void GetCriticalInventoryNotInDefaultLocationSuccessfully()
     {
-      var currentLocation = new LocationModel_DB("Test Current Location");
-      var defaultLocation = new LocationModel_DB("Test Default Location");
-      _aimas.Locations.Add(currentLocation);
-      _aimas.Locations.Add(defaultLocation);
-      _aimas.SaveChanges();
+      var currentLocation = AddTestLocation("Current");
+      var defaultLocation = AddTestLocation("Default");
 
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(10), 10, currentLocation, defaultLocation, isCritical:true);
-      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+      Assert.AreEqual(0, InventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
 
-      _aimas.Inventories.Add(inventory);
-      _aimas.SaveChanges();
-      Assert.AreEqual(1, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
+      Assert.AreEqual(1, InventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
     }
 
     [TestMethod]
     public void GetCriticalInventory_ExcludeInventoryWithNoDefaultLocationCorrectly()
     {
-      var currentLocation = new LocationModel_DB("Test Current Location");
-      _aimas.Locations.Add(currentLocation);
-      _aimas.SaveChanges();
+      var currentLocation = AddTestLocation("Current");
 
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(10), 10, currentLocation, defaultLocation: null, isCritical: true);
-      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+      Assert.AreEqual(0, InventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
 
-      _aimas.Inventories.Add(inventory);
-      _aimas.SaveChanges();
-      Assert.AreEqual(0, _inventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
+      Assert.AreEqual(0, InventoryDb.GetCriticalInventoryNotInDefaultLocation().Count);
     }
 
     [TestMethod]
     public void RemoveInventorySuccessfully()
     {
-      var inventory = _aimas.Inventories.First();
-      Assert.IsTrue(_aimas.Inventories.ToList().Contains(inventory));
+      var inventory = AddTestInventory();
+      Assert.IsTrue(Aimas.Inventories.ToList().Contains(inventory));
 
-      _inventoryDb.RemoveInventory(inventory.ID);
-      Assert.IsFalse(_aimas.Inventories.ToList().Contains(inventory));
+      InventoryDb.RemoveInventory(inventory.ID);
+      Assert.IsFalse(Aimas.Inventories.ToList().Contains(inventory));
     }
     #endregion
 
     #region AlertTimeInventoryTests
     private void GetUpcomingAlertTimes_TestSetUp(InventoryModel_DB inventory, IEnumerable<InventoryAlertTimeModel_DB> alertTimes)
     {
-      _aimas.Inventories.Add(inventory);
-      _aimas.SaveChanges();
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
 
       foreach (var alert in alertTimes)
-        _aimas.InventoryAlertTimes.Add(alert);
-      _aimas.SaveChanges();
+        Aimas.InventoryAlertTimes.Add(alert);
+      Aimas.SaveChanges();
     }
 
     [TestMethod]
     public void GetUpcomingExpiryAlertTimeSuccessfully()
     {
-      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, AddTestLocation("Test"));
       var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
 
-      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      var result = InventoryDb.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();
       Assert.AreEqual(1, result.Count);
       Assert.AreEqual(alertTime, result[0]);
@@ -189,12 +152,12 @@ namespace AIMAS.Test
     [TestMethod]
     public void NotGetUpcomingExpiryAlertTimeThatHasBeenSent()
     {
-      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, AddTestLocation("Test"));
       var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       alertTime.SentTime = DateTime.Now;
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
 
-      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      var result = InventoryDb.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();
       Assert.AreEqual(0, result.Count);
     }
@@ -202,11 +165,11 @@ namespace AIMAS.Test
     [TestMethod]
     public void NotGetUpcomingExpiryAlertTimeWhenItemIsExpired()
     {
-      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(-10), 10, _aimas.Locations.First());
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(-10), 10, AddTestLocation("Test"));
       var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
 
-      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      var result = InventoryDb.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();
       Assert.AreEqual(0, result.Count);
     }
@@ -214,15 +177,15 @@ namespace AIMAS.Test
     [TestMethod]
     public void NotGetUpcomingExpiryAlertTimeWhenItemIsDisposed()
     {
-      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, _aimas.Locations.First());
+      var inventory = new InventoryModel_DB("Test Item", DateTime.Now.AddDays(10), 10, AddTestLocation("Test"));
       var alertTime = new InventoryAlertTimeModel_DB(InventoryAlertTimeType.Inventory_E_Date, 15, inventory);
       GetUpcomingAlertTimes_TestSetUp(inventory, new[] { alertTime });
 
-      var user = _aimas.Users.First();
-      _aimas.Reports.Add(new ReportModel_DB(inventory, ReportType.ExpirationDisposal, user, DateTime.Now, user, DateTime.Now));
-      _aimas.SaveChanges();
+      var user = AddTestUser();
+      Aimas.Reports.Add(new ReportModel_DB(inventory, ReportType.ExpirationDisposal, user, DateTime.Now, user, DateTime.Now));
+      Aimas.SaveChanges();
 
-      var result = _inventoryDb.GetUpcomingExpiryAlertTimes();
+      var result = InventoryDb.GetUpcomingExpiryAlertTimes();
       result = result.Where(alert => alert.Inventory == inventory).ToList();
       Assert.AreEqual(0, result.Count);
     }
