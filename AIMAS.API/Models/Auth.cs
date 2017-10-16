@@ -9,8 +9,6 @@ namespace AIMAS.API.Models
   public class CurrentUserInfo
   {
     public bool IsAuth { get; set; }
-    public bool IsAdmin { get; set; }
-    public string Role { get; set; }
     public UserModel User { get; set; }
   }
 }

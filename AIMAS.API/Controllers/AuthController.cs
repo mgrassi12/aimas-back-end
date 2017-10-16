@@ -36,15 +36,15 @@ namespace AIMAS.API.Controllers
       var result = new ResultObj<CurrentUserInfo>();
       try
       {
-        result.ReturnObj = new CurrentUserInfo();
-        result.ReturnObj.IsAuth = User.Identity.IsAuthenticated;
-        result.ReturnObj.IsAdmin = User.IsInRole(Roles.Admin);
+        result.ReturnObj = new CurrentUserInfo
+        {
+          IsAuth = User.Identity.IsAuthenticated
+        };
         var user = IdentityDB.Manager.GetUserAsync(User).Result;
         if (user != null)
         {
-          // FIX
-          result.ReturnObj.Role = IdentityDB.Manager.GetRolesAsync(user).Result.FirstOrDefault();
           result.ReturnObj.User = user.ToModel();
+          result.ReturnObj.User.UserRoles = IdentityDB.Manager.GetRolesAsync(user).Result.Select(x => new RoleModel(x)).ToList();
         }
         result.Success = true;
       }
