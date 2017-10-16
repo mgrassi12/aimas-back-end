@@ -63,12 +63,11 @@ namespace AIMAS.API.Controllers
     {
       var userModel = registerModel.CreateNewDbModel();
       var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
-      if (registerModel.UserRoles != null)
-        registerModel.UserRoles.ForEach(async role => result.MergeResult(await IdentityDB.AddUserRoleAsync(userModel, role.Name)));
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
-
+        if (registerModel.UserRoles != null)
+          registerModel.UserRoles.ForEach(role => result.MergeResult(IdentityDB.AddUserRoleAsync(userModel, role.Name).Result));
       }
       return result;
     }
