@@ -17,8 +17,9 @@ namespace AIMAS.Test
     {
       var user1 = new UserModel_DB("Test1", "T", "test1@test.com", "T");
       var user2 = new UserModel_DB("Test2", "T", "test2@test.com", "T");
-      AddTestUser(user1);
-      AddTestUser(user2);
+      Aimas.Users.Add(user1);
+      Aimas.Users.Add(user2);
+      Aimas.SaveChanges();
 
       var result = IdentityDb.GetUsersAsync().Result;
       Assert.AreEqual(2, result.Count);
@@ -30,7 +31,8 @@ namespace AIMAS.Test
     public void GetUserWithMatchingEmail()
     {
       var user = new UserModel_DB("Test1", "T", "test1@test.com", "T");
-      AddTestUser(user);
+      Aimas.Users.Add(user);
+      Aimas.SaveChanges();
 
       var result = IdentityDb.GetUserAsync(user.Email).Result;
       Assert.AreEqual(user.Email, result.Email);
@@ -50,7 +52,7 @@ namespace AIMAS.Test
     [TestMethod]
     public void AddInventorySuccessfully()
     {
-      var dbLocation = AddTestLocation("Test");
+      var dbLocation = AddTestLocation();
       var inventory = new InventoryModel("Test", DateTime.Now, 10, dbLocation.ToModel());
       Assert.AreEqual(0, Aimas.Inventories.Count());
 
@@ -62,7 +64,7 @@ namespace AIMAS.Test
     [TestMethod]
     public void GetExpiredInventorySuccessfully()
     {
-      var dbLocation = AddTestLocation("Test");
+      var dbLocation = AddTestLocation();
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
       Assert.AreEqual(0, InventoryDb.GetExpiredInventory().Count);
 
@@ -74,7 +76,7 @@ namespace AIMAS.Test
     [TestMethod]
     public void GetExpiredInventory_ExcludeDisposedItemsCorrectly()
     {
-      var dbLocation = AddTestLocation("Test");
+      var dbLocation = AddTestLocation();
       var dbUser = AddTestUser();
       var inventory = new InventoryModel_DB("Test", DateTime.Now.AddDays(-10), 10, dbLocation);
       var report = new ReportModel_DB(inventory, ReportType.ExpirationDisposal, dbUser, DateTime.Now, dbUser, DateTime.Now);

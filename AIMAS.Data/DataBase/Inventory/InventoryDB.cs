@@ -4,7 +4,6 @@ using System.Linq;
 using AIMAS.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using AIMAS.Data.Models;
-using AIMAS.Data.Identity;
 
 namespace AIMAS.Data.Inventory
 {
@@ -111,10 +110,10 @@ namespace AIMAS.Data.Inventory
     public List<InventoryModel> GetCriticalInventoryNotInDefaultLocation()
     {
       var query = from inventory in Aimas.Inventories
-        where inventory.IsCritical
-        where inventory.DefaultLocation != null
-        where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
-        select inventory.ToModel();
+                  where inventory.IsCritical
+                  where inventory.DefaultLocation != null
+                  where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
+                  select inventory.ToModel();
       return query.ToList();
     }
 
@@ -197,6 +196,23 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
+    public (List<LocationModel> list, int TotalCount) GetLocations(LocationSearch search)
+    {
+      var query = Aimas.Locations.AsQueryable();
+
+      if (!string.IsNullOrEmpty(search.Name))
+        query = query.Where(l => l.Name.ToLower().Contains(search.Name.ToLower()));
+      if (!string.IsNullOrEmpty(search.Description))
+        query = query.Where(l => l.Description.ToLower().Contains(search.Description.ToLower()));
+
+      var count = query.Count();
+      query = query.Skip(search.PageSize * search.PageIndex);
+      query = query.Take(search.PageSize);
+
+      var finalQuery = query.Select(i => i.ToModel());
+      return (finalQuery.ToList(), count);
+    }
+
     public void UpdateLocation(LocationModel location)
     {
       var result = Aimas.Locations
@@ -223,8 +239,11 @@ namespace AIMAS.Data.Inventory
         .Include(r => r.Executor);
     }
 
-    public void AddReport(ReportModel report)
+    public void AddReport(ReportModel report, UserModel_DB user)
     {
+      report.Creator = new UserModel(user.Id);
+      report.CreationDate = DateTime.Now;      
+      if (report.ExecutionDate == null) report.ExecutionDate = report.CreationDate;
       var reportDb = report.CreateNewDbModel(Aimas);
       Aimas.Reports.Add(reportDb);
       Aimas.SaveChanges();
@@ -249,8 +268,18 @@ namespace AIMAS.Data.Inventory
     {
       var query = Aimas.Reports.AsQueryable();
 
-      if (search.InventoryId.HasValue && search.InventoryId.Value != default)
-        query = query.Where(i => i.Inventory.ID == search.InventoryId.Value);
+      if (!String.IsNullOrEmpty(search.InventoryName))
+        query = query.Where(i => i.Inventory.Name.ToLower().Contains(search.InventoryName.ToLower()));
+      if (!String.IsNullOrEmpty(search.UserName))
+        query = query.Where(i =>
+          i.Creator.FirstName.ToLower().Contains(search.UserName.ToLower())
+          ||
+          i.Creator.LastName.ToLower().Contains(search.UserName.ToLower())
+          ||
+          i.Executor.FirstName.ToLower().Contains(search.UserName.ToLower())
+          ||
+          i.Executor.LastName.ToLower().Contains(search.UserName.ToLower())
+        );
       if (search.Type.HasValue)
         query = query.Where(i => i.Type == search.Type.Value);
 

@@ -17,6 +17,11 @@ namespace AIMAS.Data.Models
 
     }
 
+    public UserModel(long id) : this()
+    {
+      Id = id;
+    }
+
     public UserModel(string email, string firstName, string lastName, string position, long id = default, List<RoleModel> roles = default) : this()
     {
       Id = id;

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using AIMAS.Data.Inventory;
 
 namespace AIMAS.Data.Models
@@ -18,25 +15,29 @@ namespace AIMAS.Data.Models
   }
 
 
-
   public class InventorySearch : Search
   {
     public long? ID { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
+  }
 
+  public class LocationSearch : Search
+  {
+    public string Name { get; set; }
+    public string Description { get; set; }
   }
 
   public class ReportSearch : Search
   {
-    public long? InventoryId { get; set; }
+    public string UserName { get; set; }
+    public string InventoryName { get; set; }
     public ReportType? Type { get; set; }
   }
 
   public class ReservationSearch : Search
   {
     public string UserName { get; set; }
-
   }
 
   public class UserSearch : Search
@@ -44,7 +45,6 @@ namespace AIMAS.Data.Models
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
-
   }
 
 }
