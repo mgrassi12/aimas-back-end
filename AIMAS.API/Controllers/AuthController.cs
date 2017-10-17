@@ -209,7 +209,7 @@ namespace AIMAS.API.Controllers
     }
 
     [HttpGet]
-    [Route("users")]
+    [Route("roles")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ResultObj<List<RoleModel>>> GetRoles()
     {
