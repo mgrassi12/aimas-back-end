@@ -32,13 +32,23 @@ namespace AIMAS.Data.Models
     public void MergeResult(Result result)
     {
       if (!result.Success)
+      {
+        this.Success = false;
         this.Errors.AddRange(result.Errors);
+      }
     }
   }
 
-  public class Result<TReturnType> : Result
+  public class ResultObj<TReturnType> : Result
   {
     public TReturnType ReturnObj { get; set; }
+  }
+
+  public class PageResultObj<TReturnType> : ResultObj<TReturnType>
+  {
+    public int TotalCount { get; set; }
+    public int PageIndex { get; set; }
+    public int PageSize { get; set; }
   }
 
   public class Error

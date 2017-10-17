@@ -21,26 +21,31 @@ namespace AIMAS.API.Controllers
     private IdentityDB IdentityDB { get; }
     private SignInManager<UserModel_DB> SignInManager { get; }
 
-    public AuthController(IdentityDB identityController, SignInManager<UserModel_DB> signInManager)
+    public AuthController(IdentityDB identiryDB, SignInManager<UserModel_DB> signInManager)
     {
       log = Startup.LoggerFactory.CreateLogger<AuthController>();
-      IdentityDB = identityController;
+      IdentityDB = identiryDB;
       SignInManager = signInManager;
     }
 
     [HttpGet]
     [Route("info")]
     [AllowAnonymous]
-    public Result<CurrentUserInfo> GetCurrentUserInfo()
+    public ResultObj<CurrentUserInfo> GetCurrentUserInfo()
     {
-      var result = new Result<CurrentUserInfo>();
+      var result = new ResultObj<CurrentUserInfo>();
       try
       {
-        result.ReturnObj = new CurrentUserInfo()
+        result.ReturnObj = new CurrentUserInfo
         {
-          IsAuth = User.Identity.IsAuthenticated,
-          IsAdmin = User.IsInRole("Admin")
+          IsAuth = User.Identity.IsAuthenticated
         };
+        var user = IdentityDB.Manager.GetUserAsync(User).Result;
+        if (user != null)
+        {
+          result.ReturnObj.User = user.ToModel();
+          result.ReturnObj.User.UserRoles = IdentityDB.Manager.GetRolesAsync(user).Result.Select(x => new RoleModel(x)).ToList();
+        }
         result.Success = true;
       }
       catch (Exception ex)
@@ -53,44 +58,85 @@ namespace AIMAS.API.Controllers
 
     [HttpPost]
     [Route("register/user")]
-    [Authorize(Roles = "Admin")]
-    public async Task<Result> RegisterUser([FromBody] UserPasswordModel userDetails)
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<Result> RegisterUser([FromBody] RegisterModel registerModel)
     {
-      var userDB = userDetails.ToUserDB();
-      var result = await IdentityDB.CreateUserWithRoleAsync(userDB, "User", userDetails.Password);
+      var userModel = registerModel.CreateNewDbModel();
+      var result = await IdentityDB.CreateUserAsync(userModel, registerModel.Password);
       if (result.Success)
       {
         // Email Confirmm (https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?tabs=aspnetcore2x%2Csql-server)
-
+        if (registerModel.UserRoles != null)
+          registerModel.UserRoles.ForEach(role => result.MergeResult(IdentityDB.AddUserRoleAsync(userModel, role.Name).Result));
       }
+      return result;
+    }
+
+    [HttpPost]
+    [Route("users/update")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<Result> UpdateUser([FromBody]UserModel user)
+    {
+      var result = new Result();
+
+      try
+      {
+        await IdentityDB.UpdateUser(user);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpGet]
+    [Route("users/remove/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public Result RemoveUser(long id)
+    {
+      var result = new Result();
+
+      try
+      {
+        IdentityDB.RemoveUser(id);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
       return result;
     }
 
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
-    public async Task<Result> Login([FromBody]UserPasswordModel userDetails)
+    public async Task<Result> Login([FromBody]UserLoginModel loginModel)
     {
       var result = new Result();
       try
       {
-        var user = await IdentityDB.Manager.FindByEmailAsync(userDetails.Email);
-        var signinResult = await SignInManager.PasswordSignInAsync(user, userDetails.Password, false, false);
+        var user = await IdentityDB.Manager.FindByEmailAsync(loginModel.Email);
+        var signinResult = await SignInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
         if (signinResult.Succeeded)
         {
-          log.LogInformation("{0} loged in", userDetails.Email);
+          log.LogInformation($"{loginModel.Email} logged in");
           result.Success = true;
         }
         else
         {
           // Failed to Signin
-          throw new Exception("Something went wrong");
+          throw new Exception("Login Failed");
         }
 
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = "Something went wrong while Loging In";
+        result.ErrorMessage = "Email or Password is incorect";
         result.AddException(ex);
       }
       return result;
@@ -106,12 +152,12 @@ namespace AIMAS.API.Controllers
       {
         var email = IdentityDB.Manager.GetUserAsync(User).Result.Email;
         await SignInManager.SignOutAsync();
-        log.LogInformation("{0} Loged Out", email);
+        log.LogInformation("{0} Logged Out", email);
         result.Success = true;
       }
       catch (Exception ex)
       {
-        result.ErrorMessage = "Something went wrong while Loging Out";
+        result.ErrorMessage = "Something went wrong while Logging Out";
         result.AddException(ex);
       }
       return result;
@@ -119,14 +165,59 @@ namespace AIMAS.API.Controllers
 
     [HttpGet]
     [Route("users")]
-    [Authorize(Roles = "Admin")]
-    public async Task<Result<List<UserModel>>> GetUsers()
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ResultObj<List<UserModel>>> GetUsers()
     {
-      var result = new Result<List<UserModel>>();
+      var result = new ResultObj<List<UserModel>>();
       try
       {
         var users = await IdentityDB.GetUsersAsync();
         result.ReturnObj = users;
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.ErrorMessage = "Something went wrong while getting Users";
+        result.AddException(ex);
+      }
+      return result;
+    }
+
+    [HttpPost]
+    [Route("user/search")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<PageResultObj<List<UserModel>>> SearchUsers([FromBody]UserSearch search)
+    {
+      var result = new PageResultObj<List<UserModel>>();
+
+      try
+      {
+        var items = await IdentityDB.GetUsersAsync(search);
+        result.Success = true;
+        result.ReturnObj = items.list;
+        result.TotalCount = items.TotalCount;
+        result.PageIndex = search.PageIndex;
+        result.PageSize = search.PageSize;
+
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpGet]
+    [Route("roles")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ResultObj<List<RoleModel>>> GetRoles()
+    {
+      var result = new ResultObj<List<RoleModel>>();
+      try
+      {
+        var roles = await IdentityDB.GetRolesAsync();
+        result.ReturnObj = roles;
         result.Success = true;
       }
       catch (Exception ex)

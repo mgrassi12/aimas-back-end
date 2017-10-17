@@ -5,11 +5,14 @@ Using ASP.Net Core
 
 #DataBase Commands
 
-Add-Migration {Migration Name} -c InventoryContext
+Run commands from the API folder level.
 
-Update-DataBase -c InventoryContext
+Make sure both "InitializeDB" and "Services" settings in appsettings.json from the API are off (false) to run these commands
 
+Create new schema:
 
-Add-Migration {Migration Name} -c IdentityContext
+`dotnet ef migrations add {MigrationName}`
 
-Update-DataBase -c IdentityContext
+Update db to new schema:
+
+`dotnet ef database update`

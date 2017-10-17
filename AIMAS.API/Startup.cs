@@ -8,13 +8,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using AIMAS.Data;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Identity;
-
+using AIMAS.API.Providers;
+using AIMAS.API.Helpers;
+using AIMAS.API.Services;
 
 namespace AIMAS.API
 {
@@ -43,40 +45,48 @@ namespace AIMAS.API
           options.SerializerSettings.Formatting = Formatting.None;
           options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
           options.SerializerSettings.ContractResolver = new DefaultContractResolver() { NamingStrategy = new DefaultNamingStrategy() };
-          options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+          options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
         });
 
       // Get Connection String
       var connection = Configuration.GetConnectionString("Backend-DB");
       // Add DB To Services
       services.AddEntityFrameworkNpgsql()
-      .AddDbContext<InventoryContext>(options =>
+      .AddDbContext<AimasContext>(options =>
         options.UseNpgsql(connection, npgoptions =>
           npgoptions.MigrationsAssembly("AIMAS.API")
       ))
-      .AddDbContext<IdentityContext>(options =>
-        options.UseNpgsql(connection, npgoptions =>
-          npgoptions.MigrationsAssembly("AIMAS.API")
-      ));
+      .BuildServiceProvider();
 
       // Add Identity Services
       services.AddIdentity<UserModel_DB, RoleModel_DB>(options =>
       {
         options.User.RequireUniqueEmail = true;
       })
-      .AddEntityFrameworkStores<IdentityContext>()
+      .AddEntityFrameworkStores<AimasContext>()
       .AddDefaultTokenProviders();
 
       // Add Auth Services
       services.AddAuthentication();
+      services.AddAuthorization();
+
+      // Cookie Config
       services.ConfigureApplicationCookie(options =>
       {
-        options.LoginPath = "/test";
+        options.LoginPath = "/api/auth/login";
+        options.LogoutPath = "/api/auth/logout";
+        options.Events.OnRedirectToLogin = context =>
+        {
+          context.Response.StatusCode = 401;
+          return Task.CompletedTask;
+        };
       });
 
-      // Add application services.
       services.AddTransient<InventoryDB>();
       services.AddTransient<IdentityDB>();
+      services.AddTransient<EmailNotificationProvider>();
+      services.AddTransient<NotificationHelper>();
+      services.AddScoped<NotificationService>();
 
     }
 
@@ -87,11 +97,9 @@ namespace AIMAS.API
       ServiceProvider = sep;
       LoggerFactory = logger;
 
-      logger.AddConsole(Configuration.GetSection("Logging"));
-      logger.AddDebug();
-      log = logger.CreateLogger<Startup>();
+      log = LoggerFactory.CreateLogger<Startup>();
 
-
+      // Midelware
       if (HostingEnvironment.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
@@ -101,22 +109,33 @@ namespace AIMAS.API
 
       app.UseMvcWithDefaultRoute();
 
+      // End
+
       if (Configuration.GetSection("Settings").GetValue<bool>("InitializeDB"))
-        InitializeDB();
+        InitializeDb();
+
+      // Services
+      if (Configuration.GetSection("Settings").GetValue<bool>("Services"))
+        StartupServices();
     }
 
-    public void InitializeDB()
+    private void InitializeDb()
     {
       try
       {
-        ServiceProvider.GetRequiredService<InventoryDB>().Initialize();
-
         ServiceProvider.GetRequiredService<IdentityDB>().Initialize();
+
+        ServiceProvider.GetRequiredService<InventoryDB>().Initialize();
       }
       catch (Exception ex)
       {
         log.LogError(ex, "An error occurred while seeding the database.");
       }
+    }
+
+    private static void StartupServices()
+    {
+      ServiceProvider.CreateScope().ServiceProvider.GetService<NotificationService>().Start();
     }
   }
 }
