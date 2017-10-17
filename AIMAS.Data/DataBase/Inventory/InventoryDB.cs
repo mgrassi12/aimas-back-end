@@ -197,6 +197,23 @@ namespace AIMAS.Data.Inventory
       return query.ToList();
     }
 
+    public (List<LocationModel> list, int TotalCount) GetLocations(LocationSearch search)
+    {
+      var query = Aimas.Locations.AsQueryable();
+      
+      if (!string.IsNullOrEmpty(search.Name))
+        query = query.Where(l => l.Name.ToLower().Contains(search.Name.ToLower()));
+      if (!string.IsNullOrEmpty(search.Description))
+        query = query.Where(l => l.Description.ToLower().Contains(search.Description.ToLower()));
+
+      var count = query.Count();
+      query = query.Skip(search.PageSize * search.PageIndex);
+      query = query.Take(search.PageSize);
+
+      var finalQuery = query.Select(i => i.ToModel());
+      return (finalQuery.ToList(), count);
+    }
+
     public void UpdateLocation(LocationModel location)
     {
       var result = Aimas.Locations

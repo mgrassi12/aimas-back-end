@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
 using AIMAS.Data.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,26 @@ namespace AIMAS.API.Controllers
       InventoryDb = inventoryDb;
     }
 
+    [HttpPost]
+    [Route("add")]
+    [Authorize(Roles = Roles.Admin)]
+    public Result AddLocation([FromBody]LocationModel location)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDb.AddLocation(location);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
     [HttpGet]
     [Route("locations")]
     [Authorize]
@@ -29,6 +50,71 @@ namespace AIMAS.API.Controllers
       try
       {
         result.ReturnObj = InventoryDb.GetLocations();
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpPost]
+    [Route("search")]
+    [Authorize]
+    public PageResultObj<List<LocationModel>> GetReports([FromBody]LocationSearch search)
+    {
+      var result = new PageResultObj<List<LocationModel>>();
+
+      try
+      {
+        var items = InventoryDb.GetLocations(search);
+        result.Success = true;
+        result.ReturnObj = items.list;
+        result.TotalCount = items.TotalCount;
+        result.PageIndex = search.PageIndex;
+        result.PageSize = search.PageSize;
+
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpPost]
+    [Route("update")]
+    [Authorize(Roles = Roles.Admin)]
+    public Result UpdateLocation([FromBody]LocationModel location)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDb.UpdateLocation(location);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpGet]
+    [Route("remove/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public Result RemoveLocation(long id)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDb.RemoveLocation(id);
         result.Success = true;
       }
       catch (Exception ex)
