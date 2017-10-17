@@ -30,7 +30,8 @@ namespace AIMAS.Data.Models
 
   public class ReportSearch : Search
   {
-    public long? InventoryId { get; set; }
+    public string UserName { get; set; }
+    public string InventoryName { get; set; }
     public ReportType? Type { get; set; }
   }
 

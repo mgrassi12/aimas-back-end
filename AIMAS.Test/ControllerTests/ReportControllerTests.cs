@@ -51,7 +51,7 @@ namespace AIMAS.Test.ControllerTests
       AddTestReport(item1, ReportType.ExpirationDisposal, user);
       AddTestReport(item1, ReportType.General, user);
       AddTestReport(item2, ReportType.ExpirationDisposal, user);
-      
+
       result = controller.GetReports();
       Assert.IsTrue(result.Success);
       Assert.AreEqual(3, result.ReturnObj.Count);
@@ -69,7 +69,7 @@ namespace AIMAS.Test.ControllerTests
       AddTestReport(item1, ReportType.General, user);
       AddTestReport(item2, ReportType.ExpirationDisposal, user);
 
-      var search = new ReportSearch { InventoryId = item1.ID };
+      var search = new ReportSearch { InventoryName = item1.Name };
       var result = controller.GetReports(search).ReturnObj;
       Assert.AreEqual(2, result.Count);
       result.ForEach(r => Assert.AreEqual(item1.ID, r.Inventory.ID));
@@ -87,7 +87,7 @@ namespace AIMAS.Test.ControllerTests
       AddTestReport(item1, ReportType.General, user);
       AddTestReport(item2, ReportType.ExpirationDisposal, user);
 
-      var search = new ReportSearch { Type = ReportType.ExpirationDisposal};
+      var search = new ReportSearch { Type = ReportType.ExpirationDisposal };
       var result = controller.GetReports(search).ReturnObj;
       Assert.AreEqual(2, result.Count);
       result.ForEach(r => Assert.AreEqual(ReportType.ExpirationDisposal, r.Type));
@@ -105,7 +105,7 @@ namespace AIMAS.Test.ControllerTests
       AddTestReport(item1, ReportType.General, user);
       AddTestReport(item2, ReportType.ExpirationDisposal, user);
 
-      var search = new ReportSearch { InventoryId = item1.ID, Type = ReportType.ExpirationDisposal };
+      var search = new ReportSearch { InventoryName = item1.Name, Type = ReportType.ExpirationDisposal };
       var result = controller.GetReports(search).ReturnObj;
       Assert.AreEqual(1, result.Count);
       Assert.AreEqual(item1.ID, result[0].Inventory.ID);

@@ -30,7 +30,7 @@ namespace AIMAS.Data.Models
     {
       var dbInventory = aimas.GetDbInventory(Inventory);
       var dbCreator = aimas.GetDbUser(Creator);
-      var dbExecutor = aimas.GetDbUser(Executor);
+      var dbExecutor = Executor != null && Executor.Id != 0 ? aimas.GetDbUser(Executor) : dbCreator;
       return new ReportModel_DB(inventory: dbInventory, id: ID, type: Type, creator: dbCreator, creationDate: CreationDate, executor: dbExecutor, executionDate: ExecutionDate, notes: Notes);
     }
   }
