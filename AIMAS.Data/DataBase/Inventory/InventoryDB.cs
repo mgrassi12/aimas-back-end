@@ -111,10 +111,10 @@ namespace AIMAS.Data.Inventory
     public List<InventoryModel> GetCriticalInventoryNotInDefaultLocation()
     {
       var query = from inventory in Aimas.Inventories
-        where inventory.IsCritical
-        where inventory.DefaultLocation != null
-        where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
-        select inventory.ToModel();
+                  where inventory.IsCritical
+                  where inventory.DefaultLocation != null
+                  where inventory.CurrentLocation.ID != inventory.DefaultLocation.ID
+                  select inventory.ToModel();
       return query.ToList();
     }
 
@@ -223,9 +223,10 @@ namespace AIMAS.Data.Inventory
         .Include(r => r.Executor);
     }
 
-    public void AddReport(ReportModel report)
+    public void AddReport(ReportModel report, UserModel_DB user)
     {
       var reportDb = report.CreateNewDbModel(Aimas);
+      reportDb.Creator = user;
       Aimas.Reports.Add(reportDb);
       Aimas.SaveChanges();
     }
