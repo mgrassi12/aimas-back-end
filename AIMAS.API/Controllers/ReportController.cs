@@ -20,26 +20,6 @@ namespace AIMAS.API.Controllers
       InventoryDB = inventoryDb;
     }
 
-    [HttpPost]
-    [Route("add")]
-    [Authorize]
-    public Result AddReport([FromBody]ReportModel report)
-    {
-      var result = new Result();
-
-      try
-      {
-        InventoryDb.AddReport(report);
-        result.Success = true;
-      }
-      catch (Exception ex)
-      {
-        result.AddException(ex);
-      }
-
-      return result;
-    }
-
     [HttpGet]
     [Route("all")]
     [Authorize]

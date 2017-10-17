@@ -21,7 +21,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void AddReportSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item = AddTestInventory();
       var user = AddTestUser();
       Assert.AreEqual(0, Aimas.Reports.Count());
@@ -39,7 +39,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void GetReportsSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item1 = AddTestInventory();
       var item2 = AddTestInventory();
       var user = AddTestUser();
@@ -60,7 +60,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchReportsOnInventoryIdSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item1 = AddTestInventory();
       var item2 = AddTestInventory();
       var user = AddTestUser();
@@ -78,7 +78,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchReportsOnReportTypeSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item1 = AddTestInventory();
       var item2 = AddTestInventory();
       var user = AddTestUser();
@@ -96,7 +96,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchReportsOnInventoryIdAndReportTypeSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item1 = AddTestInventory();
       var item2 = AddTestInventory();
       var user = AddTestUser();
@@ -115,7 +115,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchReports_GetCorrectPageResultObj()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item1 = AddTestInventory();
       var item2 = AddTestInventory();
       var user = AddTestUser();
@@ -136,7 +136,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void RemoveReportSuccessfully()
     {
-      var controller = new ReportController(InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);
       var item = AddTestInventory();
       var user = AddTestUser();
 
