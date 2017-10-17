@@ -37,10 +37,10 @@ namespace AIMAS.Test
       return new IdentityDB(context, manager);
     }
 
-    protected InventoryModel_DB AddTestInventory()
+    protected InventoryModel_DB AddTestInventory(string name = "Test")
     {
       var location = AddTestLocation("Test for Inventory");
-      var inventory = new InventoryModel_DB("Test", DateTime.UtcNow, 10, location);
+      var inventory = new InventoryModel_DB(name, DateTime.UtcNow, 10, location);
       Aimas.Inventories.Add(inventory);
       Aimas.SaveChanges();
       return inventory;

@@ -91,14 +91,6 @@ namespace AIMAS.Data.Inventory
       return lastMaintenance.AddDays(MaintenanceIntervalDays);
     }
 
-    public bool IsAvailable()
-    {
-      return ExpirationDate >= DateTime.UtcNow
-        && GetMaintenanceDate() >= DateTime.UtcNow
-        && !IsDisposed();
-      //TODO: ADD RESERVATION STUFF AS WELL
-    }
-
     public bool IsDisposed()
     {
       return Reports.Exists(r => r.Type == ReportType.ExpirationDisposal);

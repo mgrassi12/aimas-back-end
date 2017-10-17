@@ -21,6 +21,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void AddReportSuccessfully()
     {
+      //TODO: Fix mocking of User property
       var controller = new ReportController(IdentityDb, InventoryDb);
       var item = AddTestInventory();
       var user = AddTestUser();
@@ -61,8 +62,8 @@ namespace AIMAS.Test.ControllerTests
     public void SearchReportsOnInventoryIdSuccessfully()
     {
       var controller = new ReportController(IdentityDb, InventoryDb);
-      var item1 = AddTestInventory();
-      var item2 = AddTestInventory();
+      var item1 = AddTestInventory("Test 1");
+      var item2 = AddTestInventory("Test 2");
       var user = AddTestUser();
 
       AddTestReport(item1, ReportType.ExpirationDisposal, user);
@@ -97,8 +98,8 @@ namespace AIMAS.Test.ControllerTests
     public void SearchReportsOnInventoryIdAndReportTypeSuccessfully()
     {
       var controller = new ReportController(IdentityDb, InventoryDb);
-      var item1 = AddTestInventory();
-      var item2 = AddTestInventory();
+      var item1 = AddTestInventory("Test 1");
+      var item2 = AddTestInventory("Test 2");
       var user = AddTestUser();
 
       AddTestReport(item1, ReportType.ExpirationDisposal, user);

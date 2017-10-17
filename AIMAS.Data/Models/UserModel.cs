@@ -31,16 +31,10 @@ namespace AIMAS.Data.Models
       Position = position;
       UserRoles = roles ?? new List<RoleModel>();
     }
-
-    //TODO: Remove usage of this method from AuthController
-    public UserModel_DB CreateNewDbModel()
+    
+    public UserModel_DB CreateNewDbModel(AimasContext aimas = null)
     {
       return new UserModel_DB(id: Id, email: Email, firstName: FirstName, lastName: LastName, position: Position);
-    }
-
-    public UserModel_DB CreateNewDbModel(AimasContext aimas)
-    {
-      return CreateNewDbModel();
     }
 
     public UserModel SetRoles(List<RoleModel> roles)
