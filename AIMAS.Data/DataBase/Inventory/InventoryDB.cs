@@ -241,10 +241,10 @@ namespace AIMAS.Data.Inventory
 
     public void AddReport(ReportModel report, UserModel_DB user)
     {
-      report.CreationDate = DateTime.Now;
+      report.Creator = new UserModel(user.Id);
+      report.CreationDate = DateTime.Now;      
       if (report.ExecutionDate == null) report.ExecutionDate = report.CreationDate;
       var reportDb = report.CreateNewDbModel(Aimas);
-      reportDb.Creator = user;
       Aimas.Reports.Add(reportDb);
       Aimas.SaveChanges();
     }
