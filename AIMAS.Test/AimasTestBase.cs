@@ -37,38 +37,28 @@ namespace AIMAS.Test
       return new IdentityDB(context, manager);
     }
 
-    protected void AddTestInventory(InventoryModel_DB inventory)
-    {
-      Aimas.Inventories.Add(inventory);
-      Aimas.SaveChanges();
-    }
-
     protected InventoryModel_DB AddTestInventory()
     {
       var location = AddTestLocation("Test for Inventory");
       var inventory = new InventoryModel_DB("Test", DateTime.UtcNow, 10, location);
-      AddTestInventory(inventory);
+      Aimas.Inventories.Add(inventory);
+      Aimas.SaveChanges();
       return inventory;
     }
 
-    protected LocationModel_DB AddTestLocation(string name)
+    protected LocationModel_DB AddTestLocation(string name = "Test", string description = null)
     {
-      var location = new LocationModel_DB(name);
+      var location = new LocationModel_DB(name, description);
       Aimas.Locations.Add(location);
       Aimas.SaveChanges();
       return location;
     }
 
-    protected void AddTestUser(UserModel_DB user)
-    {
-      Aimas.Users.Add(user);
-      Aimas.SaveChanges();
-    }
-
     protected UserModel_DB AddTestUser()
     {
       var user = new UserModel_DB("TestFirst", "TestLast", "TestEmail", "TestPosition");
-      AddTestUser(user);
+      Aimas.Users.Add(user);
+      Aimas.SaveChanges();
       return user;
     }
   }

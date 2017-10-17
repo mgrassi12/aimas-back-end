@@ -20,6 +20,26 @@ namespace AIMAS.API.Controllers
       InventoryDB = inventoryDb;
     }
 
+    [HttpPost]
+    [Route("add")]
+    [Authorize]
+    public Result AddReport([FromBody]ReportModel report)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDb.AddReport(report);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
     [HttpGet]
     [Route("all")]
     [Authorize]
@@ -41,29 +61,6 @@ namespace AIMAS.API.Controllers
 
       return result;
     }
-
-    //TODO: IS THIS NEEDED?
-    //[HttpGet]
-    //[Route("all/{id}")]
-    //[Authorize]
-    //public ResultObj<List<ReportModel>> GetReportsForInventory(long id)
-    //{
-    //  var result = new ResultObj<List<ReportModel>>();
-
-    //  try
-    //  {
-    //    var items = InventoryDb.GetReportsForInventory(id);
-    //    result.Success = true;
-    //    result.ReturnObj = items;
-
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    result.AddException(ex);
-    //  }
-
-    //  return result;
-    //}
 
     [HttpPost]
     [Route("search")]

@@ -155,26 +155,6 @@ namespace AIMAS.API.Controllers
     }
 
     [HttpGet]
-    [Route("locations")]
-    [Authorize]
-    public ResultObj<List<LocationModel>> GetLocations()
-    {
-      var result = new ResultObj<List<LocationModel>>();
-
-      try
-      {
-        result.ReturnObj = InventoryDb.GetLocations();
-        result.Success = true;
-      }
-      catch (Exception ex)
-      {
-        result.AddException(ex);
-      }
-
-      return result;
-    }
-
-    [HttpGet]
     [Route("alerts/{id}")]
     [Authorize]
     public ResultObj<List<InventoryAlertTimeModel>> GetInventoryAlertTimes(long id)
