@@ -18,6 +18,26 @@ namespace AIMAS.API.Controllers
       InventoryDb = inventoryDb;
     }
 
+    [HttpPost]
+    [Route("add")]
+    [Authorize]
+    public Result AddReport([FromBody]ReportModel report)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDb.AddReport(report);
+        result.Success = true;
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
     [HttpGet]
     [Route("all")]
     [Authorize]
@@ -56,26 +76,6 @@ namespace AIMAS.API.Controllers
         result.PageIndex = search.PageIndex;
         result.PageSize = search.PageSize;
 
-      }
-      catch (Exception ex)
-      {
-        result.AddException(ex);
-      }
-
-      return result;
-    }
-
-    [HttpPost]
-    [Route("add")]
-    [Authorize]
-    public Result AddReport([FromBody]ReportModel report)
-    {
-      var result = new Result();
-
-      try
-      {
-        InventoryDb.AddReport(report);
-        result.Success = true;
       }
       catch (Exception ex)
       {

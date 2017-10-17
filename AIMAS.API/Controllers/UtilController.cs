@@ -63,7 +63,7 @@ namespace AIMAS.API.Controllers
     [HttpPost]
     [Route("search")]
     [Authorize]
-    public PageResultObj<List<LocationModel>> GetReports([FromBody]LocationSearch search)
+    public PageResultObj<List<LocationModel>> GetLocations([FromBody]LocationSearch search)
     {
       var result = new PageResultObj<List<LocationModel>>();
 
