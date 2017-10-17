@@ -22,14 +22,17 @@ namespace AIMAS.Test.ControllerTests
     public void AddReportSuccessfully()
     {
       //TODO: Fix mocking of User property
-      var controller = new ReportController(IdentityDb, InventoryDb);
+      var controller = new ReportController(IdentityDb, InventoryDb);      
+
       var item = AddTestInventory();
       var user = AddTestUser();
       Assert.AreEqual(0, Aimas.Reports.Count());
 
+      SetupControllerUser(controller, user.Id);
+
       var report = new ReportModel(item.ToModel(), ReportType.ExpirationDisposal, user.ToModel(), DateTime.UtcNow, user.ToModel(), DateTime.UtcNow);
       var result = controller.AddReport(report);
-      Assert.IsTrue(result.Success);
+      Assert.IsTrue(result.Success,result.ErrorMessage, result.Errors);
       Assert.AreEqual(1, Aimas.Reports.Count());
 
       var reportDb = Aimas.Reports.First();

@@ -1,9 +1,14 @@
 using System;
+using System.Security.Claims;
+using System.Security.Principal;
 using AIMAS.Data;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -60,6 +65,19 @@ namespace AIMAS.Test
       Aimas.Users.Add(user);
       Aimas.SaveChanges();
       return user;
+    }
+
+    protected void SetupControllerUser<T>(T controller, long id) where T : Controller
+    {
+      var identity = new GenericIdentity("TestUser");
+      identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", id.ToString()));
+
+      var fakePrincipal = A.Fake<ClaimsPrincipal>(op => op.Wrapping(new ClaimsPrincipal(identity)));
+
+      controller.ControllerContext = A.Fake<ControllerContext>();
+      controller.ControllerContext.HttpContext = A.Fake<HttpContext>();
+
+      A.CallTo(() => controller.ControllerContext.HttpContext.User).Returns(fakePrincipal);
     }
   }
 }

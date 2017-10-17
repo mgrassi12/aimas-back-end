@@ -91,18 +91,19 @@ namespace AIMAS.Data.Inventory
 
     public List<InventoryModel> GetExpiredInventory()
     {
-      var query = from inventory in Aimas.Inventories
+      var query = from inventory in Aimas.Inventories.Include(x => x.CurrentLocation)
                   where inventory.ExpirationDate <= DateTime.UtcNow
-                  where !inventory.IsDisposed()
+                  where (from report in inventory.Reports where report.Type == ReportType.ExpirationDisposal select report).Count() == 0
                   select inventory.ToModel();
       return query.ToList();
     }
 
     public List<InventoryModel> GetInventoryNeedingMaintenance()
     {
-      var query = from inventory in Aimas.Inventories
-                  where inventory.GetMaintenanceDate() <= DateTime.UtcNow
-                  where !inventory.IsDisposed()
+      var query = from inventory in Aimas.Inventories.Include(x => x.CurrentLocation)
+                  let MaintenanceDate = (from report in inventory.Reports where report.Type == ReportType.Maintenance orderby report.ExecutionDate descending select report.ExecutionDate).FirstOrDefault()
+                  where (MaintenanceDate != null && MaintenanceDate <= DateTime.UtcNow || MaintenanceDate == null && inventory.CreationDate <= DateTime.UtcNow)
+                  where (from report in inventory.Reports where report.Type == ReportType.ExpirationDisposal select report).Count() == 0
                   select inventory.ToModel();
       return query.ToList();
     }
@@ -242,7 +243,7 @@ namespace AIMAS.Data.Inventory
     public void AddReport(ReportModel report, UserModel_DB user)
     {
       report.Creator = new UserModel(user.Id);
-      report.CreationDate = DateTime.Now;      
+      report.CreationDate = DateTime.Now;
       if (report.ExecutionDate == null) report.ExecutionDate = report.CreationDate;
       var reportDb = report.CreateNewDbModel(Aimas);
       Aimas.Reports.Add(reportDb);
