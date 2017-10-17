@@ -11,11 +11,13 @@ namespace AIMAS.API.Controllers
   [Route("api/report")]
   public class ReportController : Controller
   {
-    private InventoryDB InventoryDb { get; }
+    public IdentityDB IdentityDB { get; }
+    private InventoryDB InventoryDB { get; }
 
-    public ReportController(InventoryDB inventoryDb)
+    public ReportController(IdentityDB identityDb, InventoryDB inventoryDb)
     {
-      InventoryDb = inventoryDb;
+      IdentityDB = identityDb;
+      InventoryDB = inventoryDb;
     }
 
     [HttpPost]
@@ -47,7 +49,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = InventoryDb.GetReports();
+        var items = InventoryDB.GetReports();
         result.Success = true;
         result.ReturnObj = items;
 
@@ -69,13 +71,33 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        var items = InventoryDb.GetReports(search);
+        var items = InventoryDB.GetReports(search);
         result.Success = true;
         result.ReturnObj = items.list;
         result.TotalCount = items.TotalCount;
         result.PageIndex = search.PageIndex;
         result.PageSize = search.PageSize;
 
+      }
+      catch (Exception ex)
+      {
+        result.AddException(ex);
+      }
+
+      return result;
+    }
+
+    [HttpPost]
+    [Route("add")]
+    [Authorize]
+    public Result AddReport([FromBody]ReportModel report)
+    {
+      var result = new Result();
+
+      try
+      {
+        InventoryDB.AddReport(report, IdentityDB.Manager.GetUserAsync(User).Result);
+        result.Success = true;
       }
       catch (Exception ex)
       {
@@ -94,7 +116,7 @@ namespace AIMAS.API.Controllers
 
       try
       {
-        InventoryDb.RemoveReport(id);
+        InventoryDB.RemoveReport(id);
         result.Success = true;
       }
       catch (Exception ex)
