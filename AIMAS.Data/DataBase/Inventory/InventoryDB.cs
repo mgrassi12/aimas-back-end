@@ -155,11 +155,12 @@ namespace AIMAS.Data.Inventory
     {
       var query = from alert in Aimas.InventoryAlertTimes
                   where alert.Inventory.ExpirationDate >= DateTime.UtcNow
-                  && !alert.Inventory.IsDisposed()
-                  && alert.Type == type
-                  && !alert.SentTime.HasValue
-                  && (getDate(alert.Inventory) - DateTime.Now) <= TimeSpan.FromDays(alert.DaysBefore)
+                  where alert.Type == type
+                  where !alert.SentTime.HasValue
+                  where (from report in alert.Inventory.Reports where report.Type == ReportType.ExpirationDisposal select report).Count() == 0 // Disposed                  
+                  where (getDate(alert.Inventory) - DateTime.Now) <= TimeSpan.FromDays(alert.DaysBefore)
                   select alert;
+                  
       return query.Include(alert => alert.Inventory).Include(alert => alert.Inventory.Reports);
     }
 

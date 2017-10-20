@@ -81,9 +81,9 @@ namespace AIMAS.Data.Inventory
 
     public DateTime GetMaintenanceDate()
     {
-      var reports = Reports.Where(r => r.Type == ReportType.Maintenance).ToList();
+      var reports = Reports?.Where(r => r.Type == ReportType.Maintenance).ToList();
       var lastMaintenance = CreationDate;
-      if (reports.Any())
+      if (reports != null && reports.Any())
       {
         var report = reports.OrderByDescending(r => r.ExecutionDate).First();
         lastMaintenance = report.ExecutionDate;
@@ -156,7 +156,7 @@ namespace AIMAS.Data.Inventory
         AddChangeEvent("Is Critical", IsCritical.ToString(), (!IsCritical).ToString(), changeUser, aimas);
         IsCritical = !IsCritical;
       }
-      
+
       // Update Alerts
       var addAlerts = inventory.AlertTimeInventories.Where(item => AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).Select(item => item.CreateNewDbModel()).ToList();
       var removeAlerts = AlertTimeInventories.Where(item => inventory.AlertTimeInventories.Find(item2 => item2.ID == item.ID) == null).ToList();

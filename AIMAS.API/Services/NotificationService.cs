@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Timers;
 using AIMAS.API.Helpers;
 using AIMAS.API.Models;
+using AIMAS.Data;
 using AIMAS.Data.Identity;
 using AIMAS.Data.Inventory;
 
@@ -14,12 +15,14 @@ namespace AIMAS.API.Services
     private NotificationHelper Helper { get; }
     private IdentityDB Identity { get; }
     private InventoryDB Inventory { get; }
+    public AimasContext Aimas { get; }
 
-    public NotificationService(NotificationHelper helper, IdentityDB identity, InventoryDB inventory)
+    public NotificationService(NotificationHelper helper, IdentityDB identity, InventoryDB inventory, AimasContext aimas)
     {
       Helper = helper;
       Identity = identity;
       Inventory = inventory;
+      Aimas = aimas;
       Timer = new Timer(60 * 1000);
       Timer.Elapsed += Timer_Elapsed;
     }
@@ -31,7 +34,7 @@ namespace AIMAS.API.Services
 
     public void Start()
     {
-      Timer.Enabled = true;
+      //Timer.Enabled = true;
       CheckInventory();
     }
 
@@ -42,10 +45,17 @@ namespace AIMAS.API.Services
 
     private void CheckInventory()
     {
-      CheckCriticalInventoryNotInDefaultLocation();
-      CheckExpiredInventory();
-      CheckInventoryNeedingMaintenance();
-      CheckUpcomingAlertNotifications();
+      try
+      {
+        CheckCriticalInventoryNotInDefaultLocation();
+        CheckExpiredInventory();
+        CheckInventoryNeedingMaintenance();
+        CheckUpcomingAlertNotifications();
+      }
+      catch (Exception ex)
+      {
+
+      }
     }
 
     private void CheckCriticalInventoryNotInDefaultLocation()
@@ -93,6 +103,7 @@ namespace AIMAS.API.Services
     {
       SendUpcomingAlertNotifications(Inventory.GetUpcomingExpiryAlertTimes(), item => item.ExpirationDate, "Expiration", "is about to expire");
       SendUpcomingAlertNotifications(Inventory.GetUpcomingMaintenanceAlertTimes(), item => item.GetMaintenanceDate(), "Maintenance", "needs maintenance");
+      Aimas.SaveChanges();
     }
 
     private void SendMessageToAdminUsers(NotificationMessage msg)

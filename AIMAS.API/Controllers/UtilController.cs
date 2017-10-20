@@ -6,6 +6,8 @@ using AIMAS.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AIMAS.Data.Util;
+using AIMAS.Data;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,10 +17,12 @@ namespace AIMAS.API.Controllers
   public class UtilController : Controller
   {
     public InventoryDB InventoryDb { get; }
+    public AimasContext Aimas { get; }
 
-    public UtilController(InventoryDB inventoryDb)
+    public UtilController(InventoryDB inventoryDb, AimasContext aimas)
     {
       InventoryDb = inventoryDb;
+      Aimas = aimas;
     }
 
     [HttpPost]
@@ -128,24 +132,21 @@ namespace AIMAS.API.Controllers
 
 
 
-        [HttpGet]
-        [Route("export")]
-        [Authorize]
-        public ResultObj<string> GetExport()
-        {
-            var result = new ResultObj<string>();
+    [HttpGet]
+    [Route("export")]
+    [Authorize]
+    public string GetExport()
+    {
 
-            try
-            {
-                result.ReturnObj = DataExporter.CreateCSV(InventoryDb.GetInventories());
-                result.Success = true;
-            }
-            catch (Exception ex)
-            {
-                result.AddException(ex);
-            }
-
-            return result;
-        }
+      try
+      {
+        var results = Aimas.Inventories.Include(x => x.CurrentLocation).Include(x => x.DefaultLocation).ToListAsync().Result;
+        return DataExporter.CreateCSV(results);
+      }
+      catch (Exception ex)
+      {
+        return $"Error: {ex.StackTrace.ToString()}";
+      }
     }
+  }
 }
