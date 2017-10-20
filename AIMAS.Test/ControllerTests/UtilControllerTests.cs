@@ -12,7 +12,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void AddLocationSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       Assert.AreEqual(0, Aimas.Locations.Count());
 
       var location = new LocationModel("Test");
@@ -25,7 +25,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void GetLocationsSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       var result = controller.GetLocations();
       Assert.IsTrue(result.Success);
       Assert.AreEqual(0, result.ReturnObj.Count);
@@ -42,7 +42,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchLocationsOnNameSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       AddTestLocation("Test 1", "Description 1");
       AddTestLocation("Second test", "Other");
       AddTestLocation("Other", "Second description");
@@ -56,7 +56,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchLocationsOnDescriptionSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       AddTestLocation("Test 1", "Description 1");
       AddTestLocation("Second test", "Other");
       AddTestLocation("Other", "Second description");
@@ -70,7 +70,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchLocationsOnNameAndDescriptionSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       AddTestLocation("Test 1", "Description 1");
       AddTestLocation("Second test", "Other");
       AddTestLocation("Other", "Second description");
@@ -85,7 +85,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void SearchLocations_GetCorrectPageResultObj()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       AddTestLocation("Test 1", "Description 1");
       AddTestLocation("Second test", "Other");
       AddTestLocation("Other", "Second description");
@@ -102,11 +102,11 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void UpdateLocationSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       var location = new LocationModel_DB("Test", "Description");
       Aimas.Locations.Add(location);
       Aimas.SaveChanges();
-      
+
       var result = controller.UpdateLocation(new LocationModel("Test 2", "Description 2", location.ID));
       Assert.IsTrue(result.Success);
       Assert.AreEqual("Test 2", location.Name);
@@ -116,7 +116,7 @@ namespace AIMAS.Test.ControllerTests
     [TestMethod]
     public void RemoveLocationSuccessfully()
     {
-      var controller = new UtilController(InventoryDb);
+      var controller = new UtilController(InventoryDb, Aimas);
       var location = new LocationModel_DB("Test");
       Aimas.Locations.Add(location);
       Aimas.SaveChanges();
